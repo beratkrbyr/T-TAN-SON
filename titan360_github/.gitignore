@@ -1,0 +1,11 @@
+node_modules/
+.next/
+__pycache__/
+venv/
+*.pyc
+.expo/
+android/
+ios/
+.env
+*.tar.gz
+.DS_Store

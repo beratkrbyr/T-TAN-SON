@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "TiTAN 360",
+    "slug": "titan360-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0f1a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.beratkrbyr.titan360"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0f1a"
+      },
+      "package": "com.beratkrbyr.titan360",
+      "versionCode": 9
+    },
+    "owner": "beratkrbyr",
+    "extra": {
+      "eas": {
+        "projectId": "2b11d4b3-3b90-49ca-9a67-1737db55628e"
+      }
+    }
+  }
+}
