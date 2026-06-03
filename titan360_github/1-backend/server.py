@@ -23,6 +23,13 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
 app = FastAPI()
+
+# Mount static files for local development or platforms like Render (where Nginx is not serving static files)
+from fastapi.staticfiles import StaticFiles
+static_dir = "/var/www/titan360/static" if os.path.exists("/var/www/titan360/static") else os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(static_dir, exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
@@ -1143,7 +1150,43 @@ async def save_website_content(content: dict, _=Depends(verify_token)):
 
 @api_router.post("/admin/upload")
 async def upload_file(file: UploadFile = File(...), _=Depends(verify_token)):
-    """Medya dosyasini sunucuya yukle"""
+    """Medya dosyasini ImgBB'ye veya sunucuya yukle"""
+    imgbb_api_key = os.environ.get("IMGBB_API_KEY")
+    
+    if imgbb_api_key:
+        try:
+            import base64
+            import urllib.request
+            import urllib.parse
+            import json
+            
+            # Read file contents
+            contents = await file.read()
+            b64_image = base64.b64encode(contents)
+            
+            # Prepare ImgBB API call
+            url = "https://api.imgbb.com/1/upload"
+            payload = {
+                "key": imgbb_api_key,
+                "image": b64_image
+            }
+            data = urllib.parse.urlencode(payload).encode("utf-8")
+            
+            # Perform POST request
+            req = urllib.request.Request(url, data=data, method="POST")
+            with urllib.request.urlopen(req, timeout=15) as response:
+                resp_data = json.loads(response.read().decode("utf-8"))
+                
+            if resp_data.get("success") and "data" in resp_data:
+                img_url = resp_data["data"]["url"]
+                return {"url": img_url}
+            else:
+                raise Exception(f"ImgBB upload unsuccessful: {resp_data}")
+        except Exception as e:
+            print(f"ImgBB upload failed, falling back to local storage: {str(e)}")
+            # Reset file pointer to read again for local saving
+            await file.seek(0)
+            
     try:
         # Determine directory
         prod_static = "/var/www/titan360/static"
