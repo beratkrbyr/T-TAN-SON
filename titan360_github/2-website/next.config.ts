@@ -1,15 +1,17 @@
 import type { NextConfig } from "next";
 
+const backendUrl = process.env.API_URL || "https://titan-api-gcuw.onrender.com";
+
 const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
         source: "/api/:path*",
-        destination: "https://titan360.com.tr/api/:path*",
+        destination: `${backendUrl}/api/:path*`,
       },
       {
         source: "/static/:path*",
-        destination: "https://titan360.com.tr/static/:path*",
+        destination: `${backendUrl}/static/:path*`,
       },
     ];
   },
