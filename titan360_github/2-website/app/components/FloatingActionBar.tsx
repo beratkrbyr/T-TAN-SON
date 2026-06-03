@@ -82,7 +82,7 @@ export default function FloatingActionBar() {
   const instagramUser = c.instagram_username || "titan360tr";
 
   return (
-    <div className="fixed bottom-24 right-6 z-[99999] hidden md:flex flex-col gap-3 items-center">
+    <div className="fixed bottom-24 right-4 md:right-6 z-[99999] flex flex-col gap-3 items-center">
       {/* Instagram */}
       {c.social_instagram_active !== false && instagramUser && (
         <a 
