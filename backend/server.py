@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from notification_service import NotificationService, BookingNotifications, PasswordResetNotifications
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +24,13 @@ client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
 app = FastAPI()
+
+# Mount static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+os.makedirs(static_dir, exist_ok=True)
+os.makedirs(os.path.join(static_dir, "uploads"), exist_ok=True)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
 
