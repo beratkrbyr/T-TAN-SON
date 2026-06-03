@@ -92,6 +92,7 @@ function useReveal() {
 export default function HizmetlerPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [c, setC] = useState<any>({});
+  const [activeCard, setActiveCard] = useState<number | null>(null);
   useEffect(() => {
     try {
       const cachedContent = localStorage.getItem("titan360_content");
@@ -152,7 +153,14 @@ export default function HizmetlerPage() {
         <div className="page-container">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicesToRender.map((s, i) => (
-              <div key={i} className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between h-[420px]" style={{ transitionDelay: `${i * 80}ms` }}>
+              <div 
+                key={i} 
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).closest("a, button")) return;
+                  setActiveCard(activeCard === i ? null : i);
+                }}
+                className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between h-[420px] cursor-pointer" 
+                style={{ transitionDelay: `${i * 80}ms` }}>
                 
                 {/* Static Card Content */}
                 <div className="h-full flex flex-col justify-between">
@@ -188,13 +196,28 @@ export default function HizmetlerPage() {
                 </div>
 
                 {/* Hover Slide-up Overlay */}
-                <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md z-20 p-6 flex flex-col justify-between transition-all duration-500 translate-y-full group-hover:translate-y-0">
+                <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md z-20 p-6 flex flex-col justify-between transition-all duration-500 ${
+                  activeCard === i ? "translate-y-0" : "translate-y-full group-hover:translate-y-0"
+                }`}>
                   <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-8 h-8 bg-orange-500/20 text-orange-400 rounded-xl flex items-center justify-center">
-                        <i className={`fas ${iconMap[s.name] || "fa-broom"}`}></i>
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-orange-500/20 text-orange-400 rounded-xl flex items-center justify-center">
+                          <i className={`fas ${iconMap[s.name] || "fa-broom"}`}></i>
+                        </div>
+                        <h3 className="text-lg font-bold text-white">{s.name}</h3>
                       </div>
-                      <h3 className="text-lg font-bold text-white">{s.name}</h3>
+                      {/* Close button for mobile */}
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveCard(null);
+                        }}
+                        className="md:hidden text-slate-400 hover:text-white p-2 -mr-2 -mt-2 transition-colors"
+                        aria-label="Kapat"
+                      >
+                        <i className="fas fa-times text-lg"></i>
+                      </button>
                     </div>
                     
                     {s.options && s.options.length > 0 ? (
