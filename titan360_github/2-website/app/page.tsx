@@ -69,60 +69,59 @@ interface ServiceItem { id: string; name: string; description: string; price: nu
 
 const defaultServices: ServiceItem[] = [
   {
-    id: "1",
+    id: "6a1f84fb1579dff44f9af7d1",
     name: "Koltuk Yıkama",
     slug: "koltuk-yikama",
-    description: "Profesyonel ekibimiz ve bitkisel şampuanlarımızla koltuklarınızı derinlemesine temizliyoruz. Lekelerden arındırıp hijyenik hale getiriyoruz.",
-    price: 499,
+    description: "Koltuk ve mobilya yıkama hizmeti.",
+    price: 1250,
     options: [
-      { name: "Standart Koltuk Takımı (5-7 Kişilik)", price: 499 },
-      { name: "L Koltuk Takımı", price: 549 },
-      { name: "Tekli Koltuk / Berjer", price: 149 }
+      { name: "3'lü Koltuk (1 ADET)", price: 1250 },
+      { name: "3'lü Koltuk (2 ADET)", price: 1700 },
+      { name: "Koltuk Takımı (3+2+1)", price: 3000 },
+      { name: "L Koltuk Küçük", price: 2500 },
+      { name: "L Koltuk Büyük", price: 3500 },
+      { name: "Sandalye Tek Taraf", price: 150 },
+      { name: "Sandalye Çift Taraf", price: 231 }
     ]
   },
   {
-    id: "2",
-    name: "Halı Yıkama",
-    slug: "hali-yikama",
-    description: "Antibakteriyel halı yıkama makinelerimizle halılarınızı yıpratmadan, ilk günkü temizliğine kavuşturuyoruz.",
-    price: 99,
-    options: [
-      { name: "Makine Halısı (m²)", price: 99 },
-      { name: "Yün Halı (m²)", price: 149 },
-      { name: "El Dokuma Halısı (m²)", price: 199 }
-    ]
-  },
-  {
-    id: "3",
-    name: "Yatak Yıkama",
+    id: "6a1f85451579dff44f9af7d2",
+    name: "Yatak Yıkama ",
     slug: "yatak-yikama",
-    description: "Yataklarınızdaki mayt, akar ve bakterileri buharlı temizleme teknolojimizle tamamen yok ediyor, derinlemesine hijyen sağlıyoruz.",
-    price: 299,
+    description: "Yerinde antibakteriyel yatak temizliği.",
+    price: 1000,
     options: [
-      { name: "Tek Kişilik Yatak", price: 299 },
-      { name: "Çift Kişilik Yatak", price: 449 }
+      { name: "Tek Kişilik", price: 1000 },
+      { name: "Çift Kişilik", price: 1600 }
     ]
   },
   {
-    id: "4",
+    id: "6a1f810f1579dff44f9af7ce",
     name: "Ev Temizliği",
     slug: "ev-temizligi",
-    description: "Deneyimli ekibimizle evinizi dip köşe temizliyor, size pırıl pırıl ve sağlıklı bir yaşam alanı bırakıyoruz.",
-    price: 999
+    description: "Zeminler detaylı şekilde temizlenir, balkon, mutfak, kapılar, WC ve banyo hijyenik olarak temizlenir.",
+    price: 4500,
+    options: [
+      { name: "45 m2 kadar", price: 4500 },
+      { name: "65 m2 kadar", price: 6000 },
+      { name: "90 m2 kadar", price: 7000 },
+      { name: "125 m2 kadar", price: 9000 },
+      { name: "125 m2 üzeri için iletişime geçiniz", price: 0 }
+    ]
   },
   {
-    id: "5",
-    name: "Ofis Temizliği",
-    slug: "ofis-temizligi",
-    description: "İş yerinizin prestijine uygun, hijyenik ve düzenli çalışma ortamları oluşturmak için profesyonel temizlik sunuyoruz.",
-    price: 1199
-  },
-  {
-    id: "6",
-    name: "Cam Temizliği",
-    slug: "cam-temizligi",
-    description: "Plaza, iş yeri veya evlerinizin iç ve dış camlarını lekesiz ve pürüzsüz bir şekilde temizliyoruz.",
-    price: 399
+    id: "6a1f833e1579dff44f9af7cf",
+    name: " İnşaat Sonrası İnce Temizlik ",
+    slug: "insaat-sonrasi-ince-temizlik",
+    description: "İnşaat sonrası oluşan ince toz ve kirler profesyonel ekipmanlarla detaylı şekilde temizlenir.",
+    price: 8000,
+    options: [
+      { name: "45 m2 kadar", price: 8000 },
+      { name: "65 m2 kadar", price: 9000 },
+      { name: "90 m2 kadar", price: 14000 },
+      { name: "125 m2 kadar", price: 18000 },
+      { name: "125 m2 üstü için iletişime geçin", price: 0 }
+    ]
   }
 ];
 

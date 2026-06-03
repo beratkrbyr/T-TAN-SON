@@ -27,44 +27,66 @@ interface ServiceItem {
 // Fallback services if database is unreachable
 const defaultServices: ServiceItem[] = [
   {
-    id: "1",
+    id: "6a1f84fb1579dff44f9af7d1",
     name: "Koltuk Yıkama",
-    description: "Profesyonel ekibimiz ve bitkisel şampuanlarımızla koltuklarınızı derinlemesine temizliyoruz. Lekelerden arındırıp hijyenik hale getiriyoruz.",
-    price: 499,
+    description: "Koltuk ve mobilya yıkama hizmeti.",
+    price: 1250,
     slug: "koltuk-yikama",
     seo_title: "Antalya Koltuk Yıkama Fiyatları | TiTAN 360",
     seo_description: "Antalya'da profesyonel yerinde koltuk yıkama hizmeti. %100 temizlik garantisi ve uygun fiyatlar için hemen ücretsiz teklif alın.",
     options: [
-      { id: "1_1", name: "Standart Koltuk Takımı (5-7 Kişilik)", price: 499 },
-      { id: "1_2", name: "L Koltuk Takımı", price: 549 },
-      { id: "1_3", name: "Tekli Koltuk / Berjer", price: 149 }
+      { id: "1780450336976", name: "3'lü Koltuk (1 ADET)", price: 1250 },
+      { id: "1780450349443", name: "3'lü Koltuk (2 ADET)", price: 1700 },
+      { id: "1780450350911", name: "Koltuk Takımı (3+2+1)", price: 3000 },
+      { id: "1780450351445", name: "L Koltuk Küçük", price: 2500 },
+      { id: "1780450351826", name: "L Koltuk Büyük", price: 3500 },
+      { id: "1780450503775", name: "Sandalye Tek Taraf", price: 150 },
+      { id: "1780450530060", name: "Sandalye Çift Taraf", price: 231 }
     ]
   },
   {
-    id: "2",
-    name: "Halı Yıkama",
-    description: "Antibakteriyel halı yıkama makinelerimizle halılarınızı yıpratmadan, ilk günkü temizliğine kavuşturuyoruz.",
-    price: 99,
-    slug: "hali-yikama",
-    seo_title: "Antalya Halı Yıkama Fabrikası | TiTAN 360",
-    seo_description: "Antalya halı yıkama hizmeti. Derinlemesine dezenfeksiyon, ücretsiz servis ve hızlı teslimat avantajıyla hemen teklif alın.",
-    options: [
-      { id: "2_1", name: "Makine Halısı (m²)", price: 99 },
-      { id: "2_2", name: "Yün Halı (m²)", price: 149 },
-      { id: "2_3", name: "El Dokuma Halısı (m²)", price: 199 }
-    ]
-  },
-  {
-    id: "3",
-    name: "Yatak Yıkama",
-    description: "Yataklarınızdaki mayt, akar ve bakterileri buharlı temizleme teknolojimizle tamamen yok ediyor, derinlemesine hijyen sağlıyoruz.",
-    price: 299,
+    id: "6a1f85451579dff44f9af7d2",
+    name: "Yatak Yıkama ",
+    description: "Yerinde antibakteriyel yatak temizliği.",
+    price: 1000,
     slug: "yatak-yikama",
     seo_title: "Antalya Buharlı Yatak Yıkama Hizmeti | TiTAN 360",
     seo_description: "Buharlı yatak yıkama ve dezenfeksiyonu. Mayt ve bakterileri yok eden profesyonel sistemlerle Antalya geneli yerinde hizmet.",
     options: [
-      { id: "3_1", name: "Tek Kişilik Yatak", price: 299 },
-      { id: "3_2", name: "Çift Kişilik Yatak", price: 449 }
+      { id: "1780450587159", name: "Tek Kişilik", price: 1000 },
+      { id: "1780450589458", name: "Çift Kişilik", price: 1600 }
+    ]
+  },
+  {
+    id: "6a1f810f1579dff44f9af7ce",
+    name: "Ev Temizliği",
+    description: "Zeminler detaylı şekilde temizlenir, balkon, mutfak, kapılar, WC ve banyo hijyenik olarak temizlenir.",
+    price: 4500,
+    slug: "ev-temizligi",
+    seo_title: "Antalya Ev Temizliği Hizmeti | TiTAN 360",
+    seo_description: "Antalya'da profesyonel ev temizliği. Düzenli veya tek seferlik dip köşe temizlik için hemen teklif alın.",
+    options: [
+      { id: "1780449533061", name: "45 m2 kadar", price: 4500 },
+      { id: "1780449700926", name: "65 m2 kadar", price: 6000 },
+      { id: "1780449714292", name: "90 m2 kadar", price: 7000 },
+      { id: "1780449723010", name: "125 m2 kadar", price: 9000 },
+      { id: "1780449766064", name: "125 m2 üzeri için iletişime geçiniz", price: 0 }
+    ]
+  },
+  {
+    id: "6a1f833e1579dff44f9af7cf",
+    name: " İnşaat Sonrası İnce Temizlik ",
+    description: "İnşaat sonrası oluşan ince toz ve kirler profesyonel ekipmanlarla detaylı şekilde temizlenir.",
+    price: 8000,
+    slug: "insaat-sonrasi-ince-temizlik",
+    seo_title: "Antalya İnşaat Sonrası Temizlik | TiTAN 360",
+    seo_description: "İnşaat sonrası ince temizlik hizmeti. Kalıntısız ve taşınmaya hazır temizlik çözümleri.",
+    options: [
+      { id: "1780450027490", name: "45 m2 kadar", price: 8000 },
+      { id: "1780450033190", name: "65 m2 kadar", price: 9000 },
+      { id: "1780450035158", name: "90 m2 kadar", price: 14000 },
+      { id: "1780450035590", name: "125 m2 kadar", price: 18000 },
+      { id: "1780450036057", name: "125 m2 üstü için iletişime geçin", price: 0 }
     ]
   }
 ];
