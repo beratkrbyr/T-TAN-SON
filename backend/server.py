@@ -282,16 +282,29 @@ async def update_booking(booking_id: str, update: BookingStatusUpdate, _=Depends
 @api_router.get("/admin/services")
 async def get_services(_=Depends(verify_token)):
     services = await db.services.find().sort("order", 1).to_list(100)
-    return [{**serialize_doc(s), "id": str(s["_id"])} for s in services]
+    result = []
+    for s in services:
+        doc = serialize_doc(s)
+        img = doc.get("image")
+        if img and img.startswith("/static-services/"):
+            doc["image"] = img.replace("/static-services/", "/static/services/")
+        result.append({**doc, "id": str(s["_id"])})
+    return result
 
 @api_router.post("/admin/services")
 async def create_service(service: Service, _=Depends(verify_token)):
-    result = await db.services.insert_one(service.dict())
-    return {"id": str(result.inserted_id), **service.dict()}
+    service_dict = service.dict()
+    if service_dict.get("image") and service_dict["image"].startswith("/static-services/"):
+        service_dict["image"] = service_dict["image"].replace("/static-services/", "/static/services/")
+    result = await db.services.insert_one(service_dict)
+    return {"id": str(result.inserted_id), **service_dict}
 
 @api_router.put("/admin/services/{service_id}")
 async def update_service(service_id: str, service: Service, _=Depends(verify_token)):
-    await db.services.update_one({"_id": ObjectId(service_id)}, {"$set": service.dict()})
+    service_dict = service.dict()
+    if service_dict.get("image") and service_dict["image"].startswith("/static-services/"):
+        service_dict["image"] = service_dict["image"].replace("/static-services/", "/static/services/")
+    await db.services.update_one({"_id": ObjectId(service_id)}, {"$set": service_dict})
     return {"message": "Guncellendi"}
 
 @api_router.delete("/admin/services/{service_id}")
@@ -656,7 +669,27 @@ async def get_customer_profile(credentials: HTTPAuthorizationCredentials = Depen
 async def get_public_services():
     services = await db.services.find({"active": True}).sort("order", 1).to_list(100)
     base_url = "https://titan360.com.tr"
-    return [{"id": str(s["_id"]), "name": s["name"], "description": s.get("description", ""), "price": s["price"], "duration": s.get("duration", 60), "image": (base_url + s["image"]) if s.get("image") and s["image"].startswith("/") else s.get("image"), "options": s.get("options", []), "slug": s.get("slug", ""), "seo_title": s.get("seo_title", ""), "seo_description": s.get("seo_description", "")} for s in services]
+    result = []
+    for s in services:
+        img = s.get("image")
+        if img:
+            if img.startswith("/static-services/"):
+                img = img.replace("/static-services/", "/static/services/")
+            if img.startswith("/"):
+                img = base_url + img
+        result.append({
+            "id": str(s["_id"]),
+            "name": s["name"],
+            "description": s.get("description", ""),
+            "price": s["price"],
+            "duration": s.get("duration", 60),
+            "image": img,
+            "options": s.get("options", []),
+            "slug": s.get("slug", ""),
+            "seo_title": s.get("seo_title", ""),
+            "seo_description": s.get("seo_description", "")
+        })
+    return result
 
 # Create booking (customer)
 @api_router.post("/bookings")
