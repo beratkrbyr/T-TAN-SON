@@ -24,6 +24,34 @@ db = client[DB_NAME]
 
 app = FastAPI()
 
+# Custom route for serving uploaded files with MongoDB fallback
+@app.get("/static/uploads/{filename}")
+async def get_uploaded_file(filename: str):
+    # Check disk first
+    prod_static = "/var/www/titan360/static"
+    if os.path.exists(prod_static):
+        local_path = os.path.join(prod_static, "uploads", filename)
+    else:
+        local_path = os.path.join(os.path.dirname(__file__), "static", "uploads", filename)
+        
+    if os.path.exists(local_path):
+        from fastapi.responses import FileResponse
+        return FileResponse(local_path)
+        
+    # Database fallback
+    try:
+        file_doc = await db.stored_files.find_one({"filename": filename})
+        if file_doc:
+            from fastapi.responses import Response
+            return Response(
+                content=file_doc["data"],
+                media_type=file_doc.get("content_type", "application/octet-stream")
+            )
+    except Exception as e:
+        print(f"Error reading file from DB: {str(e)}")
+        
+    raise HTTPException(status_code=404, detail="Dosya bulunamadi")
+
 # Mount static files for local development or platforms like Render (where Nginx is not serving static files)
 from fastapi.staticfiles import StaticFiles
 static_dir = "/var/www/titan360/static" if os.path.exists("/var/www/titan360/static") else os.path.join(os.path.dirname(__file__), "static")
@@ -1150,21 +1178,30 @@ async def save_website_content(content: dict, _=Depends(verify_token)):
 
 @api_router.post("/admin/upload")
 async def upload_file(file: UploadFile = File(...), _=Depends(verify_token)):
-    """Medya dosyasini ImgBB'ye veya sunucuya yukle"""
+    """Medya dosyasini ImgBB'ye veya sunucuya/MongoDB'ye yukle"""
     imgbb_api_key = os.environ.get("IMGBB_API_KEY")
     
-    if imgbb_api_key:
+    # Generate unique filename
+    ext = os.path.splitext(file.filename)[1]
+    filename = f"{uuid.uuid4()}{ext}"
+    
+    # Read file content once
+    try:
+        contents = await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Dosya okunamadi: {str(e)}")
+        
+    is_image = (file.content_type or "").startswith("image/") or filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp', '.svg'))
+    
+    # Upload images to ImgBB if key is present
+    if imgbb_api_key and is_image:
         try:
             import base64
             import urllib.request
             import urllib.parse
             import json
             
-            # Read file contents
-            contents = await file.read()
             b64_image = base64.b64encode(contents)
-            
-            # Prepare ImgBB API call
             url = "https://api.imgbb.com/1/upload"
             payload = {
                 "key": imgbb_api_key,
@@ -1172,7 +1209,6 @@ async def upload_file(file: UploadFile = File(...), _=Depends(verify_token)):
             }
             data = urllib.parse.urlencode(payload).encode("utf-8")
             
-            # Perform POST request
             req = urllib.request.Request(url, data=data, method="POST")
             with urllib.request.urlopen(req, timeout=15) as response:
                 resp_data = json.loads(response.read().decode("utf-8"))
@@ -1183,48 +1219,39 @@ async def upload_file(file: UploadFile = File(...), _=Depends(verify_token)):
             else:
                 raise Exception(f"ImgBB upload unsuccessful: {resp_data}")
         except Exception as e:
-            print(f"ImgBB upload failed, falling back to local storage: {str(e)}")
-            # Reset file pointer to read again for local saving
-            await file.seek(0)
+            print(f"ImgBB upload failed, falling back to MongoDB/Local storage: {str(e)}")
             
+    # Fallback logic: Store file in MongoDB Atlas and local disk
     try:
-        # Determine directory
+        if len(contents) > 15 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Dosya boyutu cok buyuk (Maksimum 15MB)")
+            
+        # Save to DB
+        await db.stored_files.update_one(
+            {"filename": filename},
+            {
+                "$set": {
+                    "filename": filename,
+                    "content_type": file.content_type,
+                    "data": contents,
+                    "created_at": datetime.utcnow()
+                }
+            },
+            upsert=True
+        )
+        
+        # Save locally
         prod_static = "/var/www/titan360/static"
         if os.path.exists(prod_static):
             upload_dir = os.path.join(prod_static, "uploads")
         else:
             upload_dir = os.path.join(os.path.dirname(__file__), "static", "uploads")
-        
-        try:
-            os.makedirs(upload_dir, exist_ok=True)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=(
-                    f"Dizin olusturulamadi ({upload_dir}): {str(e)}. "
-                    "Lutfen sunucuda 'sudo chown -R ubuntu:www-data /var/www/titan360/static && "
-                    "sudo chmod -R 775 /var/www/titan360/static' komutunu calistirin."
-                )
-            )
-        
-        # Generate unique filename
-        ext = os.path.splitext(file.filename)[1]
-        filename = f"{uuid.uuid4()}{ext}"
+            
+        os.makedirs(upload_dir, exist_ok=True)
         file_path = os.path.join(upload_dir, filename)
         
-        # Save file
-        try:
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=(
-                    f"Dosya kaydedilemedi ({file_path}): {str(e)}. "
-                    "Lutfen sunucuda 'sudo chown -R ubuntu:www-data /var/www/titan360/static && "
-                    "sudo chmod -R 775 /var/www/titan360/static' komutunu calistirin."
-                )
-            )
+        with open(file_path, "wb") as buffer:
+            buffer.write(contents)
             
         return {"url": f"/static/uploads/{filename}"}
     except HTTPException as he:
