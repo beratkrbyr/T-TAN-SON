@@ -131,6 +131,11 @@ export default function HizmetlerPage() {
   const waLink = `https://wa.me/${(c.contact?.whatsapp || phone).replace(/[^0-9]/g, "")}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
   const servicesToRender = services.length ? services : defaultServices;
 
+  // Campaign styling variables
+  const badgeBg = c.campaign_badge_bg || "#dc2626";
+  const badgeText = c.campaign_badge_text || "#ffffff";
+  const priceColor = c.campaign_price_color || "#ef4444";
+
   useEffect(() => {
     if (hasAutoOpened.current || servicesToRender.length === 0) return;
 
@@ -193,7 +198,9 @@ export default function HizmetlerPage() {
                     window.history.pushState(null, "", `#${s.slug || s.id}`);
                   }
                 }}
-                className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between h-[420px] cursor-pointer" 
+                className={`group relative bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between h-[420px] cursor-pointer ${
+                  activeCard === i ? "overflow-visible" : "overflow-hidden"
+                }`}
                 style={{ transitionDelay: `${i * 80}ms` }}>
                 
                 {/* Static Card Content */}
@@ -203,7 +210,10 @@ export default function HizmetlerPage() {
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&amp;q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                       {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-red-600 text-white text-sm font-bold rounded-lg shadow-lg flex flex-col items-center">
+                        <div 
+                          className="absolute top-4 right-4 px-3 py-1 text-sm font-bold rounded-lg shadow-lg flex flex-col items-center"
+                          style={{ backgroundColor: badgeBg, color: badgeText }}
+                        >
                           <span className="text-[10px] line-through opacity-75">{s.price} TL</span>
                           <span>{s.campaign_price} TL'den</span>
                         </div>
@@ -237,9 +247,16 @@ export default function HizmetlerPage() {
                 </div>
 
                 {/* Hover Slide-up Overlay */}
-                <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md z-20 p-6 flex flex-col justify-between transition-all duration-500 ${
+                <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md rounded-2xl z-20 p-6 flex flex-col justify-between transition-all duration-500 ${
                   activeCard === i ? "translate-y-0" : "translate-y-full group-hover:translate-y-0"
                 }`}>
+                  {/* Floating Logo outside top-left corner */}
+                  {activeCard === i && (
+                    <div className="absolute -top-4 -left-4 z-30 w-12 h-12 bg-white rounded-2xl shadow-xl border-2 border-slate-100 flex items-center justify-center overflow-hidden animate-scaleIn">
+                      <img src={c.logo_url || "/logo.jpeg"} alt="Logo" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+
                   <div>
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div className="flex items-center gap-3">
@@ -274,7 +291,7 @@ export default function HizmetlerPage() {
                                 {hasOptCampaign ? (
                                   <>
                                     <span className="line-through text-slate-500 text-[10px]">{opt.price} TL</span>
-                                    <span className="font-bold text-orange-400 whitespace-nowrap">{opt.campaign_price} TL</span>
+                                    <span className="font-bold whitespace-nowrap" style={{ color: priceColor }}>{opt.campaign_price} TL</span>
                                   </>
                                 ) : (
                                   <span className="font-bold text-orange-400 whitespace-nowrap">{opt.price} TL</span>
@@ -291,7 +308,7 @@ export default function HizmetlerPage() {
                             <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">KAMPANYALI BAŞLANGIÇ FİYATI</span>
                             <div className="flex items-center justify-center gap-3">
                               <span className="text-2xl line-through text-slate-500">{s.price} TL</span>
-                              <span className="text-4xl font-extrabold text-red-500">{s.campaign_price} TL</span>
+                              <span className="text-4xl font-extrabold" style={{ color: priceColor }}>{s.campaign_price} TL</span>
                             </div>
                           </>
                         ) : (

@@ -70,6 +70,10 @@ interface SiteContent {
   seo_h2_2?: string;
   seo_h2_3?: string;
   instagram_embed_code?: string;
+  campaign_badge_bg?: string;
+  campaign_badge_text?: string;
+  campaign_price_color?: string;
+  logo_url?: string;
 }
 
 interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: any[]; slug?: string }
@@ -305,6 +309,10 @@ export default function HomePage() {
   const cta2Link = cta2Text === "Randevu Oluştur" ? waLink : (c.hero?.cta2_link || "#");
 
   const badgesToRender = c.badges?.length ? c.badges : defaultBadges;
+
+  // Campaign styling variables
+  const badgeBg = c.campaign_badge_bg || "#dc2626";
+  const badgeText = c.campaign_badge_text || "#ffffff";
   
   const defaultAlbums = [
     {
@@ -543,7 +551,10 @@ export default function HomePage() {
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent" />
                       {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-lg shadow-md flex flex-col items-center">
+                        <div 
+                          className="absolute top-4 right-4 px-3 py-1 text-xs font-bold rounded-lg shadow-md flex flex-col items-center"
+                          style={{ backgroundColor: badgeBg, color: badgeText }}
+                        >
                           <span className="text-[9px] line-through opacity-75">{s.price} TL</span>
                           <span>{s.campaign_price} TL'den</span>
                         </div>

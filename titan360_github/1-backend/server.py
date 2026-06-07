@@ -698,6 +698,18 @@ async def get_customer_profile(credentials: HTTPAuthorizationCredentials = Depen
 async def get_public_services():
     services = await db.services.find({"active": True}).sort("order", 1).to_list(100)
     base_url = "https://titan360.com.tr"
+    
+    # Load campaign percentage from website_content setting (default 20%)
+    campaign_percent = 20
+    try:
+        content = await db.website_content.find_one({"type": "main"})
+        if content and "campaign_percent" in content:
+            campaign_percent = int(content["campaign_percent"])
+    except Exception as e:
+        print(f"Error loading campaign_percent: {str(e)}")
+        
+    discount_multiplier = (100 - campaign_percent) / 100
+    
     result = []
     for s in services:
         img = s.get("image")
@@ -709,13 +721,13 @@ async def get_public_services():
         price = s["price"]
         campaign_price = s.get("campaign_price", 0)
         if not campaign_price or campaign_price <= 0:
-            campaign_price = round(price * 0.8)
+            campaign_price = round(price * discount_multiplier)
 
         options = []
         for opt in s.get("options", []):
             opt_price = opt.get("price", 0)
             if opt_price > 0:
-                opt["campaign_price"] = round(opt_price * 0.8)
+                opt["campaign_price"] = round(opt_price * discount_multiplier)
             else:
                 opt["campaign_price"] = 0
             options.append(opt)

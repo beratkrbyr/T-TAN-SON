@@ -113,6 +113,14 @@ async function fetchServiceData(slug: string): Promise<ServiceItem | null> {
   return fallback || null;
 }
 
+async function fetchSettings(): Promise<any> {
+  try {
+    const res = await fetch("http://localhost:8001/api/website-content", { next: { revalidate: 60 } });
+    if (res.ok) return await res.json();
+  } catch (err) {}
+  return {};
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const service = await fetchServiceData(slug);
@@ -130,6 +138,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ServiceLandingPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const service = await fetchServiceData(slug);
+  const settings = await fetchSettings();
+  const priceColor = settings.campaign_price_color || "#ef4444";
   
   if (!service) {
     return (
@@ -261,7 +271,7 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
                         {hasOptCampaign ? (
                           <>
                             <span className="line-through text-slate-400 text-sm">{opt.price} TL</span>
-                            <span className="text-lg font-bold text-red-500">{opt.campaign_price} TL</span>
+                            <span className="text-lg font-bold" style={{ color: priceColor }}>{opt.campaign_price} TL</span>
                           </>
                         ) : (
                           <span className="text-lg font-bold text-emerald-600">{opt.price} TL</span>

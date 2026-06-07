@@ -81,6 +81,10 @@ interface WebsiteContent {
   // Theme styling & campaign banner settings
   primary_color?: string;
   secondary_color?: string;
+  campaign_percent?: number;
+  campaign_badge_bg?: string;
+  campaign_badge_text?: string;
+  campaign_price_color?: string;
   banner_active?: boolean;
   banner_text?: string;
   banner_link?: string;
@@ -163,6 +167,10 @@ const defaults: WebsiteContent = {
 
   primary_color: "#059669",
   secondary_color: "#0284c7",
+  campaign_percent: 20,
+  campaign_badge_bg: "#dc2626",
+  campaign_badge_text: "#ffffff",
+  campaign_price_color: "#ef4444",
   banner_active: false,
   banner_text: "Titan360 ile temizlikte farkı yaşayın! Detaylı koltuk ve halı yıkamada indirim!",
   banner_link: "",
@@ -270,6 +278,10 @@ export default function WebsiteSettingsPage() {
           
           primary_color: data.primary_color || defaults.primary_color,
           secondary_color: data.secondary_color || defaults.secondary_color,
+          campaign_percent: data.campaign_percent !== undefined ? data.campaign_percent : defaults.campaign_percent,
+          campaign_badge_bg: data.campaign_badge_bg || defaults.campaign_badge_bg,
+          campaign_badge_text: data.campaign_badge_text || defaults.campaign_badge_text,
+          campaign_price_color: data.campaign_price_color || defaults.campaign_price_color,
           banner_active: data.banner_active !== undefined ? data.banner_active : defaults.banner_active,
           banner_text: data.banner_text || defaults.banner_text,
           banner_link: data.banner_link || defaults.banner_link,
@@ -1502,6 +1514,76 @@ export default function WebsiteSettingsPage() {
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Şeffaf Fiyat Listesi</h2>
                 <p className="text-sm text-gray-500 mb-4">Web sitesinde gösterilen manuel fiyat listesi öğelerini buradan düzenleyin.</p>
+
+                {/* Campaign Settings inside Prices Tab */}
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4 mb-6">
+                  <h3 className="text-sm font-semibold text-gray-850 border-b pb-2"><i className="fas fa-percent text-blue-500 mr-2"></i>Hizmet Fiyat Kampanya Ayarları</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Kampanya İndirim Yüzdesi (%)</label>
+                      <input 
+                        type="number" 
+                        min="0"
+                        max="100"
+                        value={content.campaign_percent !== undefined ? content.campaign_percent : 20} 
+                        onChange={e => setContent((p: any) => ({ ...p, campaign_percent: Number(e.target.value) }))} 
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none focus:border-blue-500" 
+                      />
+                      <p className="text-[9px] text-gray-400 mt-1">Hizmetlerde özel kampanya fiyatı girilmemişse, bu oranda otomatik indirim hesaplanır.</p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Rozet Arka Plan Rengi</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.campaign_badge_bg || "#dc2626"}
+                          onChange={e => setContent((p: any) => ({ ...p, campaign_badge_bg: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.campaign_badge_bg || "#dc2626"}
+                          onChange={e => setContent((p: any) => ({ ...p, campaign_badge_bg: e.target.value }))}
+                          className="flex-grow px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-mono outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Rozet Yazı Rengi</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.campaign_badge_text || "#ffffff"}
+                          onChange={e => setContent((p: any) => ({ ...p, campaign_badge_text: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.campaign_badge_text || "#ffffff"}
+                          onChange={e => setContent((p: any) => ({ ...p, campaign_badge_text: e.target.value }))}
+                          className="flex-grow px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-mono outline-none"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Fiyat Yazı Rengi</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.campaign_price_color || "#ef4444"}
+                          onChange={e => setContent((p: any) => ({ ...p, campaign_price_color: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.campaign_price_color || "#ef4444"}
+                          onChange={e => setContent((p: any) => ({ ...p, campaign_price_color: e.target.value }))}
+                          className="flex-grow px-2 py-1.5 border border-gray-300 rounded-lg text-xs font-mono outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 {content.prices.map((item: any, i: number) => (
                   <div key={i} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                     <div className="flex items-center justify-between mb-3">
