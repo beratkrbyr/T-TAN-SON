@@ -706,15 +706,29 @@ async def get_public_services():
                 img = img.replace("/static-services/", "/static/services/")
             if img.startswith("/"):
                 img = base_url + img
+        price = s["price"]
+        campaign_price = s.get("campaign_price", 0)
+        if not campaign_price or campaign_price <= 0:
+            campaign_price = round(price * 0.8)
+
+        options = []
+        for opt in s.get("options", []):
+            opt_price = opt.get("price", 0)
+            if opt_price > 0:
+                opt["campaign_price"] = round(opt_price * 0.8)
+            else:
+                opt["campaign_price"] = 0
+            options.append(opt)
+
         result.append({
             "id": str(s["_id"]),
             "name": s["name"],
             "description": s.get("description", ""),
-            "price": s["price"],
-            "campaign_price": s.get("campaign_price", 0),
+            "price": price,
+            "campaign_price": campaign_price,
             "duration": s.get("duration", 60),
             "image": img,
-            "options": s.get("options", []),
+            "options": options,
             "slug": s.get("slug", ""),
             "seo_title": s.get("seo_title", ""),
             "seo_description": s.get("seo_description", "")

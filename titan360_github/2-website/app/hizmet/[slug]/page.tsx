@@ -10,6 +10,7 @@ interface ServiceOption {
   id: string;
   name: string;
   price: number;
+  campaign_price?: number;
 }
 
 interface ServiceItem {
@@ -251,12 +252,24 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
                 <h3 className="text-lg font-bold text-white">{service.name} Paketleri</h3>
               </div>
               <div className="divide-y divide-slate-100">
-                {service.options.map((opt) => (
-                  <div key={opt.id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
-                    <span className="font-semibold text-slate-700 text-sm sm:text-base">{opt.name}</span>
-                    <span className="text-lg font-bold text-emerald-600">{opt.price} TL</span>
-                  </div>
-                ))}
+                {service.options.map((opt) => {
+                  const hasOptCampaign = opt.campaign_price && opt.campaign_price > 0 && opt.campaign_price < opt.price;
+                  return (
+                    <div key={opt.id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
+                      <span className="font-semibold text-slate-700 text-sm sm:text-base">{opt.name}</span>
+                      <div className="flex items-center gap-3">
+                        {hasOptCampaign ? (
+                          <>
+                            <span className="line-through text-slate-400 text-sm">{opt.price} TL</span>
+                            <span className="text-lg font-bold text-red-500">{opt.campaign_price} TL</span>
+                          </>
+                        ) : (
+                          <span className="text-lg font-bold text-emerald-600">{opt.price} TL</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

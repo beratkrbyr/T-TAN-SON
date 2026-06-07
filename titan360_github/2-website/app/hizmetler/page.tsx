@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number }[]; slug?: string }
+interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
 const serviceImages: Record<string, string> = {
   "Ev Temizliği": "https://images.unsplash.com/photo-1758523670739-0d26a3ee976d?w=600&q=80",
@@ -202,7 +202,7 @@ export default function HizmetlerPage() {
                     <div className="relative h-56 overflow-hidden">
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&amp;q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                      {s.campaign_price && s.campaign_price > 0 ? (
+                      {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
                         <div className="absolute top-4 right-4 px-3 py-1 bg-red-600 text-white text-sm font-bold rounded-lg shadow-lg flex flex-col items-center">
                           <span className="text-[10px] line-through opacity-75">{s.price} TL</span>
                           <span>{s.campaign_price} TL'den</span>
@@ -265,16 +265,28 @@ export default function HizmetlerPage() {
                     {s.options && s.options.length > 0 ? (
                       <div className="space-y-2.5 overflow-y-auto max-h-[200px] pr-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET FİYAT DETAYLARI</p>
-                        {s.options.map((opt, j) => (
-                          <div key={j} className="flex justify-between items-center text-xs py-1.5 border-b border-white/5 text-slate-300">
-                            <span className="flex items-center gap-1.5"><i className="fas fa-circle text-[6px] text-orange-500"></i>{opt.name}</span>
-                            <span className="font-bold text-orange-400 whitespace-nowrap ml-2">{opt.price} TL</span>
-                          </div>
-                        ))}
+                        {s.options.map((opt, j) => {
+                          const hasOptCampaign = opt.campaign_price && opt.campaign_price > 0 && opt.campaign_price < opt.price;
+                          return (
+                            <div key={j} className="flex justify-between items-center text-xs py-1.5 border-b border-white/5 text-slate-300">
+                              <span className="flex items-center gap-1.5"><i className="fas fa-circle text-[6px] text-orange-500"></i>{opt.name}</span>
+                              <div className="flex items-center gap-2 ml-2">
+                                {hasOptCampaign ? (
+                                  <>
+                                    <span className="line-through text-slate-500 text-[10px]">{opt.price} TL</span>
+                                    <span className="font-bold text-orange-400 whitespace-nowrap">{opt.campaign_price} TL</span>
+                                  </>
+                                ) : (
+                                  <span className="font-bold text-orange-400 whitespace-nowrap">{opt.price} TL</span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     ) : (
                       <div className="py-8 text-center">
-                        {s.campaign_price && s.campaign_price > 0 ? (
+                        {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
                           <>
                             <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">KAMPANYALI BAŞLANGIÇ FİYATI</span>
                             <div className="flex items-center justify-center gap-3">

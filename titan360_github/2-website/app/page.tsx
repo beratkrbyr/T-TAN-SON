@@ -542,7 +542,7 @@ export default function HomePage() {
                     <div className="relative h-48 overflow-hidden">
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent" />
-                      {s.campaign_price && s.campaign_price > 0 ? (
+                      {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
                         <div className="absolute top-4 right-4 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-lg shadow-md flex flex-col items-center">
                           <span className="text-[9px] line-through opacity-75">{s.price} TL</span>
                           <span>{s.campaign_price} TL'den</span>
