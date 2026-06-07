@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-interface ServiceItem { id: string; name: string; description: string; price: number; image?: string; options?: { name: string; price: number }[]; slug?: string }
+interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number }[]; slug?: string }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
 const serviceImages: Record<string, string> = {
   "Ev Temizliği": "https://images.unsplash.com/photo-1758523670739-0d26a3ee976d?w=600&q=80",
@@ -202,9 +202,16 @@ export default function HizmetlerPage() {
                     <div className="relative h-56 overflow-hidden">
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&amp;q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                      <div className="absolute top-4 right-4 px-3 py-1.5 bg-emerald-500 text-white text-sm font-bold rounded-lg shadow-lg">
-                        {s.price} TL'den
-                      </div>
+                      {s.campaign_price && s.campaign_price > 0 ? (
+                        <div className="absolute top-4 right-4 px-3 py-1 bg-red-600 text-white text-sm font-bold rounded-lg shadow-lg flex flex-col items-center">
+                          <span className="text-[10px] line-through opacity-75">{s.price} TL</span>
+                          <span>{s.campaign_price} TL'den</span>
+                        </div>
+                      ) : (
+                        <div className="absolute top-4 right-4 px-3 py-1.5 bg-emerald-500 text-white text-sm font-bold rounded-lg shadow-lg">
+                          {s.price} TL'den
+                        </div>
+                      )}
                       <div className="absolute bottom-4 left-4 flex items-center gap-2">
                         <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white">
                           <i className={`fas ${iconMap[s.name] || "fa-broom"}`}></i>
@@ -267,8 +274,20 @@ export default function HizmetlerPage() {
                       </div>
                     ) : (
                       <div className="py-8 text-center">
-                        <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">BAŞLANGIÇ FİYATI</span>
-                        <p className="text-4xl font-extrabold text-orange-500">{s.price} TL</p>
+                        {s.campaign_price && s.campaign_price > 0 ? (
+                          <>
+                            <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">KAMPANYALI BAŞLANGIÇ FİYATI</span>
+                            <div className="flex items-center justify-center gap-3">
+                              <span className="text-2xl line-through text-slate-500">{s.price} TL</span>
+                              <span className="text-4xl font-extrabold text-red-500">{s.campaign_price} TL</span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">BAŞLANGIÇ FİYATI</span>
+                            <p className="text-4xl font-extrabold text-orange-500">{s.price} TL</p>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>

@@ -15,6 +15,7 @@ interface Service {
   name: string;
   description: string;
   price: number;
+  campaign_price?: number;
   duration: number;
   active: boolean;
   image?: string;
@@ -33,6 +34,7 @@ export default function ServicesPage() {
     name: string;
     description: string;
     price: number;
+    campaign_price: number;
     duration: number;
     active: boolean;
     image: string;
@@ -40,7 +42,7 @@ export default function ServicesPage() {
     slug: string;
     seo_title: string;
     seo_description: string;
-  }>({ name: "", description: "", price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+  }>({ name: "", description: "", price: 0, campaign_price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
 
   useEffect(() => {
     fetchServices();
@@ -83,7 +85,7 @@ export default function ServicesPage() {
 
       setShowModal(false);
       setEditingService(null);
-      setFormData({ name: "", description: "", price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+      setFormData({ name: "", description: "", price: 0, campaign_price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
       fetchServices();
     } catch (err) {
       console.error(err);
@@ -96,6 +98,7 @@ export default function ServicesPage() {
       name: service.name,
       description: service.description,
       price: service.price,
+      campaign_price: service.campaign_price || 0,
       duration: service.duration || 60,
       active: service.active,
       image: service.image || "",
@@ -195,7 +198,7 @@ export default function ServicesPage() {
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -224,7 +227,14 @@ export default function ServicesPage() {
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-800">{service.name}</h3>
-                  <p className="text-xl font-bold text-sky-600 mt-1">{service.price} TL</p>
+                  {service.campaign_price && service.campaign_price > 0 ? (
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="text-sm line-through text-slate-400">{service.price} TL</span>
+                      <span className="text-lg font-bold text-red-600">{service.campaign_price} TL</span>
+                    </div>
+                  ) : (
+                    <p className="text-xl font-bold text-sky-600 mt-1">{service.price} TL</p>
+                  )}
                 </div>
                 <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-semibold border ${service.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
                   {service.active ? "Aktif" : "Pasif"}
@@ -371,13 +381,23 @@ export default function ServicesPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Başlangıç Fiyat (TL)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Normal Fiyat (TL)</label>
                   <input
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Kampanya Fiyat (TL)</label>
+                  <input
+                    type="number"
+                    value={formData.campaign_price}
+                    onChange={(e) => setFormData({ ...formData, campaign_price: Number(e.target.value) })}
+                    placeholder="0 = Kampanya Yok"
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
                   />
                 </div>

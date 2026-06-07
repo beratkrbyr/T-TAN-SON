@@ -92,6 +92,7 @@ class Service(BaseModel):
     name: str
     description: str = ""
     price: float
+    campaign_price: Optional[float] = 0
     duration: int = 60
     active: bool = True
     order: int = 0
@@ -709,6 +710,7 @@ async def get_public_services():
             "name": s["name"],
             "description": s.get("description", ""),
             "price": s["price"],
+            "campaign_price": s.get("campaign_price", 0),
             "duration": s.get("duration", 60),
             "image": img,
             "options": s.get("options", []),

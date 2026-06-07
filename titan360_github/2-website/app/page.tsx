@@ -72,7 +72,7 @@ interface SiteContent {
   instagram_embed_code?: string;
 }
 
-interface ServiceItem { id: string; name: string; description: string; price: number; image?: string; options?: any[]; slug?: string }
+interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: any[]; slug?: string }
 
 const defaultServices: ServiceItem[] = [
   {
@@ -542,9 +542,16 @@ export default function HomePage() {
                     <div className="relative h-48 overflow-hidden">
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent" />
-                      <div className="absolute top-4 right-4 px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-md">
-                        {s.price} TL'den
-                      </div>
+                      {s.campaign_price && s.campaign_price > 0 ? (
+                        <div className="absolute top-4 right-4 px-3 py-1 bg-red-600 text-white text-xs font-bold rounded-lg shadow-md flex flex-col items-center">
+                          <span className="text-[9px] line-through opacity-75">{s.price} TL</span>
+                          <span>{s.campaign_price} TL'den</span>
+                        </div>
+                      ) : (
+                        <div className="absolute top-4 right-4 px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-md">
+                          {s.price} TL'den
+                        </div>
+                      )}
                     </div>
                     <div className="p-5">
                       <div className="flex items-center gap-3 mb-2">
