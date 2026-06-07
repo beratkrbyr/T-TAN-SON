@@ -2,6 +2,10 @@
 
 @theme {
   --font-sans: "Poppins", sans-serif;
+  --color-emerald-500: var(--primary-color);
+  --color-emerald-600: var(--primary-hover-color);
+  --color-sky-500: var(--secondary-color);
+  --color-sky-600: var(--secondary-hover-color);
 }
 
 * {

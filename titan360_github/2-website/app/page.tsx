@@ -6,6 +6,8 @@ import Footer from "./components/Footer";
 import BeforeAfterSlider from "./components/BeforeAfterSlider";
 import LeadForm from "./components/LeadForm";
 import MobileStickyBar from "./components/MobileStickyBar";
+import InstagramFeed from "./components/InstagramFeed";
+import ReviewsCarousel from "./components/ReviewsCarousel";
 
 interface HeroSlide {
   image: string;
@@ -63,6 +65,11 @@ interface SiteContent {
   brand_music_url?: string;
   media_cover_image?: string;
   media_items?: { url: string; title: string; type: "image" | "video" }[];
+  seo_h1?: string;
+  seo_h2_1?: string;
+  seo_h2_2?: string;
+  seo_h2_3?: string;
+  instagram_embed_code?: string;
 }
 
 interface ServiceItem { id: string; name: string; description: string; price: number; image?: string; options?: any[]; slug?: string }
@@ -290,7 +297,7 @@ export default function HomePage() {
   const steps = c.howit?.steps?.length ? c.howit.steps : defaultSteps;
 
   const heroBadge = c.hero?.badge || "Aynı Gün Hizmet";
-  const heroTitle = c.hero?.title1 ? `${c.hero.title1} ${c.hero.title2 || ""}` : "Antalya'nın 1 Numaralı Koltuk Yıkama Hizmeti";
+  const heroTitle = c.seo_h1 || (c.hero?.title1 ? `${c.hero.title1} ${c.hero.title2 || ""}` : "Antalya'nın 1 Numaralı Koltuk Yıkama Hizmeti");
   const heroSubtitle = c.hero?.subtitle || "Aynı Gün Hizmet, %100 Memnuniyet Garantisi. Hemen Teklif Alın!";
   const cta1Text = c.hero?.cta1_text || "Hemen Fiyat Teklifi Al";
   const cta1Link = cta1Text === "Hemen Fiyat Teklifi Al" ? "#teklif-formu" : (c.hero?.cta1_link || "#teklif-formu");
@@ -358,9 +365,15 @@ export default function HomePage() {
                         <span className="text-sm font-medium text-emerald-300">{slide.badge || (i === 0 ? heroBadge : "")}</span>
                       </span>
                     </div>
-                    <h1 className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 leading-tight tracking-tight transition-all duration-700 ease-out delay-300 ${i === activeSlide ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}>
-                      {slide.title || (i === 0 ? heroTitle : "")}
-                    </h1>
+                    {i === 0 ? (
+                      <h1 className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 leading-tight tracking-tight transition-all duration-700 ease-out delay-300 ${i === activeSlide ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}>
+                        {slide.title || heroTitle}
+                      </h1>
+                    ) : (
+                      <h2 className={`text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-white mb-4 leading-tight tracking-tight transition-all duration-700 ease-out delay-300 ${i === activeSlide ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}>
+                        {slide.title || ""}
+                      </h2>
+                    )}
                     <h2 className={`text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 transition-all duration-700 ease-out delay-400 ${i === activeSlide ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}>
                       <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-sky-400">{slide.subtitle || (i === 0 ? heroSubtitle : "")}</span>
                     </h2>
@@ -472,7 +485,7 @@ export default function HomePage() {
         <div className="page-container" ref={s2.ref}>
           <div className={`text-center mb-12 transition-all duration-700 ${s2.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
             <span className="inline-block px-5 py-2 bg-emerald-100 text-emerald-700 text-sm font-semibold rounded-full mb-4 tracking-wide uppercase">Öncesi / Sonrası</span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">Gerçek İş Görselleriyle Farkı Görün</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">{c.seo_h2_1 || "Gerçek İş Görselleriyle Farkı Görün"}</h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-base lg:text-lg">Koltuk, halı ve yataklardaki inatçı lekeleri nasıl temizlediğimizi sekmelerden albüm seçerek inceleyin.</p>
           </div>
 
@@ -518,13 +531,13 @@ export default function HomePage() {
         <div className="page-container">
           <div className="text-center mb-16">
             <span className="inline-block px-5 py-2 bg-sky-100 text-sky-700 text-sm font-semibold rounded-full mb-4 tracking-wide uppercase">Hizmetlerimiz</span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">{c.services_section?.title || "Profesyonel Temizlik Çözümleri"}</h2>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">{c.seo_h2_2 || c.services_section?.title || "Profesyonel Temizlik Çözümleri"}</h2>
             <p className="text-slate-500 max-w-2xl mx-auto text-base lg:text-lg">{c.services_section?.subtitle || "İhtiyacınıza uygun, kaliteli ve güvenilir temizlik hizmetleri sunuyoruz."}</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicesToRender.slice(0, 6).map((s, i) => (
               <div key={i} className="group relative rounded-2xl overflow-hidden bg-white shadow-md border border-slate-100/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between h-[360px]">
-                <Link href="/hizmetler" className="block cursor-pointer flex-1">
+                <Link href={`/hizmetler#${s.slug || s.id}`} className="block cursor-pointer flex-1">
                   <div>
                     <div className="relative h-48 overflow-hidden">
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -547,7 +560,7 @@ export default function HomePage() {
                 {/* Alt CTA Butonu */}
                 <div className="p-5 pt-0 border-t border-slate-50 mt-auto">
                   <Link
-                    href="/hizmetler"
+                    href={`/hizmetler#${s.slug || s.id}`}
                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white rounded-xl text-xs font-bold transition-all"
                   >
                     <i className="fas fa-arrow-right"></i> Fiyat Bilgisini Gör
@@ -564,33 +577,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== MEDIA COVER SECTION ===== */}
-      <section className="py-20 md:py-28 bg-slate-50" data-testid="media-gallery-section">
-        <div className="page-container" ref={s4.ref}>
-          <div className={`text-center mb-16 transition-all duration-700 ${s4.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <span className="inline-block px-5 py-2 bg-sky-100 text-sky-700 text-sm font-semibold rounded-full mb-4 tracking-wide uppercase">Medya</span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">Medya</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto text-base lg:text-lg">İşlerimizden ve temizlik süreçlerimizden fotoğraf ve videolar.</p>
-          </div>
-          <div className="max-w-4xl mx-auto">
-            <Link href="/medya">
-              <div className="group relative aspect-[16/9] rounded-3xl overflow-hidden shadow-2xl hover:shadow-emerald-500/10 transition-all duration-500 cursor-pointer border border-slate-100">
-                <img src={c.media_cover_image || "/logo.jpeg"} alt="Medya Galerisi" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                
-                {/* Center Hover Icon/Text */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/30">
-                    <i className="fas fa-play text-white text-xl ml-1"></i>
-                  </div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">Medya Galerimiz</h3>
-                  <p className="text-slate-200 text-sm max-w-md">Gerçekleştirdiğimiz temizlik işlemlerine ait tüm video ve fotoğrafları görmek için tıklayın.</p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <ReviewsCarousel />
+
+      <InstagramFeed />
 
       {/* ===== WHY US ===== */}
       <section className="py-20 md:py-28 bg-white" data-testid="why-us-section">
@@ -598,7 +587,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div className={`transition-all duration-700 ${s5.visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}>
               <span className="inline-block px-5 py-2 bg-sky-100 text-sky-700 text-sm font-semibold rounded-full mb-4 tracking-wide uppercase">Neden Biz?</span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-6">{c.whyus?.title || "Neden TİTAN 360?"}</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-6">{c.seo_h2_3 || c.whyus?.title || "Neden TİTAN 360?"}</h2>
               <p className="text-slate-500 mb-10 leading-relaxed text-lg">{c.whyus?.subtitle || "5 yıllık deneyimimiz, eğitimli kadromuz ve modern ekipmanlarımız ile Antalya'nın en güvenilir temizlik hizmetini sunuyoruz."}</p>
               <div className="space-y-6">
                 {whyItems.map((item, i) => (
@@ -630,61 +619,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ===== GOOGLE TESTIMONIALS (GOOGLE REVIEWS STYLE) ===== */}
-      <section className="py-20 md:py-28 bg-slate-50" data-testid="testimonials-section">
-        <div className="page-container" ref={s6.ref}>
-          <div className={`text-center mb-16 transition-all duration-700 ${s6.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <svg className="w-8 h-8" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-              </svg>
-              <span className="text-xl font-bold text-slate-800">Google Yorumları</span>
-            </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-800 mb-4">Müşterilerimiz Bizim İçin Ne Dedi?</h2>
-            <p className="text-slate-500 max-w-2xl mx-auto">Müşterilerimizden gelen %100 gerçek Google yorumları.</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((t, i) => (
-              <div key={i} className={`bg-white rounded-2xl p-7 border border-slate-200 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between ${s6.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`} style={{ transitionDelay: `${i * 100}ms` }}>
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex text-amber-400 gap-0.5">
-                      {[...Array(Math.floor(t.rating || 5))].map((_, j) => (
-                        <i key={j} className="fas fa-star text-sm"></i>
-                      ))}
-                    </div>
-                    <span className="flex items-center gap-1 text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
-                      <i className="fas fa-check-circle"></i> Doğrulanmış Müşteri
-                    </span>
-                  </div>
-                  <div className="relative mb-5">
-                    <p className="text-slate-600 leading-relaxed text-sm">{t.text}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 pt-5 border-t border-slate-100">
-                  {t.avatar ? (
-                    <img src={t.avatar} alt={t.name} className="w-10 h-10 rounded-full object-cover shadow-md" />
-                  ) : (
-                    <div className="w-10 h-10 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
-                      {t.name ? t.name.charAt(0) : "T"}
-                    </div>
-                  )}
-                  <div>
-                    <p className="font-bold text-slate-800 text-sm">{t.name}</p>
-                    <p className="text-xs text-slate-400">{t.location}</p>
-                  </div>
-                  <div className="ml-auto text-slate-300">
-                    <i className="fab fa-google text-sm"></i>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Testimonials section removed, replaced by ReviewsCarousel above */}
 
       {/* ===== FINAL CTA ===== */}
       <section className="relative py-20 md:py-28 overflow-hidden">

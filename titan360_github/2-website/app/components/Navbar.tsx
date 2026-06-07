@@ -8,26 +8,42 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [logo, setLogo] = useState("/logo.jpeg");
   const [social, setSocial] = useState<any>({});
+  const [contact, setContact] = useState<any>({});
   const pathname = usePathname();
+
+  // Campaign Banner state
+  const [bannerActive, setBannerActive] = useState(false);
+  const [bannerText, setBannerText] = useState("Yaz Kampanyası: Koltuk Yıkama Hizmetlerinde Aynı Gün Servis!");
+  const [bannerLink, setBannerLink] = useState("#teklif-formu");
+  const [bannerBgColor, setBannerBgColor] = useState("#059669");
+  const [bannerTextColor, setBannerTextColor] = useState("#ffffff");
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
 
+    const applyData = (data: any) => {
+      if (data.logo_url) setLogo(data.logo_url);
+      if (data.social) setSocial(data.social);
+      if (data.contact) setContact(data.contact);
+      if (data.banner_active !== undefined) setBannerActive(data.banner_active);
+      if (data.banner_text) setBannerText(data.banner_text);
+      if (data.banner_link) setBannerLink(data.banner_link);
+      if (data.banner_bg_color) setBannerBgColor(data.banner_bg_color);
+      if (data.banner_text_color) setBannerTextColor(data.banner_text_color);
+    };
+
     try {
       const cachedContent = localStorage.getItem("titan360_content");
       if (cachedContent) {
-        const data = JSON.parse(cachedContent);
-        if (data.logo_url) setLogo(data.logo_url);
-        if (data.social) setSocial(data.social);
+        applyData(JSON.parse(cachedContent));
       }
     } catch (e) {}
 
     fetch("/api/website-content")
       .then(r => r.ok ? r.json() : {})
       .then((data: any) => {
-        if (data.logo_url) setLogo(data.logo_url);
-        if (data.social) setSocial(data.social);
+        applyData(data);
       })
       .catch(() => {});
 
@@ -43,29 +59,16 @@ export default function Navbar() {
     { href: "/iletisim", label: "İletişim" },
   ];
 
+  const phone = contact.phone || "0552 363 74 25";
+  const phoneClean = phone.replace(/[^0-9+]/g, "");
+  const whatsapp = contact.whatsapp || phone;
+  const waNum = whatsapp.replace(/[^0-9]/g, "");
+  const waLink = `https://wa.me/${waNum}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
+
   return (
-    <>
-      <div className="bg-slate-900 hidden md:block" data-testid="top-bar">
-        <div className="page-container">
-          <div className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-6 text-slate-400 text-xs">
-              <span className="flex items-center gap-2"><i className="fas fa-clock text-sky-500"></i> Pazartesi - Cumartesi: 08:00 - 20:00</span>
-              <span className="flex items-center gap-2"><i className="fas fa-map-marker-alt text-emerald-500"></i> Antalya & Tüm İlçeler</span>
-            </div>
-            <div className="flex items-center gap-4 text-slate-400 text-xs">
-              <a href="mailto:titan360.com.tr@gmail.com" className="flex items-center gap-2 hover:text-white transition-colors"><i className="fas fa-envelope text-sky-500"></i> titan360.com.tr@gmail.com</a>
-              <div className="flex items-center gap-2">
-                <a href={social.instagram || "#"} target="_blank" rel="noopener noreferrer" className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center hover:bg-sky-600 transition-colors"><i className="fab fa-instagram text-[10px]"></i></a>
-                <a href={social.facebook || "#"} target="_blank" rel="noopener noreferrer" className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center hover:bg-sky-600 transition-colors"><i className="fab fa-facebook-f text-[10px]"></i></a>
-                {social.twitter && <a href={social.twitter} target="_blank" rel="noopener noreferrer" className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center hover:bg-sky-600 transition-colors"><i className="fab fa-x-twitter text-[10px]"></i></a>}
-                {social.youtube && <a href={social.youtube} target="_blank" rel="noopener noreferrer" className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center hover:bg-red-600 transition-colors"><i className="fab fa-youtube text-[10px]"></i></a>}
-                <a href="https://wa.me/905523637425" className="w-6 h-6 bg-slate-800 rounded flex items-center justify-center hover:bg-emerald-600 transition-colors"><i className="fab fa-whatsapp text-[10px]"></i></a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 99999 }} className={`transition-all duration-300 ${scrolled ? "bg-white shadow-xl" : "bg-white/95 backdrop-blur-md shadow-sm"}`} data-testid="main-navbar">
+    <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 99999 }} className="w-full">
+      {/* Main Navbar */}
+      <nav className={`transition-all duration-300 ${scrolled ? "bg-white shadow-xl" : "bg-white/95 backdrop-blur-md shadow-sm"}`} data-testid="main-navbar">
         <div className="page-container">
           <div className="flex items-center justify-between h-16 md:h-[72px]">
             <Link href="/" className="flex items-center gap-3 group">
@@ -84,11 +87,11 @@ export default function Navbar() {
               ))}
             </div>
             <div className="hidden lg:flex items-center gap-3">
-              <a href="tel:+905523637425" className="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-sky-600 transition-colors">
+              <a href={"tel:" + phoneClean} className="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-sky-600 transition-colors">
                 <div className="w-9 h-9 bg-sky-50 rounded-lg flex items-center justify-center"><i className="fas fa-phone text-sky-600 text-sm"></i></div>
-                0552 363 74 25
+                {phone}
               </a>
-              <a href="https://wa.me/905523637425?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum" target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 flex items-center gap-2">
+              <a href={waLink} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 flex items-center gap-2">
                 <i className="fab fa-whatsapp"></i> Ücretsiz Teklif
               </a>
             </div>
@@ -105,14 +108,14 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <div className="pt-4 mt-2 border-t border-slate-100 flex flex-col gap-3">
-                  <a href="tel:+905523637425" className="flex items-center justify-center gap-3 px-4 py-4 bg-sky-600 text-white font-bold rounded-xl text-base shadow-lg"><i className="fas fa-phone-volume"></i> HEMEN ARA</a>
-                  <a href="https://wa.me/905523637425?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-4 py-4 bg-emerald-500 text-white font-bold rounded-xl text-base shadow-lg"><i className="fab fa-whatsapp text-lg"></i> WhatsApp Yaz</a>
+                  <a href={"tel:" + phoneClean} className="flex items-center justify-center gap-3 px-4 py-4 bg-sky-600 text-white font-bold rounded-xl text-base shadow-lg"><i className="fas fa-phone-volume"></i> HEMEN ARA</a>
+                  <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-4 py-4 bg-emerald-500 text-white font-bold rounded-xl text-base shadow-lg"><i className="fab fa-whatsapp text-lg"></i> WhatsApp Yaz</a>
                 </div>
               </div>
             </div>
           )}
         </div>
       </nav>
-    </>
+    </header>
   );
 }

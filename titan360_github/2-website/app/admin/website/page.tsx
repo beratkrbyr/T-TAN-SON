@@ -77,6 +77,31 @@ interface WebsiteContent {
   media_cover_image?: string;
   media_items?: { url: string; title: string; type: "image" | "video" }[];
   logo_url?: string;
+
+  // Theme styling & campaign banner settings
+  primary_color?: string;
+  secondary_color?: string;
+  banner_active?: boolean;
+  banner_text?: string;
+  banner_link?: string;
+  banner_bg_color?: string;
+  banner_text_color?: string;
+
+  // Google Reviews
+  google_reviews_active?: boolean;
+  google_reviews_count?: number;
+
+  // Headings & keywords
+  seo_keywords?: string;
+  seo_h1?: string;
+  seo_h2_1?: string;
+  seo_h2_2?: string;
+  seo_h2_3?: string;
+  seo_h2_4?: string;
+  seo_h2_5?: string;
+  seo_h3_1?: string;
+  seo_h3_2?: string;
+  instagram_embed_code?: string;
 }
 
 const defaults: WebsiteContent = {
@@ -134,11 +159,32 @@ const defaults: WebsiteContent = {
   brand_music_url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
   media_cover_image: "",
   media_items: [],
-  logo_url: ""
+  logo_url: "",
+
+  primary_color: "#059669",
+  secondary_color: "#0284c7",
+  banner_active: false,
+  banner_text: "Titan360 ile temizlikte farkı yaşayın! Detaylı koltuk ve halı yıkamada indirim!",
+  banner_link: "",
+  banner_bg_color: "#059669",
+  banner_text_color: "#ffffff",
+  google_reviews_active: true,
+  google_reviews_count: 6,
+  seo_keywords: "",
+  seo_h1: "",
+  seo_h2_1: "",
+  seo_h2_2: "",
+  seo_h2_3: "",
+  seo_h2_4: "",
+  seo_h2_5: "",
+  seo_h3_1: "",
+  seo_h3_2: "",
+  instagram_embed_code: ""
 };
 
 const tabs = [
   { id: "general", label: "Genel Ayarlar", icon: "fas fa-cog" },
+  { id: "banner", label: "Kampanya Bannerı", icon: "fas fa-bullhorn" },
   { id: "media", label: "Medya Sayfası", icon: "fas fa-photo-video" },
   { id: "hero_slides", label: "Kahraman Slider", icon: "fas fa-images" },
   { id: "before_after_albums", label: "Önce/Sonra Albümleri", icon: "fas fa-columns" },
@@ -220,7 +266,27 @@ export default function WebsiteSettingsPage() {
           brand_music_url: data.brand_music_url || defaults.brand_music_url,
           media_cover_image: data.media_cover_image || defaults.media_cover_image,
           media_items: data.media_items || defaults.media_items,
-          logo_url: data.logo_url || defaults.logo_url
+          logo_url: data.logo_url || defaults.logo_url,
+          
+          primary_color: data.primary_color || defaults.primary_color,
+          secondary_color: data.secondary_color || defaults.secondary_color,
+          banner_active: data.banner_active !== undefined ? data.banner_active : defaults.banner_active,
+          banner_text: data.banner_text || defaults.banner_text,
+          banner_link: data.banner_link || defaults.banner_link,
+          banner_bg_color: data.banner_bg_color || defaults.banner_bg_color,
+          banner_text_color: data.banner_text_color || defaults.banner_text_color,
+          google_reviews_active: data.google_reviews_active !== undefined ? data.google_reviews_active : defaults.google_reviews_active,
+          google_reviews_count: data.google_reviews_count || defaults.google_reviews_count,
+          seo_keywords: data.seo_keywords || defaults.seo_keywords,
+          seo_h1: data.seo_h1 || defaults.seo_h1,
+          seo_h2_1: data.seo_h2_1 || defaults.seo_h2_1,
+          seo_h2_2: data.seo_h2_2 || defaults.seo_h2_2,
+          seo_h2_3: data.seo_h2_3 || defaults.seo_h2_3,
+          seo_h2_4: data.seo_h2_4 || defaults.seo_h2_4,
+          seo_h2_5: data.seo_h2_5 || defaults.seo_h2_5,
+          seo_h3_1: data.seo_h3_1 || defaults.seo_h3_1,
+          seo_h3_2: data.seo_h3_2 || defaults.seo_h3_2,
+          instagram_embed_code: data.instagram_embed_code || defaults.instagram_embed_code
         });
       }
     } catch {} finally { setLoading(false); }
@@ -341,6 +407,50 @@ export default function WebsiteSettingsPage() {
                       <p className="text-[10px] text-gray-400 mt-1">Önerilen boyut: 512x512px (Kare)</p>
                     </div>
                   </div>
+                </div>
+
+                {/* Tema Renkleri (Dynamic Skinning) */}
+                <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <span className="text-sm font-semibold text-gray-700 block">Tema Renkleri (Dinamik Arayüz)</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Birincil Renk (Örn: #059669)</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.primary_color || "#059669"}
+                          onChange={e => setContent(p => ({ ...p, primary_color: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.primary_color || "#059669"}
+                          onChange={e => setContent(p => ({ ...p, primary_color: e.target.value }))}
+                          placeholder="#059669"
+                          className="flex-grow px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">İkincil Renk (Örn: #0284c7)</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.secondary_color || "#0284c7"}
+                          onChange={e => setContent(p => ({ ...p, secondary_color: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.secondary_color || "#0284c7"}
+                          onChange={e => setContent(p => ({ ...p, secondary_color: e.target.value }))}
+                          placeholder="#0284c7"
+                          className="flex-grow px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-gray-400">Bu renkler sitenin genelindeki butonlar, başlıklar ve arka plan temalarında dinamik olarak kullanılır.</p>
                 </div>
 
                 <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
@@ -550,6 +660,91 @@ export default function WebsiteSettingsPage() {
                         onChange={e => setContent(p => ({ ...p, social: { ...(p.social || {}), youtube: e.target.value } }))}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs"
                       />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* CAMPAIGN BANNER */}
+            {activeTab === "banner" && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Kampanya Bannerı Yönetimi</h2>
+                <p className="text-sm text-gray-500 mb-4">Sitenin en üst kısmında yer alan dikkat çekici kampanya/duyuru şeridini buradan yönetin.</p>
+                
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="banner_active"
+                    checked={content.banner_active !== false}
+                    onChange={e => setContent(p => ({ ...p, banner_active: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="banner_active" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    Kampanya Bannerını Göster
+                  </label>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Banner Duyuru Metni</label>
+                    <input
+                      type="text"
+                      value={content.banner_text || ""}
+                      onChange={e => setContent(p => ({ ...p, banner_text: e.target.value }))}
+                      placeholder="Titan360 ile temizlikte indirim kampanyası!"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Yönlendirme Linki (İsteğe Bağlı)</label>
+                    <input
+                      type="text"
+                      value={content.banner_link || ""}
+                      onChange={e => setContent(p => ({ ...p, banner_link: e.target.value }))}
+                      placeholder="örn: /hizmetler veya https://wa.me/..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Arka Plan Rengi</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.banner_bg_color || "#059669"}
+                          onChange={e => setContent(p => ({ ...p, banner_bg_color: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.banner_bg_color || "#059669"}
+                          onChange={e => setContent(p => ({ ...p, banner_bg_color: e.target.value }))}
+                          placeholder="#059669"
+                          className="flex-grow px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-gray-650 mb-1">Yazı Rengi</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="color"
+                          value={content.banner_text_color || "#ffffff"}
+                          onChange={e => setContent(p => ({ ...p, banner_text_color: e.target.value }))}
+                          className="w-10 h-10 border border-gray-300 rounded-lg cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={content.banner_text_color || "#ffffff"}
+                          onChange={e => setContent(p => ({ ...p, banner_text_color: e.target.value }))}
+                          placeholder="#ffffff"
+                          className="flex-grow px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1055,6 +1250,33 @@ export default function WebsiteSettingsPage() {
             {activeTab === "instagram" && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Sosyal Medya (Instagram) Ayarları</h2>
+                
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="social_instagram_active"
+                    checked={content.social_instagram_active !== false}
+                    onChange={e => setContent(p => ({ ...p, social_instagram_active: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="social_instagram_active" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    Instagram Akışını Web Sitesinde Göster
+                  </label>
+                </div>
+
+                {/* Yöntem A: Widget Embed Kodu */}
+                <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <span className="text-sm font-semibold text-gray-700 block"><i className="fas fa-code text-pink-500 mr-2"></i>Instagram Widget Embed Kodu (Yöntem A)</span>
+                  <p className="text-xs text-gray-500">Elfsight, LightWidget veya Behold.so gibi servislerden aldığınız hazır embed kodunu (HTML/Script/Iframe) buraya yapıştırın. Bu kod canlı Instagram akışınızı otomatik gösterecektir.</p>
+                  <textarea
+                    rows={5}
+                    value={content.instagram_embed_code || ""}
+                    onChange={e => setContent(p => ({ ...p, instagram_embed_code: e.target.value }))}
+                    placeholder='<iframe src="https://lightwidget.com/widgets/..." ...></iframe>'
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono"
+                  />
+                </div>
+
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Instagram Kullanıcı Adı (Yalnızca ad, örn: titan360tr)</label>
@@ -1194,6 +1416,70 @@ export default function WebsiteSettingsPage() {
                     value={content.seo_description || ""}
                     onChange={e => setContent(p => ({ ...p, seo_description: e.target.value }))}
                     placeholder="Antalya'da profesyonel koltuk yıkama, halı yıkama ve yatak temizliği. Güvenilir ve garantili hizmet..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ana Sayfa SEO Anahtar Kelimeleri (Meta Keywords)</label>
+                  <input
+                    type="text"
+                    value={content.seo_keywords || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_keywords: e.target.value }))}
+                    placeholder="antalya koltuk yıkama, halı yıkama, buharlı temizlik"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Ana Sayfa SEO H1 Başlığı (Örn: Antalya'nın 1 Numaralı Koltuk Yıkama Hizmeti)</label>
+                  <input
+                    type="text"
+                    value={content.seo_h1 || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_h1: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Önce/Sonra Bölümü H2 Başlığı</label>
+                  <input
+                    type="text"
+                    value={content.seo_h2_1 || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_h2_1: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hizmetlerimiz Bölümü H2 Başlığı</label>
+                  <input
+                    type="text"
+                    value={content.seo_h2_2 || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_h2_2: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Neden Biz Bölümü H2 Başlığı</label>
+                  <input
+                    type="text"
+                    value={content.seo_h2_3 || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_h2_3: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Müşteri Yorumları Bölümü H2 Başlığı</label>
+                  <input
+                    type="text"
+                    value={content.seo_h2_4 || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_h2_4: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Instagram Akışı Bölümü H2 Başlığı</label>
+                  <input
+                    type="text"
+                    value={content.seo_h2_5 || ""}
+                    onChange={e => setContent(p => ({ ...p, seo_h2_5: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -1374,11 +1660,69 @@ export default function WebsiteSettingsPage() {
             {activeTab === "testimonials" && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">Müşteri Google Yorumları</h2>
+                
+                <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg mb-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="google_reviews_active"
+                      checked={content.google_reviews_active !== false}
+                      onChange={e => setContent(p => ({ ...p, google_reviews_active: e.target.checked }))}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="google_reviews_active" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                      Google Yorumları Karuselini Web Sitesinde Göster
+                    </label>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Maksimum Gösterilecek Yorum Sayısı</label>
+                    <input
+                      type="number"
+                      value={content.google_reviews_count || 6}
+                      onChange={e => setContent(p => ({ ...p, google_reviews_count: Number(e.target.value) }))}
+                      className="w-32 px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                      placeholder="6"
+                    />
+                  </div>
+                </div>
+
                 {content.testimonials.map((t, i) => (
                   <div key={i} className="p-4 bg-gray-50 rounded-lg space-y-2 border border-gray-200">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-gray-600">Yorum {i + 1}</span>
-                      <button onClick={() => setContent(p => ({ ...p, testimonials: p.testimonials.filter((_, j) => j !== i) }))} className="text-red-500 text-xs hover:text-red-700"><i className="fas fa-trash"></i> Sil</button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          disabled={i === 0}
+                          onClick={() => {
+                            const list = [...content.testimonials];
+                            const temp = list[i];
+                            list[i] = list[i - 1];
+                            list[i - 1] = temp;
+                            setContent(p => ({ ...p, testimonials: list }));
+                          }}
+                          className="text-gray-500 hover:text-gray-800 text-xs font-semibold disabled:opacity-30 p-1"
+                          title="Yukarı Taşı"
+                        >
+                          <i className="fas fa-arrow-up"></i>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={i === content.testimonials.length - 1}
+                          onClick={() => {
+                            const list = [...content.testimonials];
+                            const temp = list[i];
+                            list[i] = list[i + 1];
+                            list[i + 1] = temp;
+                            setContent(p => ({ ...p, testimonials: list }));
+                          }}
+                          className="text-gray-500 hover:text-gray-800 text-xs font-semibold disabled:opacity-30 p-1"
+                          title="Aşağı Taşı"
+                        >
+                          <i className="fas fa-arrow-down"></i>
+                        </button>
+                        <button onClick={() => setContent(p => ({ ...p, testimonials: p.testimonials.filter((_, j) => j !== i) }))} className="text-red-500 text-xs hover:text-red-700 font-semibold"><i className="fas fa-trash"></i> Sil</button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-4 gap-2">
                       <div className="col-span-1">

@@ -10,26 +10,51 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-export const metadata: Metadata = {
-  title: "TiTAN 360 | Profesyonel Temizlik Hizmetleri - Antalya",
-  description: "Antalya'nın en güvenilir temizlik şirketi. Ev, ofis, cam temizliği, koltuk yıkama ve daha fazlası.",
-  keywords: "temizlik, ev temizliği, ofis temizliği, antalya temizlik şirketi, profesyonel temizlik, koltuk yıkama, cam temizliği",
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/favicon.png", sizes: "48x48", type: "image/png" },
-    ],
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
-  },
-};
+const getBackendUrl = () => process.env.API_URL || "https://titan-api-gcuw.onrender.com";
 
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+  const backendUrl = getBackendUrl();
+  let seoTitle = "TiTAN 360 | Profesyonel Temizlik Hizmetleri - Antalya";
+  let seoDesc = "Antalya'nın en güvenilir temizlik şirketi. Ev, ofis, cam temizliği, koltuk yıkama ve daha fazlası.";
+  let seoKeywords = "temizlik, ev temizliği, ofis temizliği, antalya temizlik şirketi, profesyonel temizlik, koltuk yıkama, cam temizliği";
+
+  try {
+    const res = await fetch(`${backendUrl}/api/website-content`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.seo_title) seoTitle = data.seo_title;
+      if (data.seo_description) seoDesc = data.seo_description;
+      if (data.seo_keywords || data.negative_keywords) {
+        seoKeywords = data.seo_keywords || data.negative_keywords || seoKeywords;
+      }
+    }
+  } catch (e) {}
+
+  return {
+    title: seoTitle,
+    description: seoDesc,
+    keywords: seoKeywords,
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const backendUrl = getBackendUrl();
+  let content: any = {};
+  
+  try {
+    const res = await fetch(`${backendUrl}/api/website-content`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      content = await res.json();
+    }
+  } catch (e) {}
+
+  const primaryColor = content.primary_color || "#059669";
+  const secondaryColor = content.secondary_color || "#0284c7";
+
   return (
     <html lang="tr" className="">
       <head>
@@ -44,6 +69,14 @@ export default function RootLayout({
         <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          :root {
+            --primary-color: ${primaryColor};
+            --primary-hover-color: color-mix(in srgb, ${primaryColor} 85%, black);
+            --secondary-color: ${secondaryColor};
+            --secondary-hover-color: color-mix(in srgb, ${secondaryColor} 85%, black);
+          }
+        `}} />
       </head>
       <body className={`${poppins.variable} font-sans antialiased bg-white text-slate-800 min-h-screen flex flex-col`}>
         <noscript>

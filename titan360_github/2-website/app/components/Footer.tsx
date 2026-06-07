@@ -21,7 +21,9 @@ export default function Footer({ hideCta = false }: { hideCta?: boolean }) {
   const phone = contact.phone || "+90 552 363 74 25";
   const email = contact.email || "titan360.com.tr@gmail.com";
   const address = contact.address || "ANTALYA";
-  const waLink = `https://wa.me/${phone.replace(/[^0-9]/g, "")}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
+  const whatsapp = contact.whatsapp || phone;
+  const waNum = whatsapp.replace(/[^0-9]/g, "");
+  const waLink = `https://wa.me/${waNum}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
 
   return (
     <footer className="bg-slate-900 text-white mt-auto">
@@ -56,7 +58,7 @@ export default function Footer({ hideCta = false }: { hideCta?: boolean }) {
               {social.twitter && <a href={social.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-sky-600 transition-colors" title="Twitter/X"><i className="fab fa-x-twitter text-slate-400 hover:text-white"></i></a>}
               {social.linkedin && <a href={social.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-sky-600 transition-colors" title="LinkedIn"><i className="fab fa-linkedin-in text-slate-400 hover:text-white"></i></a>}
               {social.youtube && <a href={social.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-red-600 transition-colors" title="YouTube"><i className="fab fa-youtube text-slate-400 hover:text-white"></i></a>}
-              <a href={"https://wa.me/" + phone.replace(/[^0-9]/g, "")} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-colors" title="WhatsApp"><i className="fab fa-whatsapp text-slate-400 hover:text-white"></i></a>
+              <a href={waLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-xl flex items-center justify-center hover:bg-emerald-600 transition-colors" title="WhatsApp"><i className="fab fa-whatsapp text-slate-400 hover:text-white"></i></a>
             </div>
           </div>
           <div>

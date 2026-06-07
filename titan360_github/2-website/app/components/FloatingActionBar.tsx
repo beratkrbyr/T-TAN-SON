@@ -80,21 +80,8 @@ export default function FloatingActionBar() {
   const waNum = whatsapp.replace(/[^0-9]/g, "");
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20koltuk%20y%C4%B1kama%20hizmeti%20almak%20istiyorum`;
   const instagramUser = c.instagram_username || "titan360tr";
-
   return (
     <div className="fixed bottom-24 right-4 md:right-6 z-[99999] flex flex-col gap-3 items-center">
-      {/* Instagram */}
-      {c.social_instagram_active !== false && instagramUser && (
-        <a 
-          href={`https://instagram.com/${instagramUser}`} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="w-12 h-12 bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-500 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform"
-          aria-label="Instagram"
-        >
-          <i className="fab fa-instagram text-xl"></i>
-        </a>
-      )}
       
       {/* Facebook */}
       {c.social_facebook_active !== false && c.social?.facebook && (

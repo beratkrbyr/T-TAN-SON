@@ -92,6 +92,9 @@ export default function HizmetlerPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [c, setC] = useState<any>({});
   const [activeCard, setActiveCard] = useState<number | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const hasAutoOpened = useRef(false);
+
   useEffect(() => {
     try {
       const cachedContent = localStorage.getItem("titan360_content");
@@ -128,6 +131,31 @@ export default function HizmetlerPage() {
   const waLink = `https://wa.me/${(c.contact?.whatsapp || phone).replace(/[^0-9]/g, "")}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
   const servicesToRender = services.length ? services : defaultServices;
 
+  useEffect(() => {
+    if (hasAutoOpened.current || servicesToRender.length === 0) return;
+
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+
+    const decodedHash = decodeURIComponent(hash);
+    const index = servicesToRender.findIndex(
+      (s) => (s.slug && decodeURIComponent(s.slug) === decodedHash) || s.id === decodedHash
+    );
+
+    if (index !== -1) {
+      setActiveCard(index);
+      hasAutoOpened.current = true;
+
+      // Scroll to the card
+      setTimeout(() => {
+        const element = document.getElementById(decodedHash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300);
+    }
+  }, [servicesToRender]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -154,9 +182,16 @@ export default function HizmetlerPage() {
             {servicesToRender.map((s, i) => (
               <div 
                 key={i} 
+                id={s.slug || s.id}
                 onClick={(e) => {
                   if ((e.target as HTMLElement).closest("a, button")) return;
-                  setActiveCard(activeCard === i ? null : i);
+                  if (activeCard === i) {
+                    setActiveCard(null);
+                    window.history.pushState(null, "", window.location.pathname);
+                  } else {
+                    setActiveCard(i);
+                    window.history.pushState(null, "", `#${s.slug || s.id}`);
+                  }
                 }}
                 className="group relative bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between h-[420px] cursor-pointer" 
                 style={{ transitionDelay: `${i * 80}ms` }}>
@@ -211,6 +246,7 @@ export default function HizmetlerPage() {
                         onClick={(e) => {
                           e.stopPropagation();
                           setActiveCard(null);
+                          window.history.pushState(null, "", window.location.pathname);
                         }}
                         className="md:hidden text-slate-400 hover:text-white p-2 -mr-2 -mt-2 transition-colors"
                         aria-label="Kapat"
@@ -220,7 +256,7 @@ export default function HizmetlerPage() {
                     </div>
                     
                     {s.options && s.options.length > 0 ? (
-                      <div className="space-y-2.5 overflow-y-auto max-h-[220px] pr-1">
+                      <div className="space-y-2.5 overflow-y-auto max-h-[200px] pr-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET FİYAT DETAYLARI</p>
                         {s.options.map((opt, j) => (
                           <div key={j} className="flex justify-between items-center text-xs py-1.5 border-b border-white/5 text-slate-300">
@@ -237,10 +273,35 @@ export default function HizmetlerPage() {
                     )}
                   </div>
                   
-                  <div className="space-y-3 pt-4 border-t border-white/5">
-                    <Link href={`/hizmetler/${s.slug || s.id}`} className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-orange-500/20">
+                  <div className="space-y-2 pt-4 border-t border-white/5">
+                    <Link href={`/hizmetler/${s.slug || s.id}`} className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-orange-500/20">
                       Detaylı Bilgi & Fiyat Al <i className="fas fa-arrow-right"></i>
                     </Link>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const link = `${window.location.origin}/hizmetler#${s.slug || s.id}`;
+                        navigator.clipboard.writeText(link);
+                        setCopiedId(s.id);
+                        setTimeout(() => setCopiedId(null), 2000);
+                      }}
+                      className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-bold transition-all border ${
+                        copiedId === s.id
+                          ? "bg-emerald-600 border-emerald-600 text-white"
+                          : "bg-white/10 hover:bg-white/20 text-white border-white/10"
+                      }`}
+                    >
+                      {copiedId === s.id ? (
+                        <>
+                          <i className="fas fa-check"></i> Kopyalandı!
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-link"></i> Reklam & Paylaşım Linkini Kopyala
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
 
