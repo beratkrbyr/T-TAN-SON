@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from notification_service import NotificationService, BookingNotifications, PasswordResetNotifications
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,10 +53,10 @@ async def get_uploaded_file(filename: str):
         
     raise HTTPException(status_code=404, detail="Dosya bulunamadi")
 
-# Mount static files for local development or platforms like Render (where Nginx is not serving static files)
-from fastapi.staticfiles import StaticFiles
-static_dir = "/var/www/titan360/static" if os.path.exists("/var/www/titan360/static") else os.path.join(os.path.dirname(__file__), "static")
+# Mount static files
+static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)
+os.makedirs(os.path.join(static_dir, "uploads"), exist_ok=True)
 app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 api_router = APIRouter(prefix="/api")
