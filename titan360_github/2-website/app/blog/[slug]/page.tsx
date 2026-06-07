@@ -15,8 +15,9 @@ interface BlogPost {
 }
 
 async function fetchBlogPost(slug: string): Promise<BlogPost | null> {
+  const backendUrl = process.env.API_URL || "https://titan-api-gcuw.onrender.com";
   try {
-    const res = await fetch(`http://localhost:8001/api/blog/${slug}`, { next: { revalidate: 60 } });
+    const res = await fetch(`${backendUrl}/api/blog/${slug}`, { next: { revalidate: 60 } });
     if (res.ok) {
       return await res.json();
     }
