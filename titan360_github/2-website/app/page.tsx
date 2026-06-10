@@ -73,6 +73,10 @@ interface SiteContent {
   campaign_badge_bg?: string;
   campaign_badge_text?: string;
   campaign_price_color?: string;
+  campaign_percent?: number;
+  home_campaign_active?: boolean;
+  home_campaign_title?: string;
+  home_campaign_subtitle?: string;
   logo_url?: string;
 }
 
@@ -313,6 +317,7 @@ export default function HomePage() {
   // Campaign styling variables
   const badgeBg = c.campaign_badge_bg || "#dc2626";
   const badgeText = c.campaign_badge_text || "#ffffff";
+  const priceColor = c.campaign_price_color || "#ef4444";
   
   const defaultAlbums = [
     {
@@ -342,6 +347,7 @@ export default function HomePage() {
   const reelsToRender = c.reels_posts?.length ? c.reels_posts.slice(0, instagramCount) : reelsVideos.slice(0, instagramCount);
 
   const servicesToRender = services.length ? services : defaultServices;
+  const campaignServices = servicesToRender.filter((s: any) => s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price);
 
   const s2 = useScrollReveal();
   const s3 = useScrollReveal();
@@ -478,6 +484,62 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Dynamic Campaign Banner Section */}
+      {c.home_campaign_active !== false && campaignServices.length > 0 && (
+        <section className="py-12 bg-slate-900 border-y border-slate-800 relative overflow-hidden" data-testid="homepage-campaign-banner">
+          {/* Decorative background glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="max-w-7xl mx-auto px-4 relative z-10">
+            <div className="text-center mb-10">
+              <span className="inline-block px-4 py-1.5 bg-rose-500/10 text-rose-400 text-xs font-bold rounded-full mb-3 tracking-wider uppercase border border-rose-500/20">
+                <i className="fas fa-fire mr-1"></i> Sınırlı Süre Fırsatları
+              </span>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-2">
+                {c.home_campaign_title || "🔥 Fırsat Kampanyaları"}
+              </h2>
+              <p className="text-slate-400 text-sm md:text-base max-w-2xl mx-auto">
+                {c.home_campaign_subtitle || "Seçili temizlik hizmetlerimizde kısa süreliğine geçerli dev indirimleri kaçırmayın!"}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {campaignServices.map((s, idx) => {
+                const discountPercent = Math.round(((s.price - (s.campaign_price || 0)) / s.price) * 100);
+                return (
+                  <div 
+                    key={s.id || idx} 
+                    className="group relative bg-slate-950/80 backdrop-blur-md border border-slate-800 hover:border-sky-500/50 rounded-2xl p-5 flex gap-4 shadow-lg hover:shadow-sky-500/5 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                  >
+                    <Link href={`/hizmetler#${s.slug || s.id}`} className="absolute inset-0" />
+                    <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 relative">
+                      <img src={s.image || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=200&q=80"} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="absolute top-1 left-1 px-1.5 py-0.5 text-[9px] font-extrabold rounded-md shadow-md" style={{ backgroundColor: badgeBg, color: badgeText }}>
+                        -{discountPercent}%
+                      </div>
+                    </div>
+                    <div className="flex flex-col justify-between flex-grow">
+                      <div>
+                        <h3 className="text-base font-bold text-white group-hover:text-sky-400 transition-colors line-clamp-1">{s.name}</h3>
+                        <p className="text-slate-400 text-xs mt-1 line-clamp-2">{s.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-xs text-slate-500 line-through font-medium">{s.price} TL</span>
+                          <span className="text-base font-extrabold" style={{ color: priceColor }}>{s.campaign_price} TL</span>
+                        </div>
+                        <span className="text-sky-400 group-hover:translate-x-1 transition-transform text-xs font-bold flex items-center gap-1">
+                          İncele <i className="fas fa-chevron-right text-[10px]"></i>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Hızlı Teklif Formu (Mobilde Hero Altı Bölüm Olarak) */}
       {c.show_hero_form !== false && (

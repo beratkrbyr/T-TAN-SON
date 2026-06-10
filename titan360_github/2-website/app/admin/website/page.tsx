@@ -90,6 +90,9 @@ interface WebsiteContent {
   banner_link?: string;
   banner_bg_color?: string;
   banner_text_color?: string;
+  home_campaign_active?: boolean;
+  home_campaign_title?: string;
+  home_campaign_subtitle?: string;
 
   // Google Reviews
   google_reviews_active?: boolean;
@@ -176,6 +179,9 @@ const defaults: WebsiteContent = {
   banner_link: "",
   banner_bg_color: "#059669",
   banner_text_color: "#ffffff",
+  home_campaign_active: true,
+  home_campaign_title: "🔥 Fırsat Kampanyaları",
+  home_campaign_subtitle: "Seçili temizlik hizmetlerimizde kısa süreliğine geçerli dev indirimleri kaçırmayın!",
   google_reviews_active: true,
   google_reviews_count: 6,
   seo_keywords: "",
@@ -287,6 +293,9 @@ export default function WebsiteSettingsPage() {
           banner_link: data.banner_link || defaults.banner_link,
           banner_bg_color: data.banner_bg_color || defaults.banner_bg_color,
           banner_text_color: data.banner_text_color || defaults.banner_text_color,
+          home_campaign_active: data.home_campaign_active !== undefined ? data.home_campaign_active : defaults.home_campaign_active,
+          home_campaign_title: data.home_campaign_title || defaults.home_campaign_title,
+          home_campaign_subtitle: data.home_campaign_subtitle || defaults.home_campaign_subtitle,
           google_reviews_active: data.google_reviews_active !== undefined ? data.google_reviews_active : defaults.google_reviews_active,
           google_reviews_count: data.google_reviews_count || defaults.google_reviews_count,
           seo_keywords: data.seo_keywords || defaults.seo_keywords,
@@ -759,6 +768,51 @@ export default function WebsiteSettingsPage() {
                       </div>
                     </div>
                   </div>
+                </div>
+
+                {/* HOMEPAGE CAMPAIGN SECTION BANNER */}
+                <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4 mt-6">
+                  <h3 className="text-sm font-semibold text-gray-800 border-b pb-2">
+                    <i className="fas fa-home text-blue-500 mr-2"></i>Ana Sayfa Kampanya Bölümü Ayarları
+                  </h3>
+                  
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      id="home_campaign_active"
+                      checked={content.home_campaign_active !== false}
+                      onChange={e => setContent(p => ({ ...p, home_campaign_active: e.target.checked }))}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="home_campaign_active" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                      Ana Sayfa Kampanya Bölümünü Göster
+                    </label>
+                  </div>
+
+                  {content.home_campaign_active !== false && (
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-650 mb-1">Bölüm Başlığı</label>
+                        <input
+                          type="text"
+                          value={content.home_campaign_title || ""}
+                          onChange={e => setContent(p => ({ ...p, home_campaign_title: e.target.value }))}
+                          placeholder="Örn: 🔥 Fırsat Kampanyaları"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-650 mb-1">Bölüm Alt Başlığı</label>
+                        <input
+                          type="text"
+                          value={content.home_campaign_subtitle || ""}
+                          onChange={e => setContent(p => ({ ...p, home_campaign_subtitle: e.target.value }))}
+                          placeholder="Örn: Seçili temizlik hizmetlerimizde kısa süreliğine geçerli dev indirimleri kaçırmayın!"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

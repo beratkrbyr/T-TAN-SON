@@ -16,6 +16,8 @@ interface Service {
   description: string;
   price: number;
   campaign_price?: number;
+  campaign_active?: boolean;
+  campaign_percent?: number;
   duration: number;
   active: boolean;
   image?: string;
@@ -35,6 +37,8 @@ export default function ServicesPage() {
     description: string;
     price: number;
     campaign_price: number;
+    campaign_active: boolean;
+    campaign_percent: number;
     duration: number;
     active: boolean;
     image: string;
@@ -42,7 +46,7 @@ export default function ServicesPage() {
     slug: string;
     seo_title: string;
     seo_description: string;
-  }>({ name: "", description: "", price: 0, campaign_price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
 
   useEffect(() => {
     fetchServices();
@@ -85,7 +89,7 @@ export default function ServicesPage() {
 
       setShowModal(false);
       setEditingService(null);
-      setFormData({ name: "", description: "", price: 0, campaign_price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
       fetchServices();
     } catch (err) {
       console.error(err);
@@ -99,6 +103,8 @@ export default function ServicesPage() {
       description: service.description,
       price: service.price,
       campaign_price: service.campaign_price || 0,
+      campaign_active: !!service.campaign_active,
+      campaign_percent: service.campaign_percent || 0,
       duration: service.duration || 60,
       active: service.active,
       image: service.image || "",
@@ -198,7 +204,7 @@ export default function ServicesPage() {
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, campaign_price: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -236,9 +242,16 @@ export default function ServicesPage() {
                     <p className="text-xl font-bold text-sky-600 mt-1">{service.price} TL</p>
                   )}
                 </div>
-                <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-semibold border ${service.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
-                  {service.active ? "Aktif" : "Pasif"}
-                </span>
+                <div className="flex flex-col gap-1 items-end">
+                  <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-semibold border ${service.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
+                    {service.active ? "Aktif" : "Pasif"}
+                  </span>
+                  {service.campaign_active && (
+                    <span className="inline-flex px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                      {service.campaign_percent && service.campaign_percent > 0 ? `-%${service.campaign_percent}` : "Genel Kampanya"}
+                    </span>
+                  )}
+                </div>
               </div>
               <p className="text-slate-500 text-sm mb-3 line-clamp-2">{service.description}</p>
               
@@ -381,23 +394,13 @@ export default function ServicesPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Normal Fiyat (TL)</label>
                   <input
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Kampanya Fiyat (TL)</label>
-                  <input
-                    type="number"
-                    value={formData.campaign_price}
-                    onChange={(e) => setFormData({ ...formData, campaign_price: Number(e.target.value) })}
-                    placeholder="0 = Kampanya Yok"
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
                   />
                 </div>
@@ -410,6 +413,48 @@ export default function ServicesPage() {
                     className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
                   />
                 </div>
+              </div>
+
+              <div className="p-4 bg-sky-50/50 rounded-xl border border-sky-100 space-y-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="campaign_active"
+                    checked={formData.campaign_active}
+                    onChange={(e) => setFormData({ ...formData, campaign_active: e.target.checked })}
+                    className="w-4 h-4 accent-sky-600 cursor-pointer"
+                  />
+                  <label htmlFor="campaign_active" className="text-sm font-medium text-slate-700 cursor-pointer select-none">Bu Hizmet İçin Kampanya Aktif</label>
+                </div>
+                
+                {formData.campaign_active && (
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">Kampanya Fiyatı (TL)</label>
+                      <input
+                        type="number"
+                        value={formData.campaign_price}
+                        onChange={(e) => setFormData({ ...formData, campaign_price: Number(e.target.value) })}
+                        placeholder="Boş = Otomatik Hesapla"
+                        className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-slate-800 text-sm focus:border-sky-500 outline-none"
+                      />
+                      <p className="text-[9px] text-slate-400 mt-1">Özel bir kampanya fiyatı girmek isterseniz doldurun.</p>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-600 mb-1">İndirim Yüzdesi (%)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={formData.campaign_percent}
+                        onChange={(e) => setFormData({ ...formData, campaign_percent: Number(e.target.value) })}
+                        placeholder="Örn: 25"
+                        className="w-full px-2.5 py-1.5 bg-white border border-gray-300 rounded-lg text-slate-800 text-sm focus:border-sky-500 outline-none"
+                      />
+                      <p className="text-[9px] text-slate-400 mt-1">Hizmete özel indirim yüzdesi (boş/0 ise genel indirim kullanılır).</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Options Section */}

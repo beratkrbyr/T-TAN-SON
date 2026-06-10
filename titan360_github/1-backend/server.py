@@ -94,6 +94,8 @@ class Service(BaseModel):
     description: str = ""
     price: float
     campaign_price: Optional[float] = 0
+    campaign_active: Optional[bool] = False
+    campaign_percent: Optional[int] = 0
     duration: int = 60
     active: bool = True
     order: int = 0
@@ -700,15 +702,15 @@ async def get_public_services():
     base_url = "https://titan360.com.tr"
     
     # Load campaign percentage from website_content setting (default 20%)
-    campaign_percent = 20
+    global_campaign_percent = 20
     try:
         content = await db.website_content.find_one({"type": "main"})
         if content and "campaign_percent" in content:
-            campaign_percent = int(content["campaign_percent"])
+            global_campaign_percent = int(content["campaign_percent"])
     except Exception as e:
         print(f"Error loading campaign_percent: {str(e)}")
         
-    discount_multiplier = (100 - campaign_percent) / 100
+    global_multiplier = (100 - global_campaign_percent) / 100
     
     result = []
     for s in services:
@@ -719,28 +721,52 @@ async def get_public_services():
             if img.startswith("/"):
                 img = base_url + img
         price = s["price"]
-        campaign_price = s.get("campaign_price", 0)
-        if not campaign_price or campaign_price <= 0:
-            campaign_price = round(price * discount_multiplier)
-
-        options = []
-        for opt in s.get("options", []):
-            opt_price = opt.get("price", 0)
-            if opt_price > 0:
-                opt["campaign_price"] = round(opt_price * discount_multiplier)
+        
+        # Check if campaign is active for this service
+        campaign_active = s.get("campaign_active", False)
+        campaign_percent = s.get("campaign_percent", 0)
+        
+        campaign_price = 0
+        service_options = []
+        
+        if campaign_active:
+            # Determine discount multiplier
+            if campaign_percent and campaign_percent > 0:
+                multiplier = (100 - campaign_percent) / 100
             else:
+                multiplier = global_multiplier
+                campaign_percent = global_campaign_percent
+                
+            campaign_price = s.get("campaign_price", 0)
+            if not campaign_price or campaign_price <= 0:
+                campaign_price = round(price * multiplier)
+                
+            for opt in s.get("options", []):
+                opt_price = opt.get("price", 0)
+                if opt_price > 0:
+                    opt["campaign_price"] = round(opt_price * multiplier)
+                else:
+                    opt["campaign_price"] = 0
+                service_options.append(opt)
+        else:
+            # Campaign not active
+            campaign_price = 0
+            campaign_percent = 0
+            for opt in s.get("options", []):
                 opt["campaign_price"] = 0
-            options.append(opt)
-
+                service_options.append(opt)
+                
         result.append({
             "id": str(s["_id"]),
             "name": s["name"],
             "description": s.get("description", ""),
             "price": price,
             "campaign_price": campaign_price,
+            "campaign_active": campaign_active,
+            "campaign_percent": campaign_percent,
             "duration": s.get("duration", 60),
             "image": img,
-            "options": options,
+            "options": service_options,
             "slug": s.get("slug", ""),
             "seo_title": s.get("seo_title", ""),
             "seo_description": s.get("seo_description", "")
