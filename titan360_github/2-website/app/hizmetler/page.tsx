@@ -211,9 +211,12 @@ export default function HizmetlerPage() {
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                       {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
                         <div 
-                          className="absolute top-4 right-4 px-3 py-1 text-sm font-bold rounded-lg shadow-lg flex flex-col items-center"
+                          className="absolute top-4 right-4 px-3 py-1 text-sm font-bold rounded-lg shadow-lg flex flex-col items-center justify-center"
                           style={{ backgroundColor: badgeBg, color: badgeText }}
                         >
+                          <span className="text-[9px] bg-white/20 px-1 py-0.5 rounded mb-0.5">
+                            -{Math.round(((s.price - s.campaign_price) / s.price) * 100)}%
+                          </span>
                           <span className="text-[10px] line-through opacity-75">{s.price} TL</span>
                           <span>{s.campaign_price} TL'den</span>
                         </div>
