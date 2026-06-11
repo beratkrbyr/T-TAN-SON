@@ -223,6 +223,7 @@ export default function WebsiteSettingsPage() {
   const [msg, setMsg] = useState<{ type: string; text: string } | null>(null);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const [uploadingMusic, setUploadingMusic] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const handleImageUpload = async (file: File, index: number) => {
     setUploadingIdx(index);
@@ -309,11 +310,16 @@ export default function WebsiteSettingsPage() {
           seo_h3_2: data.seo_h3_2 || defaults.seo_h3_2,
           instagram_embed_code: data.instagram_embed_code || defaults.instagram_embed_code
         });
+        setLoaded(true);
       }
     } catch {} finally { setLoading(false); }
   };
 
   const save = async () => {
+    if (!loaded) {
+      setMsg({ type: "error", text: "Ayarlar yüklenmeden kaydedilemez!" });
+      return;
+    }
     setSaving(true);
     try {
       const token = localStorage.getItem("admin_token");
@@ -353,8 +359,8 @@ export default function WebsiteSettingsPage() {
             <h1 className="text-2xl font-bold text-gray-800">Web Sitesi Yönetimi</h1>
             <p className="text-sm text-gray-500">Tüm sayfa içeriklerini ve entegrasyon ayarlarını buradan düzenleyin</p>
           </div>
-          <button onClick={save} disabled={saving} className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 text-sm">
-            <i className={`fas ${saving ? "fa-spinner fa-spin" : "fa-save"}`}></i> {saving ? "Kaydediliyor..." : "Kaydet"}
+          <button onClick={save} disabled={saving || !loaded} className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 text-sm">
+            <i className={`fas ${saving ? "fa-spinner fa-spin" : "fa-save"}`}></i> {saving ? "Kaydediliyor..." : (!loaded ? "Yüklenemedi" : "Kaydet")}
           </button>
         </div>
 
