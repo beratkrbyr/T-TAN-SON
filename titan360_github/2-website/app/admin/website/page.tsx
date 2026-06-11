@@ -584,7 +584,7 @@ export default function WebsiteSettingsPage() {
                           <input 
                             type="file" 
                             id="music-file" 
-                            accept="audio/*" 
+                            accept="audio/*,.mp3,.m4a,audio/mpeg,audio/mp4,audio/x-m4a" 
                             className="hidden" 
                             onChange={async e => {
                               const file = e.target.files?.[0];
