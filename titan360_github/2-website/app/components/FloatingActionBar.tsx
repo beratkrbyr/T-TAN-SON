@@ -68,7 +68,7 @@ export default function FloatingActionBar() {
         })
         .catch((err) => {
           console.error("Playback failed:", err);
-          alert("Müzik çalınamadı. Lütfen tarayıcınızın medya oynatma iznini verdiğinizden veya geçerli bir MP3 adresi girildiğinden emin olun.");
+          alert("Müzik çalınamadı. Dosya formatı uyumsuz olabilir (özellikle .mov ve video dosyaları Android, Windows ve Chrome cihazlarda ses olarak desteklenmez). Lütfen tarayıcı izinlerinizi kontrol edin veya geçerli bir .mp3 / .m4a ses dosyası yükleyin.");
           setIsPlaying(false);
         });
     }

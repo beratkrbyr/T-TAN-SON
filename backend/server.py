@@ -23,6 +23,28 @@ JWT_SECRET = os.environ.get("JWT_SECRET", "titan360-secret-key-2024")
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 
+from fastapi.exceptions import HTTPException as FastAPIHTTPException
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
+class FallbackStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        try:
+            return await super().get_response(path, scope)
+        except (FastAPIHTTPException, StarletteHTTPException) as exc:
+            if exc.status_code == 404:
+                filename = os.path.basename(path)
+                try:
+                    file_doc = await db.stored_files.find_one({"filename": filename})
+                    if file_doc:
+                        from fastapi.responses import Response
+                        return Response(
+                            content=file_doc["data"],
+                            media_type=file_doc.get("content_type", "application/octet-stream")
+                        )
+                except Exception as e:
+                    print(f"Error serving file {filename} from DB in FallbackStaticFiles: {str(e)}")
+            raise exc
+
 app = FastAPI()
 
 # Custom route for serving uploaded files with MongoDB fallback
@@ -57,7 +79,7 @@ async def get_uploaded_file(filename: str):
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)
 os.makedirs(os.path.join(static_dir, "uploads"), exist_ok=True)
-app.mount("/static", StaticFiles(directory=static_dir), name="static")
+app.mount("/static", FallbackStaticFiles(directory=static_dir), name="static")
 
 api_router = APIRouter(prefix="/api")
 security = HTTPBearer()
@@ -1324,6 +1346,21 @@ async def get_public_website_content():
         content.pop("type", None)
         content.pop("updated_at", None)
     return content or {}
+
+
+@api_router.get("/debug/files")
+async def list_files():
+    try:
+        files = []
+        async for doc in db.stored_files.find({}, {"filename": 1, "content_type": 1, "created_at": 1}):
+            files.append({
+                "filename": doc.get("filename"),
+                "content_type": doc.get("content_type"),
+                "created_at": str(doc.get("created_at")) if doc.get("created_at") else None
+            })
+        return {"status": "ok", "files": files}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
 
 
 # =============================================

@@ -589,6 +589,11 @@ export default function WebsiteSettingsPage() {
                             onChange={async e => {
                               const file = e.target.files?.[0];
                               if (file) {
+                                const ext = file.name.split('.').pop()?.toLowerCase();
+                                if (ext && ['mov', 'mp4', 'avi', 'mkv', 'm4v', '3gp'].includes(ext)) {
+                                  const proceed = confirm(`Uyarı: Seçtiğiniz dosya bir video formatıdır (.${ext.toUpperCase()}). Arka plan müziğinin tüm tarayıcılarda ve cihazlarda (Android, Windows, Chrome dahil) sorunsuz çalabilmesi için dosyayı .mp3 veya .m4a ses formatına dönüştürerek yüklemeniz önerilir.\n\nYine de bu video dosyasını arka plan müziği olarak yüklemek istiyor musunuz?`);
+                                  if (!proceed) return;
+                                }
                                 setUploadingMusic(true);
                                 try {
                                   const url = await uploadImage(file);
