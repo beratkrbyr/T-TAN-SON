@@ -25,6 +25,7 @@ interface Service {
   slug?: string;
   seo_title?: string;
   seo_description?: string;
+  extras?: string;
 }
 
 export default function ServicesPage() {
@@ -46,7 +47,8 @@ export default function ServicesPage() {
     slug: string;
     seo_title: string;
     seo_description: string;
-  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+    extras: string;
+  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: "" });
 
   useEffect(() => {
     fetchServices();
@@ -89,7 +91,7 @@ export default function ServicesPage() {
 
       setShowModal(false);
       setEditingService(null);
-      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: "" });
       fetchServices();
     } catch (err) {
       console.error(err);
@@ -112,6 +114,7 @@ export default function ServicesPage() {
       slug: service.slug || "",
       seo_title: service.seo_title || "",
       seo_description: service.seo_description || "",
+      extras: service.extras || "",
     });
     setShowModal(true);
   };
@@ -204,7 +207,7 @@ export default function ServicesPage() {
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "" });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: "" });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -391,6 +394,17 @@ export default function ServicesPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
                   rows={2}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Ekstralar (örn: Minder 50 TL, Yastık 80 TL)</label>
+                <input
+                  type="text"
+                  value={formData.extras}
+                  onChange={(e) => setFormData({ ...formData, extras: e.target.value })}
+                  placeholder="Yastık 150 TL, Minder 100 TL"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
                 />
               </div>
 

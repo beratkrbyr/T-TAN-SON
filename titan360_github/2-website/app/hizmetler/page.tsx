@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string }
+interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string; extras?: string }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
 const serviceImages: Record<string, string> = {
   "Ev Temizliği": "https://images.unsplash.com/photo-1758523670739-0d26a3ee976d?w=600&q=80",
@@ -221,7 +221,7 @@ export default function HizmetlerPage() {
                           <span>{s.campaign_price} TL'den</span>
                         </div>
                       ) : (
-                        <div className="absolute top-4 right-4 px-3 py-1.5 bg-emerald-500 text-white text-sm font-bold rounded-lg shadow-lg">
+                        <div className="absolute top-4 right-4 px-3 py-1.5 bg-[var(--primary-color)] text-white text-sm font-bold rounded-lg shadow-lg">
                           {s.price} TL'den
                         </div>
                       )}
@@ -239,10 +239,10 @@ export default function HizmetlerPage() {
                   
                   <div className="p-6 pt-0 mt-auto border-t border-slate-50">
                     <div className="flex items-center gap-3 mt-4">
-                      <a href={"tel:" + phoneClean} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-sky-600/10 text-sky-700 text-sm font-bold rounded-xl hover:bg-sky-600 hover:text-white transition-colors">
+                      <a href={"tel:" + phoneClean} className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--secondary-color)]/10 text-[var(--secondary-color)] text-sm font-bold rounded-xl hover:bg-[var(--secondary-color)] hover:text-white transition-colors">
                         <i className="fas fa-phone"></i> Ara
                       </a>
-                      <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-emerald-500/10 text-emerald-700 text-sm font-bold rounded-xl hover:bg-emerald-500 hover:text-white transition-colors">
+                      <a href={waLink} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-[var(--primary-color)]/10 text-[var(--primary-color)] text-sm font-bold rounded-xl hover:bg-[var(--primary-color)] hover:text-white transition-colors">
                         <i className="fab fa-whatsapp"></i> Yaz
                       </a>
                     </div>
@@ -250,9 +250,12 @@ export default function HizmetlerPage() {
                 </div>
 
                 {/* Hover Slide-up Overlay */}
-                <div className={`absolute inset-0 bg-slate-950/95 backdrop-blur-md rounded-2xl z-20 p-6 flex flex-col justify-between transition-all duration-500 ${
-                  activeCard === i ? "translate-y-0" : "translate-y-full group-hover:translate-y-0"
-                }`}>
+                <div 
+                  className={`absolute inset-0 backdrop-blur-md rounded-2xl z-20 p-6 flex flex-col justify-between transition-all duration-500 ${
+                    activeCard === i ? "translate-y-0" : "translate-y-full group-hover:translate-y-0"
+                  }`}
+                  style={{ background: `linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 12%, #0b1329) 0%, color-mix(in srgb, var(--secondary-color) 12%, #0b1329) 100%)` }}
+                >
                   {/* Floating Logo outside top-left corner */}
                   {activeCard === i && (
                     <div className="absolute -top-4 -left-4 z-30 w-12 h-12 bg-white rounded-2xl shadow-xl border-2 border-slate-100 flex items-center justify-center overflow-hidden animate-scaleIn">
@@ -263,7 +266,7 @@ export default function HizmetlerPage() {
                   <div>
                     <div className="flex items-center justify-between gap-3 mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-orange-500/20 text-orange-400 rounded-xl flex items-center justify-center">
+                        <div className="w-8 h-8 bg-[var(--primary-color)]/20 text-[var(--primary-color)] rounded-xl flex items-center justify-center">
                           <i className={`fas ${iconMap[s.name] || "fa-broom"}`}></i>
                         </div>
                         <h3 className="text-lg font-bold text-white">{s.name}</h3>
@@ -283,13 +286,13 @@ export default function HizmetlerPage() {
                     </div>
                     
                     {s.options && s.options.length > 0 ? (
-                      <div className="space-y-2.5 overflow-y-auto max-h-[200px] pr-1">
+                      <div className="space-y-2.5 overflow-y-auto max-h-[170px] pr-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET FİYAT DETAYLARI</p>
                         {s.options.map((opt, j) => {
                           const hasOptCampaign = opt.campaign_price && opt.campaign_price > 0 && opt.campaign_price < opt.price;
                           return (
                             <div key={j} className="flex justify-between items-center text-xs py-1.5 border-b border-white/5 text-slate-300">
-                              <span className="flex items-center gap-1.5"><i className="fas fa-circle text-[6px] text-orange-500"></i>{opt.name}</span>
+                              <span className="flex items-center gap-1.5"><i className="fas fa-star text-[7px] text-[var(--secondary-color)]"></i>{opt.name}</span>
                               <div className="flex items-center gap-2 ml-2">
                                 {hasOptCampaign ? (
                                   <>
@@ -297,15 +300,21 @@ export default function HizmetlerPage() {
                                     <span className="font-bold whitespace-nowrap" style={{ color: priceColor }}>{opt.campaign_price} TL</span>
                                   </>
                                 ) : (
-                                  <span className="font-bold text-orange-400 whitespace-nowrap">{opt.price} TL</span>
+                                  <span className="font-bold text-[var(--secondary-color)] whitespace-nowrap">{opt.price} TL</span>
                                 )}
                               </div>
                             </div>
                           );
                         })}
+                        {s.extras && (
+                          <div className="flex justify-between items-start text-xs py-2 border-t border-white/10 text-amber-300 font-medium mt-1">
+                            <span className="flex items-center gap-1.5"><i className="fas fa-star text-[8px] text-amber-400 animate-pulse"></i>Ekstralar:</span>
+                            <span className="text-right text-slate-300 pl-4">{s.extras}</span>
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <div className="py-8 text-center">
+                      <div className="py-6 text-center">
                         {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
                           <>
                             <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">KAMPANYALI BAŞLANGIÇ FİYATI</span>
@@ -317,15 +326,21 @@ export default function HizmetlerPage() {
                         ) : (
                           <>
                             <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">BAŞLANGIÇ FİYATI</span>
-                            <p className="text-4xl font-extrabold text-orange-500">{s.price} TL</p>
+                            <p className="text-4xl font-extrabold text-[var(--secondary-color)]">{s.price} TL</p>
                           </>
+                        )}
+                        {s.extras && (
+                          <div className="flex items-center justify-center gap-1.5 text-xs text-amber-300 font-medium mt-4 pt-2 border-t border-white/5">
+                            <i className="fas fa-star text-[8px] text-amber-400 animate-pulse"></i>
+                            <span>Ekstralar: {s.extras}</span>
+                          </div>
                         )}
                       </div>
                     )}
                   </div>
                   
                   <div className="space-y-2 pt-4 border-t border-white/5">
-                    <Link href={`/hizmetler/${s.slug || s.id}`} className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-orange-500/20">
+                    <Link href={`/hizmetler/${s.slug || s.id}`} className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-[var(--primary-color)] to-[var(--primary-hover-color)] hover:from-[var(--primary-hover-color)] hover:to-[var(--primary-color)] text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-[var(--primary-color)]/20">
                       Detaylı Bilgi & Fiyat Al <i className="fas fa-arrow-right"></i>
                     </Link>
                     <button

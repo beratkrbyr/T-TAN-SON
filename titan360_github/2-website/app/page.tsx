@@ -621,14 +621,14 @@ export default function HomePage() {
                           <span>{s.campaign_price} TL'den</span>
                         </div>
                       ) : (
-                        <div className="absolute top-4 right-4 px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-lg shadow-md">
+                        <div className="absolute top-4 right-4 px-3 py-1.5 bg-[var(--primary-color)] text-white text-xs font-bold rounded-lg shadow-md">
                           {s.price} TL'den
                         </div>
                       )}
                     </div>
                     <div className="p-5">
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center text-sky-600">
+                        <div className="w-8 h-8 bg-[var(--secondary-color)]/10 rounded-lg flex items-center justify-center text-[var(--secondary-color)]">
                           <i className={`fas ${iconMap[s.name] || "fa-broom"}`}></i>
                         </div>
                         <h3 className="text-lg font-bold text-slate-800">{s.name}</h3>
@@ -641,7 +641,7 @@ export default function HomePage() {
                 <div className="p-5 pt-0 border-t border-slate-50 mt-auto">
                   <Link
                     href={`/hizmetler#${s.slug || s.id}`}
-                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white rounded-xl text-xs font-bold transition-all"
+                    className="flex items-center justify-center gap-2 w-full py-2.5 bg-[var(--secondary-color)]/10 text-[var(--secondary-hover-color)] hover:bg-[var(--secondary-color)] hover:text-white rounded-xl text-xs font-bold transition-all"
                   >
                     <i className="fas fa-arrow-right"></i> Fiyat Bilgisini Gör
                   </Link>
@@ -650,7 +650,7 @@ export default function HomePage() {
             ))}
           </div>
           <div className="text-center mt-12">
-            <Link href="/hizmetler" className="inline-flex items-center gap-2 px-8 py-4 border-2 border-sky-600 text-sky-600 font-bold rounded-xl hover:bg-sky-600 hover:text-white transition-all duration-300 text-lg group">
+            <Link href="/hizmetler" className="inline-flex items-center gap-2 px-8 py-4 border-2 border-[var(--secondary-color)] text-[var(--secondary-color)] font-bold rounded-xl hover:bg-[var(--secondary-color)] hover:text-white transition-all duration-300 text-lg group">
               Fiyat Bilgisini Gör <i className="fas fa-arrow-right transition-transform group-hover:translate-x-1"></i>
             </Link>
           </div>

@@ -126,6 +126,7 @@ class Service(BaseModel):
     slug: Optional[str] = ""
     seo_title: Optional[str] = ""
     seo_description: Optional[str] = ""
+    extras: Optional[str] = ""
 
 class BookingStatusUpdate(BaseModel):
     status: str
@@ -791,7 +792,8 @@ async def get_public_services():
             "options": service_options,
             "slug": s.get("slug", ""),
             "seo_title": s.get("seo_title", ""),
-            "seo_description": s.get("seo_description", "")
+            "seo_description": s.get("seo_description", ""),
+            "extras": s.get("extras", "")
         })
     return result
 

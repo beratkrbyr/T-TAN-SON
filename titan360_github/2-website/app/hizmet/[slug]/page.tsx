@@ -23,6 +23,7 @@ interface ServiceItem {
   slug?: string;
   seo_title?: string;
   seo_description?: string;
+  extras?: string;
 }
 
 // Fallback services if database is unreachable
@@ -253,36 +254,44 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
       </section>
 
       {/* Fiyat Listesi ve Fiyat Seçenekleri */}
-      {service.options && service.options.length > 0 && (
+      {((service.options && service.options.length > 0) || service.extras) && (
         <section className="py-16 bg-slate-50 border-b border-slate-100">
           <div className="page-container-sm text-center">
             <h2 className="text-3xl font-bold text-slate-800 mb-4">Şeffaf {service.name} Fiyat Listesi</h2>
             <p className="text-slate-500 mb-10">Gizli hiçbir ücret yok, net metrekare ve adet bazlı fiyatlandırma.</p>
             <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-100/50 overflow-hidden">
-              <div className="bg-gradient-to-r from-sky-600 to-sky-500 px-6 py-4 flex items-center gap-3">
+              <div className="bg-gradient-to-r from-[var(--secondary-color)] to-[var(--secondary-hover-color)] px-6 py-4 flex items-center gap-3">
                 <i className="fas fa-tags text-white text-lg"></i>
                 <h3 className="text-lg font-bold text-white">{service.name} Paketleri</h3>
               </div>
-              <div className="divide-y divide-slate-100">
-                {service.options.map((opt) => {
-                  const hasOptCampaign = opt.campaign_price && opt.campaign_price > 0 && opt.campaign_price < opt.price;
-                  return (
-                    <div key={opt.id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
-                      <span className="font-semibold text-slate-700 text-sm sm:text-base">{opt.name}</span>
-                      <div className="flex items-center gap-3">
-                        {hasOptCampaign ? (
-                          <>
-                            <span className="line-through text-slate-400 text-sm">{opt.price} TL</span>
-                            <span className="text-lg font-bold" style={{ color: priceColor }}>{opt.campaign_price} TL</span>
-                          </>
-                        ) : (
-                          <span className="text-lg font-bold text-emerald-600">{opt.price} TL</span>
-                        )}
+              {service.options && service.options.length > 0 && (
+                <div className="divide-y divide-slate-100">
+                  {service.options.map((opt) => {
+                    const hasOptCampaign = opt.campaign_price && opt.campaign_price > 0 && opt.campaign_price < opt.price;
+                    return (
+                      <div key={opt.id} className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors">
+                        <span className="font-semibold text-slate-700 text-sm sm:text-base">{opt.name}</span>
+                        <div className="flex items-center gap-3">
+                          {hasOptCampaign ? (
+                            <>
+                              <span className="line-through text-slate-400 text-sm">{opt.price} TL</span>
+                              <span className="text-lg font-bold" style={{ color: priceColor }}>{opt.campaign_price} TL</span>
+                            </>
+                          ) : (
+                            <span className="text-lg font-bold text-[var(--primary-color)]">{opt.price} TL</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
+              {service.extras && (
+                <div className="px-6 py-4 bg-amber-500/5 border-t border-slate-100 text-left flex items-start gap-2 text-sm text-slate-700">
+                  <i className="fas fa-star text-amber-500 mt-1 flex-shrink-0 animate-pulse"></i>
+                  <span><strong>Ekstralar:</strong> {service.extras}</span>
+                </div>
+              )}
             </div>
           </div>
         </section>
