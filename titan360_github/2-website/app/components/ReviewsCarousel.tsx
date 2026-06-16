@@ -105,7 +105,7 @@ export default function ReviewsCarousel() {
             <div className="transition-all duration-500 ease-in-out">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex text-amber-400 gap-0.5">
-                  {[...Array(Math.max(1, Math.floor(currentReview?.rating || 5)))].map((_, j) => (
+                  {[...Array(Math.min(5, Math.max(1, isNaN(Number(currentReview?.rating)) ? 5 : Math.floor(Number(currentReview?.rating)))))]?.map((_, j) => (
                     <i key={j} className="fas fa-star text-base"></i>
                   ))}
                 </div>
