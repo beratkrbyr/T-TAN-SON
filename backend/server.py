@@ -5,7 +5,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime, timedelta
 from bson import ObjectId
 import bcrypt
@@ -126,7 +126,7 @@ class Service(BaseModel):
     slug: Optional[str] = ""
     seo_title: Optional[str] = ""
     seo_description: Optional[str] = ""
-    extras: Optional[list] = None
+    extras: Optional[Any] = None
 
 class BookingStatusUpdate(BaseModel):
     status: str
@@ -718,6 +718,55 @@ async def get_customer_profile(credentials: HTTPAuthorizationCredentials = Depen
         "total_bookings": customer.get("total_bookings", 0)
     }
 
+def parse_extras_to_list(extras_val, multiplier=1.0):
+    if not extras_val:
+        return []
+    if isinstance(extras_val, list):
+        parsed = []
+        for ext in extras_val:
+            if isinstance(ext, dict):
+                ext_copy = dict(ext)
+                ext_price = ext_copy.get("price", 0)
+                try:
+                    ext_price = float(ext_price)
+                except:
+                    ext_price = 0.0
+                ext_copy["price"] = ext_price
+                if multiplier < 1.0 and ext_price > 0:
+                    ext_copy["campaign_price"] = round(ext_price * multiplier)
+                else:
+                    ext_copy["campaign_price"] = 0
+                parsed.append(ext_copy)
+        return parsed
+    
+    # If string
+    parsed = []
+    import re
+    items = re.split(r',|\n', str(extras_val))
+    for idx, item in enumerate(items):
+        item = item.strip()
+        if not item:
+            continue
+        parts = item.split(":")
+        name = parts[0].strip()
+        price_val = 0.0
+        if len(parts) > 1:
+            price_str = parts[1].strip()
+            match = re.search(r'\d+', price_str)
+            if match:
+                try:
+                    price_val = float(match.group())
+                except:
+                    pass
+        
+        parsed.append({
+            "id": f"ext_{idx}",
+            "name": name,
+            "price": price_val,
+            "campaign_price": round(price_val * multiplier) if (multiplier < 1.0 and price_val > 0) else 0
+        })
+    return parsed
+
 # Get services (public)
 @api_router.get("/services")
 async def get_public_services():
@@ -771,14 +820,7 @@ async def get_public_services():
                     opt["campaign_price"] = 0
                 service_options.append(opt)
                 
-            service_extras = []
-            for ext in s.get("extras", []):
-                ext_price = ext.get("price", 0)
-                if ext_price > 0:
-                    ext["campaign_price"] = round(ext_price * multiplier)
-                else:
-                    ext["campaign_price"] = 0
-                service_extras.append(ext)
+            service_extras = parse_extras_to_list(s.get("extras"), multiplier)
         else:
             # Campaign not active
             campaign_price = 0
@@ -787,10 +829,7 @@ async def get_public_services():
                 opt["campaign_price"] = 0
                 service_options.append(opt)
                 
-            service_extras = []
-            for ext in s.get("extras", []):
-                ext["campaign_price"] = 0
-                service_extras.append(ext)
+            service_extras = parse_extras_to_list(s.get("extras"), 1.0)
                 
         result.append({
             "id": str(s["_id"]),
