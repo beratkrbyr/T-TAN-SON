@@ -306,12 +306,25 @@ export default function HizmetlerPage() {
                             </div>
                           );
                         })}
-                        {s.extras && (
-                          <div className="flex justify-between items-start text-xs py-2 border-t border-white/10 text-amber-300 font-medium mt-1">
-                            <span className="flex items-center gap-1.5"><i className="fas fa-star text-[8px] text-amber-400 animate-pulse"></i>Ekstralar:</span>
-                            <span className="text-right text-slate-300 pl-4">{s.extras}</span>
-                          </div>
-                        )}
+                        {s.extras && (() => {
+                          const items = s.extras.split(/,|\n/).map(x => x.trim()).filter(Boolean);
+                          return (
+                            <div className="mt-3 pt-2 border-t border-white/10 space-y-1.5">
+                              <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">EKSTRALAR</p>
+                              {items.map((item, idx) => {
+                                const parts = item.split(":");
+                                const name = parts[0].trim();
+                                const val = parts.length > 1 ? parts.slice(1).join(":").trim() : "";
+                                return (
+                                  <div key={idx} className="flex justify-between items-center text-xs py-1 text-slate-300">
+                                    <span className="flex items-center gap-1.5"><i className="fas fa-star text-[7px] text-amber-400 animate-pulse"></i>{name}</span>
+                                    {val && <span className="font-bold text-amber-300 whitespace-nowrap ml-2">{val}</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
                       </div>
                     ) : (
                       <div className="py-6 text-center">
@@ -329,12 +342,19 @@ export default function HizmetlerPage() {
                             <p className="text-4xl font-extrabold text-[var(--secondary-color)]">{s.price} TL</p>
                           </>
                         )}
-                        {s.extras && (
-                          <div className="flex items-center justify-center gap-1.5 text-xs text-amber-300 font-medium mt-4 pt-2 border-t border-white/5">
-                            <i className="fas fa-star text-[8px] text-amber-400 animate-pulse"></i>
-                            <span>Ekstralar: {s.extras}</span>
-                          </div>
-                        )}
+                        {s.extras && (() => {
+                          const items = s.extras.split(/,|\n/).map(x => x.trim()).filter(Boolean);
+                          return (
+                            <div className="mt-4 pt-2 border-t border-white/5 space-y-1">
+                              {items.map((item, idx) => (
+                                <div key={idx} className="flex items-center justify-center gap-1.5 text-xs text-amber-300 font-medium">
+                                  <i className="fas fa-star text-[7px] text-amber-400 animate-pulse"></i>
+                                  <span>{item}</span>
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>

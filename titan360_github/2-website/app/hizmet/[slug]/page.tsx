@@ -286,12 +286,28 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
                   })}
                 </div>
               )}
-              {service.extras && (
-                <div className="px-6 py-4 bg-amber-500/5 border-t border-slate-100 text-left flex items-start gap-2 text-sm text-slate-700">
-                  <i className="fas fa-star text-amber-500 mt-1 flex-shrink-0 animate-pulse"></i>
-                  <span><strong>Ekstralar:</strong> {service.extras}</span>
-                </div>
-              )}
+              {service.extras && (() => {
+                const items = service.extras.split(/,|\n/).map(x => x.trim()).filter(Boolean);
+                return (
+                  <div className="px-6 py-4 bg-amber-500/5 border-t border-slate-100 text-left space-y-2">
+                    <div className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Ekstralar</div>
+                    {items.map((item, idx) => {
+                      const parts = item.split(":");
+                      const name = parts[0].trim();
+                      const val = parts.length > 1 ? parts.slice(1).join(":").trim() : "";
+                      return (
+                        <div key={idx} className="flex items-center justify-between text-sm text-slate-700">
+                          <span className="flex items-center gap-2">
+                            <i className="fas fa-star text-amber-500 text-xs animate-pulse"></i>
+                            {name}
+                          </span>
+                          {val && <span className="font-bold text-amber-600 ml-2">{val}</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </section>
