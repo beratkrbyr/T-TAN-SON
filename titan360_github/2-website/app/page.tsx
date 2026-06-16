@@ -521,7 +521,7 @@ export default function HomePage() {
                     <div className="flex flex-col justify-between flex-grow">
                       <div>
                         <h3 className="text-base font-bold text-white group-hover:text-sky-400 transition-colors line-clamp-1">{s.name}</h3>
-                        <p className="text-slate-400 text-xs mt-1 line-clamp-2">{s.description}</p>
+                        <p className="text-slate-400 text-xs mt-1">{s.description}</p>
                       </div>
                       <div className="flex items-center justify-between mt-3">
                         <div className="flex items-baseline gap-2">
@@ -606,7 +606,7 @@ export default function HomePage() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {servicesToRender.slice(0, 6).map((s, i) => (
-              <div key={i} className="group relative rounded-2xl overflow-hidden bg-white shadow-md border border-slate-100/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between h-[360px]">
+              <div key={i} className="group relative rounded-2xl overflow-hidden bg-white shadow-md border border-slate-100/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between min-h-[380px] h-auto pb-4">
                 <Link href={`/hizmetler#${s.slug || s.id}`} className="block cursor-pointer flex-1">
                   <div>
                     <div className="relative h-48 overflow-hidden">
@@ -633,7 +633,7 @@ export default function HomePage() {
                         </div>
                         <h3 className="text-lg font-bold text-slate-800">{s.name}</h3>
                       </div>
-                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{s.description}</p>
+                      <p className="text-xs text-slate-500 leading-relaxed">{s.description}</p>
                     </div>
                   </div>
                 </Link>

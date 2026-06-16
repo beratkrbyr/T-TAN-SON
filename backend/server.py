@@ -126,7 +126,7 @@ class Service(BaseModel):
     slug: Optional[str] = ""
     seo_title: Optional[str] = ""
     seo_description: Optional[str] = ""
-    extras: Optional[str] = ""
+    extras: Optional[list] = None
 
 class BookingStatusUpdate(BaseModel):
     status: str
@@ -760,10 +760,9 @@ async def get_public_services():
                 multiplier = global_multiplier
                 campaign_percent = global_campaign_percent
                 
-            campaign_price = s.get("campaign_price", 0)
-            if not campaign_price or campaign_price <= 0:
-                campaign_price = round(price * multiplier)
-                
+            campaign_price = round(price * multiplier)
+            
+            service_options = []
             for opt in s.get("options", []):
                 opt_price = opt.get("price", 0)
                 if opt_price > 0:
@@ -771,6 +770,15 @@ async def get_public_services():
                 else:
                     opt["campaign_price"] = 0
                 service_options.append(opt)
+                
+            service_extras = []
+            for ext in s.get("extras", []):
+                ext_price = ext.get("price", 0)
+                if ext_price > 0:
+                    ext["campaign_price"] = round(ext_price * multiplier)
+                else:
+                    ext["campaign_price"] = 0
+                service_extras.append(ext)
         else:
             # Campaign not active
             campaign_price = 0
@@ -778,6 +786,11 @@ async def get_public_services():
             for opt in s.get("options", []):
                 opt["campaign_price"] = 0
                 service_options.append(opt)
+                
+            service_extras = []
+            for ext in s.get("extras", []):
+                ext["campaign_price"] = 0
+                service_extras.append(ext)
                 
         result.append({
             "id": str(s["_id"]),
@@ -793,7 +806,7 @@ async def get_public_services():
             "slug": s.get("slug", ""),
             "seo_title": s.get("seo_title", ""),
             "seo_description": s.get("seo_description", ""),
-            "extras": s.get("extras", "")
+            "extras": service_extras
         })
     return result
 

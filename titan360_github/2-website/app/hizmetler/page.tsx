@@ -4,7 +4,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string; extras?: string }
+interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string; extras?: { id?: string; name: string; price: number; campaign_price?: number }[] }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
 const serviceImages: Record<string, string> = {
   "Ev Temizliği": "https://images.unsplash.com/photo-1758523670739-0d26a3ee976d?w=600&q=80",
@@ -198,7 +198,7 @@ export default function HizmetlerPage() {
                     window.history.pushState(null, "", `#${s.slug || s.id}`);
                   }
                 }}
-                className={`group relative bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between h-[420px] cursor-pointer ${
+                className={`group relative bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between min-h-[440px] h-auto pb-4 cursor-pointer ${
                   activeCard === i ? "overflow-visible" : "overflow-hidden"
                 }`}
                 style={{ transitionDelay: `${i * 80}ms` }}>
@@ -233,7 +233,7 @@ export default function HizmetlerPage() {
                       </div>
                     </div>
                     <div className="p-6">
-                      <p className="text-sm text-slate-500 mb-4 leading-relaxed line-clamp-3">{s.description}</p>
+                      <p className="text-sm text-slate-500 mb-4 leading-relaxed">{s.description}</p>
                     </div>
                   </div>
                   
@@ -306,25 +306,32 @@ export default function HizmetlerPage() {
                             </div>
                           );
                         })}
-                        {s.extras && (() => {
-                          const items = s.extras.split(/,|\n/).map(x => x.trim()).filter(Boolean);
-                          return (
-                            <div className="mt-3 pt-2 border-t border-white/10 space-y-1.5">
-                              <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">EKSTRALAR</p>
-                              {items.map((item, idx) => {
-                                const parts = item.split(":");
-                                const name = parts[0].trim();
-                                const val = parts.length > 1 ? parts.slice(1).join(":").trim() : "";
-                                return (
-                                  <div key={idx} className="flex justify-between items-center text-xs py-1 text-slate-300">
-                                    <span className="flex items-center gap-1.5"><i className="fas fa-star text-[7px] text-amber-400 animate-pulse"></i>{name}</span>
-                                    {val && <span className="font-bold text-amber-300 whitespace-nowrap ml-2">{val}</span>}
+                        {s.extras && s.extras.length > 0 && (
+                          <div className="mt-3 pt-2 border-t border-white/10 space-y-1.5">
+                            <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">EKSTRALAR</p>
+                            {s.extras.map((ext, idx) => {
+                              const hasExtCampaign = ext.campaign_price && ext.campaign_price > 0 && ext.campaign_price < ext.price;
+                              return (
+                                <div key={idx} className="flex justify-between items-center text-xs py-1 text-slate-300">
+                                  <span className="flex items-center gap-1.5">
+                                    <i className="fas fa-star text-[7px] text-amber-400 animate-pulse"></i>
+                                    {ext.name}
+                                  </span>
+                                  <div className="flex items-center gap-2 ml-2">
+                                    {hasExtCampaign ? (
+                                      <>
+                                        <span className="line-through text-slate-500 text-[10px]">{ext.price} TL</span>
+                                        <span className="font-bold text-amber-300 whitespace-nowrap">{ext.campaign_price} TL</span>
+                                      </>
+                                    ) : (
+                                      <span className="font-bold text-amber-400 whitespace-nowrap">{ext.price} TL</span>
+                                    )}
                                   </div>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="py-6 text-center">
@@ -342,19 +349,27 @@ export default function HizmetlerPage() {
                             <p className="text-4xl font-extrabold text-[var(--secondary-color)]">{s.price} TL</p>
                           </>
                         )}
-                        {s.extras && (() => {
-                          const items = s.extras.split(/,|\n/).map(x => x.trim()).filter(Boolean);
-                          return (
-                            <div className="mt-4 pt-2 border-t border-white/5 space-y-1">
-                              {items.map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-center gap-1.5 text-xs text-amber-300 font-medium">
-                                  <i className="fas fa-star text-[7px] text-amber-400 animate-pulse"></i>
-                                  <span>{item}</span>
+                        {s.extras && s.extras.length > 0 && (
+                          <div className="mt-4 pt-2 border-t border-white/5 space-y-1.5">
+                            <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">EKSTRALAR</p>
+                            {s.extras.map((ext, idx) => {
+                              const hasExtCampaign = ext.campaign_price && ext.campaign_price > 0 && ext.campaign_price < ext.price;
+                              return (
+                                <div key={idx} className="flex items-center justify-between text-xs text-amber-300 font-medium">
+                                  <span className="flex items-center gap-1.5">
+                                    <i className="fas fa-star text-[7px] text-amber-400 animate-pulse"></i>
+                                    {ext.name}
+                                  </span>
+                                  {hasExtCampaign ? (
+                                    <span className="font-bold text-amber-300 whitespace-nowrap">{ext.campaign_price} TL</span>
+                                  ) : (
+                                    <span>{ext.price} TL</span>
+                                  )}
                                 </div>
-                              ))}
-                            </div>
-                          );
-                        })()}
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

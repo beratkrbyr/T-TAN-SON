@@ -23,7 +23,7 @@ interface ServiceItem {
   slug?: string;
   seo_title?: string;
   seo_description?: string;
-  extras?: string;
+  extras?: ServiceOption[];
 }
 
 // Fallback services if database is unreachable
@@ -254,7 +254,7 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
       </section>
 
       {/* Fiyat Listesi ve Fiyat Seçenekleri */}
-      {((service.options && service.options.length > 0) || service.extras) && (
+      {((service.options && service.options.length > 0) || (service.extras && service.extras.length > 0)) && (
         <section className="py-16 bg-slate-50 border-b border-slate-100">
           <div className="page-container-sm text-center">
             <h2 className="text-3xl font-bold text-slate-800 mb-4">Şeffaf {service.name} Fiyat Listesi</h2>
@@ -286,28 +286,32 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
                   })}
                 </div>
               )}
-              {service.extras && (() => {
-                const items = service.extras.split(/,|\n/).map(x => x.trim()).filter(Boolean);
-                return (
-                  <div className="px-6 py-4 bg-amber-500/5 border-t border-slate-100 text-left space-y-2">
-                    <div className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Ekstralar</div>
-                    {items.map((item, idx) => {
-                      const parts = item.split(":");
-                      const name = parts[0].trim();
-                      const val = parts.length > 1 ? parts.slice(1).join(":").trim() : "";
-                      return (
-                        <div key={idx} className="flex items-center justify-between text-sm text-slate-700">
-                          <span className="flex items-center gap-2">
-                            <i className="fas fa-star text-amber-500 text-xs animate-pulse"></i>
-                            {name}
-                          </span>
-                          {val && <span className="font-bold text-amber-600 ml-2">{val}</span>}
+              {service.extras && Array.isArray(service.extras) && service.extras.length > 0 && (
+                <div className="px-6 py-4 bg-amber-500/5 border-t border-slate-100 text-left space-y-2">
+                  <div className="text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Ekstralar</div>
+                  {service.extras.map((ext, idx) => {
+                    const hasExtCampaign = ext.campaign_price && ext.campaign_price > 0 && ext.campaign_price < ext.price;
+                    return (
+                      <div key={ext.id || idx} className="flex items-center justify-between text-sm text-slate-700">
+                        <span className="flex items-center gap-2">
+                          <i className="fas fa-star text-amber-500 text-xs animate-pulse"></i>
+                          {ext.name}
+                        </span>
+                        <div className="flex items-center gap-2 ml-2">
+                          {hasExtCampaign ? (
+                            <>
+                              <span className="line-through text-slate-400 text-xs">{ext.price} TL</span>
+                              <span className="font-bold text-amber-600">{ext.campaign_price} TL</span>
+                            </>
+                          ) : (
+                            <span className="font-bold text-amber-600">{ext.price} TL</span>
+                          )}
                         </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </section>

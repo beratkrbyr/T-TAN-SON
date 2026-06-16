@@ -25,7 +25,7 @@ interface Service {
   slug?: string;
   seo_title?: string;
   seo_description?: string;
-  extras?: string;
+  extras?: ServiceOption[];
 }
 
 export default function ServicesPage() {
@@ -47,8 +47,8 @@ export default function ServicesPage() {
     slug: string;
     seo_title: string;
     seo_description: string;
-    extras: string;
-  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: "" });
+    extras: ServiceOption[];
+  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
 
   useEffect(() => {
     fetchServices();
@@ -114,7 +114,7 @@ export default function ServicesPage() {
       slug: service.slug || "",
       seo_title: service.seo_title || "",
       seo_description: service.seo_description || "",
-      extras: service.extras || "",
+      extras: service.extras || [],
     });
     setShowModal(true);
   };
@@ -186,6 +186,27 @@ export default function ServicesPage() {
     });
   };
 
+  const addExtra = () => {
+    setFormData({
+      ...formData,
+      extras: [...(formData.extras || []), { id: Date.now().toString(), name: "", price: 0 }],
+    });
+  };
+
+  const updateExtra = (id: string, field: string, value: string | number) => {
+    setFormData({
+      ...formData,
+      extras: (formData.extras || []).map((ext) => (ext.id === id ? { ...ext, [field]: value } : ext)),
+    });
+  };
+
+  const removeExtra = (id: string) => {
+    setFormData({
+      ...formData,
+      extras: (formData.extras || []).filter((ext) => ext.id !== id),
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
@@ -207,7 +228,7 @@ export default function ServicesPage() {
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: "" });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -397,17 +418,6 @@ export default function ServicesPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Ekstralar (örn: Minder 50 TL, Yastık 80 TL)</label>
-                <input
-                  type="text"
-                  value={formData.extras}
-                  onChange={(e) => setFormData({ ...formData, extras: e.target.value })}
-                  placeholder="Yastık 150 TL, Minder 100 TL"
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-slate-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 outline-none"
-                />
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">Normal Fiyat (TL)</label>
@@ -472,7 +482,7 @@ export default function ServicesPage() {
               </div>
 
               {/* Options Section */}
-              <div>
+              <div className="border-t border-slate-100 pt-4">
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-sm font-medium text-slate-700">Fiyat Seçenekleri</label>
                   <button type="button" onClick={addOption} className="px-3 py-1 bg-sky-50 text-sky-600 text-xs rounded-lg border border-sky-200 hover:bg-sky-100 transition-colors">
@@ -505,6 +515,50 @@ export default function ServicesPage() {
                           <span className="text-slate-500 text-sm">TL</span>
                         </div>
                         <button type="button" onClick={() => removeOption(opt.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Extras Section */}
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-slate-700">Ekstra Hizmetler (Ekstralar)</label>
+                  <button type="button" onClick={addExtra} className="px-3 py-1 bg-amber-50 text-amber-700 text-xs rounded-lg border border-amber-200 hover:bg-amber-100 transition-colors">
+                    + Ekstra Ekle
+                  </button>
+                </div>
+                <p className="text-slate-400 text-xs mb-2">Örnek: Minder Temizliği = 50 TL, Ekstra Yastık = 80 TL</p>
+                {(!formData.extras || formData.extras.length === 0) ? (
+                  <p className="text-slate-400 text-sm p-3 bg-gray-50 rounded-lg text-center border border-gray-100">Ekstra seçeneği eklenmemiş.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {formData.extras.map((ext, index) => (
+                      <div key={ext.id} className="flex gap-2 items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+                        <span className="text-slate-400 text-sm w-6">{index + 1}.</span>
+                        <input
+                          type="text"
+                          value={ext.name}
+                          onChange={(e) => updateExtra(ext.id, "name", e.target.value)}
+                          placeholder="Ekstra Adı (örn: Yastık Yıkama)"
+                          className="flex-1 px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-sky-500 outline-none"
+                        />
+                        <div className="flex items-center gap-1">
+                          <input
+                            type="number"
+                            value={ext.price}
+                            onChange={(e) => updateExtra(ext.id, "price", Number(e.target.value))}
+                            placeholder="Fiyat"
+                            className="w-20 px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm text-right focus:border-sky-500 outline-none"
+                          />
+                          <span className="text-slate-500 text-sm">TL</span>
+                        </div>
+                        <button type="button" onClick={() => removeExtra(ext.id)} className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors">
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
