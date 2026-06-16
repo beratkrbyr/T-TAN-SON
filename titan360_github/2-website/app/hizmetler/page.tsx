@@ -184,9 +184,11 @@ export default function HizmetlerPage() {
       <section className="py-20 md:py-28" data-testid="hizmetler-grid">
         <div className="page-container">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {servicesToRender.map((s, i) => (
-              <div 
-                key={i} 
+            {servicesToRender.map((s, i) => {
+              if (!s) return null;
+              return (
+                <div 
+                  key={i} 
                 id={s.slug || s.id}
                 onClick={(e) => {
                   if ((e.target as HTMLElement).closest("a, button")) return;
@@ -289,6 +291,7 @@ export default function HizmetlerPage() {
                       <div className="space-y-2.5 overflow-y-auto max-h-[170px] pr-1">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET FİYAT DETAYLARI</p>
                         {s.options.map((opt, j) => {
+                          if (!opt) return null;
                           const hasOptCampaign = opt.campaign_price && opt.campaign_price > 0 && opt.campaign_price < opt.price;
                           return (
                             <div key={j} className="flex justify-between items-center text-xs py-1.5 border-b border-white/5 text-slate-300">
@@ -310,6 +313,7 @@ export default function HizmetlerPage() {
                           <div className="mt-3 pt-2 border-t border-white/10 space-y-1.5">
                             <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">EKSTRALAR</p>
                             {s.extras.map((ext, idx) => {
+                              if (!ext) return null;
                               const hasExtCampaign = ext.campaign_price && ext.campaign_price > 0 && ext.campaign_price < ext.price;
                               return (
                                 <div key={idx} className="flex justify-between items-center text-xs py-1 text-slate-300">
@@ -353,6 +357,7 @@ export default function HizmetlerPage() {
                           <div className="mt-4 pt-2 border-t border-white/5 space-y-1.5">
                             <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block mb-1">EKSTRALAR</p>
                             {s.extras.map((ext, idx) => {
+                              if (!ext) return null;
                               const hasExtCampaign = ext.campaign_price && ext.campaign_price > 0 && ext.campaign_price < ext.price;
                               return (
                                 <div key={idx} className="flex items-center justify-between text-xs text-amber-300 font-medium">
@@ -406,8 +411,9 @@ export default function HizmetlerPage() {
                   </div>
                 </div>
 
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
