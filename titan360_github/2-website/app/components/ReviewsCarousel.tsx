@@ -50,8 +50,8 @@ export default function ReviewsCarousel() {
   if (c.google_reviews_active === false) return null;
 
   const rawTestimonials = c.testimonials?.length ? c.testimonials : defaultTestimonials;
-  // Filter hidden reviews
-  const activeReviews = rawTestimonials.filter(t => !t.hidden);
+  // Filter hidden and null reviews safely
+  const activeReviews = rawTestimonials.filter(t => t && !t.hidden);
   
   // Apply limit
   const limit = c.google_reviews_count || 6;
@@ -66,6 +66,8 @@ export default function ReviewsCarousel() {
   const prevSlide = () => {
     setActiveIndex((prev) => (prev - 1 + reviews.length) % reviews.length);
   };
+
+  const currentReview = reviews[activeIndex];
 
   return (
     <section className="py-20 md:py-28 bg-slate-50 border-y border-slate-100" data-testid="google-reviews-section">
@@ -103,7 +105,7 @@ export default function ReviewsCarousel() {
             <div className="transition-all duration-500 ease-in-out">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex text-amber-400 gap-0.5">
-                  {[...Array(Math.floor(reviews[activeIndex].rating || 5))].map((_, j) => (
+                  {[...Array(Math.max(1, Math.floor(currentReview?.rating || 5)))].map((_, j) => (
                     <i key={j} className="fas fa-star text-base"></i>
                   ))}
                 </div>
@@ -113,30 +115,30 @@ export default function ReviewsCarousel() {
               </div>
 
               <blockquote className="text-slate-600 text-base md:text-lg italic leading-relaxed mb-8">
-                "{reviews[activeIndex].text}"
+                "{currentReview?.text || ""}"
               </blockquote>
             </div>
 
             {/* Author Profile details */}
             <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-auto">
               <div className="flex items-center gap-3">
-                {reviews[activeIndex].avatar ? (
+                {currentReview?.avatar ? (
                   <img
-                    src={reviews[activeIndex].avatar}
-                    alt={reviews[activeIndex].name}
+                    src={currentReview.avatar}
+                    alt={currentReview.name}
                     className="w-12 h-12 rounded-full object-cover shadow-md border border-slate-200"
                   />
                 ) : (
                   <div className="w-12 h-12 bg-gradient-to-br from-sky-500 to-sky-600 rounded-full flex items-center justify-center text-white font-extrabold text-base shadow-md">
-                    {reviews[activeIndex].name ? reviews[activeIndex].name.charAt(0) : "T"}
+                    {currentReview?.name ? currentReview.name.charAt(0) : "T"}
                   </div>
                 )}
                 <div>
                   <p className="font-bold text-slate-800 text-sm md:text-base leading-tight">
-                    {reviews[activeIndex].name}
+                    {currentReview?.name || ""}
                   </p>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    {reviews[activeIndex].location || "Antalya Müşterimiz"}
+                    {currentReview?.location || "Antalya Müşterimiz"}
                   </p>
                 </div>
               </div>

@@ -300,9 +300,9 @@ export default function HomePage() {
   const whatsapp = c.contact?.whatsapp || phone;
   const waNum = (whatsapp || phone).replace(/[^0-9]/g, "");
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20koltuk%20y%C4%B1kama%20hizmeti%20almak%20istiyorum`;
-  const whyItems = c.whyus?.items?.length ? c.whyus.items : defaultWhyUs;
-  const testimonials = c.testimonials?.length ? c.testimonials : defaultTestimonials;
-  const steps = c.howit?.steps?.length ? c.howit.steps : defaultSteps;
+  const whyItems = (c.whyus?.items && c.whyus.items.length) ? c.whyus.items.filter(Boolean) : defaultWhyUs;
+  const testimonials = (c.testimonials && c.testimonials.length) ? c.testimonials.filter(Boolean) : defaultTestimonials;
+  const steps = (c.howit?.steps && c.howit.steps.length) ? c.howit.steps.filter(Boolean) : defaultSteps;
 
   const heroBadge = c.hero?.badge || "Aynı Gün Hizmet";
   const heroTitle = c.seo_h1 || (c.hero?.title1 ? `${c.hero.title1} ${c.hero.title2 || ""}` : "Antalya'nın 1 Numaralı Koltuk Yıkama Hizmeti");
@@ -312,7 +312,7 @@ export default function HomePage() {
   const cta2Text = c.hero?.cta2_text || "Randevu Oluştur";
   const cta2Link = cta2Text === "Randevu Oluştur" ? waLink : (c.hero?.cta2_link || "#");
 
-  const badgesToRender = c.badges?.length ? c.badges : defaultBadges;
+  const badgesToRender = (c.badges && c.badges.length) ? c.badges.filter(Boolean) : defaultBadges;
 
   // Campaign styling variables
   const badgeBg = c.campaign_badge_bg || "#dc2626";
@@ -340,11 +340,11 @@ export default function HomePage() {
     }
   ];
   
-  const albumsToRender = c.before_after_albums?.length ? c.before_after_albums : defaultAlbums;
+  const albumsToRender = (c.before_after_albums && c.before_after_albums.length) ? c.before_after_albums.filter(Boolean) : defaultAlbums;
   
   const instagramUser = c.instagram_username || "titan360tr";
   const instagramCount = c.instagram_count || 4;
-  const reelsToRender = c.reels_posts?.length ? c.reels_posts.slice(0, instagramCount) : reelsVideos.slice(0, instagramCount);
+  const reelsToRender = (c.reels_posts && c.reels_posts.length) ? c.reels_posts.filter(Boolean).slice(0, instagramCount) : reelsVideos.slice(0, instagramCount);
 
   const servicesToRender = services.length ? services : defaultServices;
   const campaignServices = servicesToRender.filter((s: any) => s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price);
@@ -505,7 +505,8 @@ export default function HomePage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaignServices.map((s, idx) => {
-                const discountPercent = Math.round(((s.price - (s.campaign_price || 0)) / s.price) * 100);
+                if (!s) return null;
+                const discountPercent = s.price > 0 ? Math.round(((s.price - (s.campaign_price || 0)) / s.price) * 100) : 0;
                 return (
                   <div 
                     key={s.id || idx} 
@@ -580,18 +581,21 @@ export default function HomePage() {
 
           {/* Selected Album Images Slider Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {albumsToRender[activeAlbumIdx]?.images?.map((img, idx) => (
-              <div key={idx} className="transition-all duration-500">
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-sm">
-                  <p className="text-slate-800 font-bold text-sm mb-3 text-center">{img.label}</p>
-                  <BeforeAfterSlider
-                    beforeImage={img.before_image}
-                    afterImage={img.after_image}
-                    title={img.label}
-                  />
+            {albumsToRender[activeAlbumIdx]?.images?.map((img, idx) => {
+              if (!img) return null;
+              return (
+                <div key={idx} className="transition-all duration-500">
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-sm">
+                    <p className="text-slate-800 font-bold text-sm mb-3 text-center">{img.label || ""}</p>
+                    <BeforeAfterSlider
+                      beforeImage={img.before_image || ""}
+                      afterImage={img.after_image || ""}
+                      title={img.label || ""}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
@@ -605,8 +609,10 @@ export default function HomePage() {
             <p className="text-slate-500 max-w-2xl mx-auto text-base lg:text-lg">{c.services_section?.subtitle || "İhtiyacınıza uygun, kaliteli ve güvenilir temizlik hizmetleri sunuyoruz."}</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {servicesToRender.slice(0, 6).map((s, i) => (
-              <div key={i} className="group relative rounded-2xl overflow-hidden bg-white shadow-md border border-slate-100/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between min-h-[380px] h-auto pb-4">
+            {servicesToRender.slice(0, 6).map((s, i) => {
+              if (!s) return null;
+              return (
+                <div key={i} className="group relative rounded-2xl overflow-hidden bg-white shadow-md border border-slate-100/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between min-h-[380px] h-auto pb-4">
                 <Link href={`/hizmetler#${s.slug || s.id}`} className="block cursor-pointer flex-1">
                   <div>
                     <div className="relative h-48 overflow-hidden">
@@ -647,7 +653,8 @@ export default function HomePage() {
                   </Link>
                 </div>
               </div>
-            ))}
+            );
+          })}
           </div>
           <div className="text-center mt-12">
             <Link href="/hizmetler" className="inline-flex items-center gap-2 px-8 py-4 border-2 border-[var(--secondary-color)] text-[var(--secondary-color)] font-bold rounded-xl hover:bg-[var(--secondary-color)] hover:text-white transition-all duration-300 text-lg group">

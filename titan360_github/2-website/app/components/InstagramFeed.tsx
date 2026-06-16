@@ -124,7 +124,8 @@ export default function InstagramFeed() {
         {/* Posts Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {posts.map((post, idx) => {
-            const hasViews = post.views && post.views.trim().length > 0;
+            if (!post) return null;
+            const hasViews = post.views && typeof post.views === "string" && post.views.trim().length > 0;
             return (
               <a
                 key={idx}
