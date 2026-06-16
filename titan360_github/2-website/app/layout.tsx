@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import FloatingActionBar from "./components/FloatingActionBar";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -65,6 +66,19 @@ export default async function RootLayout({
           'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
           })(window,document,'script','dataLayer','GTM-5KQWHZVC');`}
         </Script>
+        {/* Auto-clear stale localStorage cache on version bump */}
+        <Script id="cache-version" strategy="beforeInteractive">
+          {`(function(){
+            var V='titan360_v5';
+            try{
+              if(!localStorage.getItem(V)){
+                localStorage.removeItem('titan360_content');
+                localStorage.removeItem('titan360_services');
+                localStorage.setItem(V,'1');
+              }
+            }catch(e){}
+          })();`}
+        </Script>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -83,7 +97,9 @@ export default async function RootLayout({
           <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5KQWHZVC"
             height="0" width="0" style={{display:'none',visibility:'hidden'}}></iframe>
         </noscript>
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
         <FloatingActionBar />
       </body>
     </html>

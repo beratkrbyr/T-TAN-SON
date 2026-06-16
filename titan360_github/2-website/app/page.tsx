@@ -287,7 +287,7 @@ export default function HomePage() {
     };
   }, []);
 
-  const slidesToRender = c.hero_slides?.length ? c.hero_slides : heroSlides;
+  const slidesToRender = (c.hero_slides && Array.isArray(c.hero_slides) && c.hero_slides.length) ? c.hero_slides.filter(Boolean) : heroSlides;
 
   // Hero slider auto-play
   useEffect(() => {
@@ -300,9 +300,9 @@ export default function HomePage() {
   const whatsapp = c.contact?.whatsapp || phone;
   const waNum = (whatsapp || phone).replace(/[^0-9]/g, "");
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20koltuk%20y%C4%B1kama%20hizmeti%20almak%20istiyorum`;
-  const whyItems = (c.whyus?.items && c.whyus.items.length) ? c.whyus.items.filter(Boolean) : defaultWhyUs;
-  const testimonials = (c.testimonials && c.testimonials.length) ? c.testimonials.filter(Boolean) : defaultTestimonials;
-  const steps = (c.howit?.steps && c.howit.steps.length) ? c.howit.steps.filter(Boolean) : defaultSteps;
+  const whyItems = (c.whyus?.items && Array.isArray(c.whyus.items) && c.whyus.items.length) ? c.whyus.items.filter(Boolean) : defaultWhyUs;
+  const testimonials = (c.testimonials && Array.isArray(c.testimonials) && c.testimonials.length) ? c.testimonials.filter(Boolean) : defaultTestimonials;
+  const steps = (c.howit?.steps && Array.isArray(c.howit.steps) && c.howit.steps.length) ? c.howit.steps.filter(Boolean) : defaultSteps;
 
   const heroBadge = c.hero?.badge || "Aynı Gün Hizmet";
   const heroTitle = c.seo_h1 || (c.hero?.title1 ? `${c.hero.title1} ${c.hero.title2 || ""}` : "Antalya'nın 1 Numaralı Koltuk Yıkama Hizmeti");
@@ -312,7 +312,7 @@ export default function HomePage() {
   const cta2Text = c.hero?.cta2_text || "Randevu Oluştur";
   const cta2Link = cta2Text === "Randevu Oluştur" ? waLink : (c.hero?.cta2_link || "#");
 
-  const badgesToRender = (c.badges && c.badges.length) ? c.badges.filter(Boolean) : defaultBadges;
+  const badgesToRender = (c.badges && Array.isArray(c.badges) && c.badges.length) ? c.badges.filter(Boolean) : defaultBadges;
 
   // Campaign styling variables
   const badgeBg = c.campaign_badge_bg || "#dc2626";
@@ -340,14 +340,14 @@ export default function HomePage() {
     }
   ];
   
-  const albumsToRender = (c.before_after_albums && c.before_after_albums.length) ? c.before_after_albums.filter(Boolean) : defaultAlbums;
+  const albumsToRender = (c.before_after_albums && Array.isArray(c.before_after_albums) && c.before_after_albums.length) ? c.before_after_albums.filter(Boolean) : defaultAlbums;
   
   const instagramUser = c.instagram_username || "titan360tr";
   const instagramCount = c.instagram_count || 4;
-  const reelsToRender = (c.reels_posts && c.reels_posts.length) ? c.reels_posts.filter(Boolean).slice(0, instagramCount) : reelsVideos.slice(0, instagramCount);
+  const reelsToRender = (c.reels_posts && Array.isArray(c.reels_posts) && c.reels_posts.length) ? c.reels_posts.filter(Boolean).slice(0, instagramCount) : reelsVideos.slice(0, instagramCount);
 
-  const servicesToRender = services.length ? services : defaultServices;
-  const campaignServices = servicesToRender.filter((s: any) => s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price);
+  const servicesToRender = (services && Array.isArray(services) && services.length) ? services.filter(Boolean) : defaultServices;
+  const campaignServices = servicesToRender.filter((s: any) => s && s.campaign_price && s.campaign_price > 0 && s.price && s.campaign_price < s.price);
 
   const s2 = useScrollReveal();
   const s3 = useScrollReveal();
