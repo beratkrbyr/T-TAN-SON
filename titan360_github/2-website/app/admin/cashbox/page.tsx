@@ -22,7 +22,7 @@ export default function DailyCashboxPage() {
   const [employees, setEmployees] = useState<any[]>([]);
 
   // Forms
-  const [customerForm, setCustomerForm] = useState({ id: "", amount: "", description: "" });
+  const [customerForm, setCustomerForm] = useState({ id: "", amount: "", description: "", newName: "" });
   const [employeeForm, setEmployeeForm] = useState({ id: "", amount: "", description: "", category: "avans" });
   
   const todayStr = new Date().toISOString().split("T")[0];
@@ -64,10 +64,27 @@ export default function DailyCashboxPage() {
 
   const handleCustomerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerForm.id) return alert("Lütfen müşteri seçin");
+    if (!customerForm.id && !customerForm.newName) return alert("Lütfen müşteri seçin veya adını yazın");
     try {
       const token = localStorage.getItem("admin_token");
-      await fetch(`${API_URL}/api/admin/customers/${customerForm.id}/ledger`, {
+      let targetCustomerId = customerForm.id;
+
+      // Hızlı yeni müşteri oluşturma
+      if (customerForm.id === "NEW") {
+        const createRes = await fetch(`${API_URL}/api/admin/customers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ name: customerForm.newName, phone: "" })
+        });
+        if (createRes.ok) {
+           const createData = await createRes.json();
+           targetCustomerId = createData.id;
+        } else {
+           return alert("Müşteri oluşturulamadı.");
+        }
+      }
+
+      await fetch(`${API_URL}/api/admin/customers/${targetCustomerId}/ledger`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -77,7 +94,7 @@ export default function DailyCashboxPage() {
           entry_date: todayStr
         })
       });
-      setCustomerForm({ id: "", amount: "", description: "" });
+      setCustomerForm({ id: "", amount: "", description: "", newName: "" });
       fetchData();
     } catch (err) {
       console.error(err);
@@ -180,11 +197,17 @@ export default function DailyCashboxPage() {
 
           <form onSubmit={handleCustomerSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Müşteri Seçin</label>
-              <select required value={customerForm.id} onChange={e => setCustomerForm({...customerForm, id: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
-                <option value="">Seçiniz...</option>
-                {customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name}</option>)}
-              </select>
+              <label className="block text-sm font-semibold text-slate-600 mb-1.5">Müşteri Seçin veya Ekleyin</label>
+              <div className="flex flex-col gap-2">
+                <select required value={customerForm.id} onChange={e => setCustomerForm({...customerForm, id: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
+                  <option value="">Müşteri Seçiniz...</option>
+                  <option value="NEW" className="font-bold text-emerald-600">+ Yeni Müşteri Ekle</option>
+                  {customers.map(c => <option key={c.id || c._id} value={c.id || c._id}>{c.name}</option>)}
+                </select>
+                {customerForm.id === "NEW" && (
+                  <input type="text" required value={customerForm.newName} onChange={e => setCustomerForm({...customerForm, newName: e.target.value})} className="w-full px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none placeholder-emerald-400" placeholder="Yeni müşteri adı soyadı..." />
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

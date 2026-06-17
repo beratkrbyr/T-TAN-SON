@@ -415,6 +415,21 @@ async def get_customers(_=Depends(verify_token)):
         })
     return result
 
+@app.post("/api/admin/customers")
+async def create_admin_customer(customer: dict, token: str = Depends(verify_admin)):
+    new_customer = {
+        "name": customer.get("name"),
+        "phone": customer.get("phone", ""),
+        "email": customer.get("email", ""),
+        "address": customer.get("address", ""),
+        "created_at": datetime.utcnow().isoformat(),
+        "total_bookings": 0,
+        "loyalty_points": 0,
+        "referral_code": ""
+    }
+    result = await db.customers.insert_one(new_customer)
+    return {"id": str(result.inserted_id), "message": "Müşteri eklendi"}
+
 @api_router.get("/admin/customers/{customer_id}")
 async def get_customer_detail(customer_id: str, _=Depends(verify_token)):
     customer = await db.customers.find_one({"_id": ObjectId(customer_id)})
