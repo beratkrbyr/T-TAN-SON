@@ -416,7 +416,7 @@ async def get_customers(_=Depends(verify_token)):
     return result
 
 @app.post("/api/admin/customers")
-async def create_admin_customer(customer: dict, token: str = Depends(verify_admin)):
+async def create_admin_customer(customer: dict, token: str = Depends(verify_token)):
     new_customer = {
         "name": customer.get("name"),
         "phone": customer.get("phone", ""),
@@ -2005,7 +2005,7 @@ async def add_employee_ledger_entry(employee_id: str, entry: LedgerEntry, _=Depe
     return {"id": str(result.inserted_id), "message": "Cari islem eklendi"}
 
 @app.get("/api/admin/employee-ledger/{entry_id}")
-async def delete_employee_ledger_entry(entry_id: str, token: str = Depends(verify_admin)):
+async def delete_employee_ledger_entry(entry_id: str, token: str = Depends(verify_token)):
     try:
         obj_id = ObjectId(entry_id)
     except:
@@ -2020,7 +2020,7 @@ async def delete_employee_ledger_entry(entry_id: str, token: str = Depends(verif
 # DAILY TRANSACTIONS (GÜNLÜK KASA)
 # ==========================================
 @app.get("/api/admin/daily-transactions")
-async def get_daily_transactions(date: str = None, token: str = Depends(verify_admin)):
+async def get_daily_transactions(date: str = None, token: str = Depends(verify_token)):
     if not date:
         date = datetime.utcnow().strftime("%Y-%m-%d")
         
