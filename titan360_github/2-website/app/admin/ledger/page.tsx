@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const API_URL = "";
@@ -14,7 +14,7 @@ interface LedgerEntry {
   category?: string;
 }
 
-export default function LedgerPage() {
+function LedgerPageContent() {
   const searchParams = useSearchParams();
   const defaultTab = searchParams?.get("personel") ? "employees" : "customers";
   const defaultSelectedEmpId = searchParams?.get("personel");
@@ -372,5 +372,13 @@ export default function LedgerPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LedgerPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-full min-h-[50vh]"><div className="w-12 h-12 border-4 border-sky-200 border-t-sky-600 rounded-full animate-spin"></div></div>}>
+      <LedgerPageContent />
+    </Suspense>
   );
 }
