@@ -1989,10 +1989,57 @@ async def add_employee_ledger_entry(employee_id: str, entry: LedgerEntry, _=Depe
     result = await db.employee_ledger.insert_one(entry_dict)
     return {"id": str(result.inserted_id), "message": "Cari islem eklendi"}
 
-@api_router.delete("/admin/employee-ledger/{entry_id}")
-async def delete_employee_ledger_entry(entry_id: str, _=Depends(verify_token)):
-    await db.employee_ledger.delete_one({"_id": ObjectId(entry_id)})
-    return {"message": "Cari islem silindi"}
+@app.get("/api/admin/employee-ledger/{entry_id}")
+async def delete_employee_ledger_entry(entry_id: str, token: str = Depends(verify_admin)):
+    try:
+        obj_id = ObjectId(entry_id)
+    except:
+        raise HTTPException(status_code=400, detail="Geçersiz işlem ID")
+    
+    result = await db.employee_ledger.delete_one({"_id": obj_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="İşlem bulunamadı")
+    return {"message": "İşlem silindi"}
+
+# ==========================================
+# DAILY TRANSACTIONS (GÜNLÜK KASA)
+# ==========================================
+@app.get("/api/admin/daily-transactions")
+async def get_daily_transactions(date: str = None, token: str = Depends(verify_admin)):
+    if not date:
+        date = datetime.utcnow().strftime("%Y-%m-%d")
+        
+    # Get customer ledger for the date
+    c_entries = []
+    async for entry in db.customer_ledger.find({"entry_date": {"$regex": f"^{date}"}}):
+        entry["_id"] = str(entry["_id"])
+        entry["customer_id"] = str(entry["customer_id"])
+        # Fetch customer name
+        cust = await db.customers.find_one({"_id": ObjectId(entry["customer_id"])})
+        entry["person_name"] = cust.get("name") if cust else "Bilinmeyen Müşteri"
+        entry["source"] = "customer"
+        c_entries.append(entry)
+        
+    # Get employee ledger for the date
+    e_entries = []
+    async for entry in db.employee_ledger.find({"entry_date": {"$regex": f"^{date}"}}):
+        entry["_id"] = str(entry["_id"])
+        entry["employee_id"] = str(entry["employee_id"])
+        # Fetch employee name
+        emp = await db.employees.find_one({"_id": ObjectId(entry["employee_id"])})
+        entry["person_name"] = emp.get("name") if emp else "Bilinmeyen Personel"
+        entry["source"] = "employee"
+        e_entries.append(entry)
+        
+    all_entries = c_entries + e_entries
+    all_entries.sort(key=lambda x: x["entry_date"], reverse=True)
+    
+    # Calculate daily cash totals
+    # Giren Para: Customer Alacak
+    # Çıkan Para: Employee Avans/Maaş Ödemesi (which we will record as 'borc' or 'alacak', but basically money given to employee is expense)
+    # Let's just return the entries and let frontend calculate it based on type
+    
+    return all_entries
 
 @api_router.get("/admin/employees/{employee_id}/ledger/summary")
 async def get_employee_ledger_summary(employee_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None, _=Depends(verify_token)):

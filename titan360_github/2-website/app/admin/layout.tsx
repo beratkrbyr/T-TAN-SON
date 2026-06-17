@@ -5,6 +5,7 @@ import Link from "next/link";
 
 const menuItems = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "fa-home" },
+  { href: "/admin/cashbox", label: "Günlük Kasa", icon: "fa-cash-register" },
   { href: "/admin/bookings", label: "Randevular", icon: "fa-calendar-alt" },
   { href: "/admin/calendar", label: "Takvim", icon: "fa-calendar-days" },
   { href: "/admin/services", label: "Hizmetler", icon: "fa-broom" },
