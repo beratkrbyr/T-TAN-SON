@@ -256,10 +256,30 @@ async def get_stats(_=Depends(verify_token)):
     points_pipeline = [{"$group": {"_id": None, "total": {"$sum": "$loyalty_points"}}}]
     points_result = await db.customers.aggregate(points_pipeline).to_list(1)
     total_points = points_result[0]["total"] if points_result else 0
-    # Revenue
-    pipeline = [{"$match": {"status": {"$in": ["confirmed", "completed"]}}}, {"$group": {"_id": None, "total": {"$sum": "$total_price"}}}]
-    result = await db.bookings.aggregate(pipeline).to_list(1)
-    revenue = result[0]["total"] if result else 0
+    
+    # Revenue (Ciro) from customer_ledger (entry_type = "alacak")
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
+    today_str = now.strftime("%Y-%m-%d")
+    
+    # daily
+    daily_cursor = db.customer_ledger.find({"entry_type": "alacak", "entry_date": {"$regex": f"^{today_str}"}})
+    daily_revenue = sum([entry["amount"] async for entry in daily_cursor])
+    
+    # weekly (last 7 days)
+    week_ago = (now - timedelta(days=7)).strftime("%Y-%m-%d")
+    weekly_cursor = db.customer_ledger.find({"entry_type": "alacak", "entry_date": {"$gte": week_ago}})
+    weekly_revenue = sum([entry["amount"] async for entry in weekly_cursor])
+    
+    # monthly (this month)
+    month_str = now.strftime("%Y-%m")
+    monthly_cursor = db.customer_ledger.find({"entry_type": "alacak", "entry_date": {"$regex": f"^{month_str}"}})
+    monthly_revenue = sum([entry["amount"] async for entry in monthly_cursor])
+    
+    # total
+    total_cursor = db.customer_ledger.find({"entry_type": "alacak"})
+    total_revenue = sum([entry["amount"] async for entry in total_cursor])
+    
     # Referral stats
     referral_count = await db.referrals.count_documents({})
     return {
@@ -269,10 +289,13 @@ async def get_stats(_=Depends(verify_token)):
         "completed_bookings": completed,
         "total_customers": customers,
         "total_reviews": reviews,
-        "total_revenue": revenue,
         "total_services": services,
         "total_points_given": total_points,
-        "total_referrals": referral_count
+        "total_referrals": referral_count,
+        "total_revenue": total_revenue,
+        "daily_revenue": daily_revenue,
+        "weekly_revenue": weekly_revenue,
+        "monthly_revenue": monthly_revenue
     }
 
 @api_router.get("/admin/notifications")

@@ -8,6 +8,9 @@ interface Stats {
   pending_bookings: number;
   total_customers: number;
   total_revenue: number;
+  daily_revenue?: number;
+  weekly_revenue?: number;
+  monthly_revenue?: number;
   completed_bookings: number;
   total_services: number;
 }
@@ -86,13 +89,40 @@ export default function DashboardPage() {
       barColor: "from-cyan-500 to-teal-500",
     },
     {
-      title: "Toplam Gelir",
+      title: "Toplam Ciro",
       value: `${stats?.total_revenue || 0} TL`,
       icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
       iconBg: "bg-emerald-50",
       iconColor: "text-emerald-600",
       valueColor: "text-emerald-700",
       barColor: "from-emerald-500 to-green-500",
+    },
+    {
+      title: "Bugünkü Ciro",
+      value: `${stats?.daily_revenue || 0} TL`,
+      icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      valueColor: "text-blue-700",
+      barColor: "from-blue-500 to-sky-500",
+    },
+    {
+      title: "Bu Haftaki Ciro",
+      value: `${stats?.weekly_revenue || 0} TL`,
+      icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z",
+      iconBg: "bg-indigo-50",
+      iconColor: "text-indigo-600",
+      valueColor: "text-indigo-700",
+      barColor: "from-indigo-500 to-purple-500",
+    },
+    {
+      title: "Bu Ayki Ciro",
+      value: `${stats?.monthly_revenue || 0} TL`,
+      icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+      iconBg: "bg-teal-50",
+      iconColor: "text-teal-600",
+      valueColor: "text-teal-700",
+      barColor: "from-teal-500 to-emerald-500",
     },
   ];
 
