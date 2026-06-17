@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TiTAN 360 — Cari Yönetimi</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-dark: #047857;
+      --secondary: #0284c7;
+      --secondary-dark: #0369a1;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --sidebar-w: 260px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #064e3b 100%);
+      display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.07); backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 1.5rem;
+      padding: 3rem 2.5rem; width: 380px; text-align: center;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.4);
+    }
+    .login-logo { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+    .login-logo span { color: #34d399; }
+    .login-sub { color: #94a3b8; font-size: 0.85rem; margin-bottom: 2rem; }
+    .login-box input {
+      width: 100%; padding: 0.85rem 1.1rem; border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.08);
+      color: #fff; font-size: 0.95rem; margin-bottom: 0.85rem; outline: none;
+      transition: border 0.2s;
+    }
+    .login-box input:focus { border-color: #34d399; }
+    .login-box input::placeholder { color: #94a3b8; }
+    .btn-login {
+      width: 100%; padding: 0.9rem; border-radius: 0.75rem;
+      background: linear-gradient(135deg, #059669, #0284c7);
+      color: #fff; font-weight: 700; font-size: 1rem;
+      border: none; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-login:hover { opacity: 0.9; }
+    #loginError { color: #f87171; font-size: 0.82rem; margin-top: 0.75rem; display: none; }
+
+    /* ── LAYOUT ── */
+    #app { display: none; flex-direction: row; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar-w); background: #0f172a; color: #e2e8f0;
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0;
+      height: 100vh; z-index: 100; overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 1.5rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-brand .brand-title { font-size: 1.35rem; font-weight: 800; color: #fff; }
+    .sidebar-brand .brand-title span { color: #34d399; }
+    .sidebar-brand .brand-sub { font-size: 0.72rem; color: #64748b; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 0.15rem; }
+    .sidebar-nav { flex: 1; padding: 1rem 0; }
+    .nav-section { padding: 0.5rem 1.25rem 0.25rem; font-size: 0.68rem; color: #475569; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.7rem 1.25rem; color: #94a3b8; font-size: 0.875rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent;
+    }
+    .nav-item:hover { color: #e2e8f0; background: rgba(255,255,255,0.05); }
+    .nav-item.active { color: #34d399; background: rgba(52,211,153,0.08); border-left-color: #34d399; }
+    .nav-item i { width: 18px; text-align: center; font-size: 0.9rem; }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar-w); flex: 1; padding: 2rem; }
+    .topbar {
+      background: var(--card); border-radius: 1rem; padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.75rem; box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+    }
+    .topbar-title { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+    .topbar-right { display: flex; align-items: center; gap: 1rem; }
+    .btn-logout {
+      padding: 0.5rem 1rem; border-radius: 0.6rem; background: #f1f5f9;
+      border: 1px solid var(--border); color: var(--text-muted); font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-logout:hover { background: #e2e8f0; }
+
+    /* ── PAGE ── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── CARDS ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card {
+      background: var(--card); border-radius: 1rem; padding: 1.25rem 1.5rem;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid var(--border);
+    }
+    .stat-card .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
+    .stat-card .stat-value { font-size: 1.6rem; font-weight: 800; }
+    .stat-card .stat-value.red { color: var(--danger); }
+    .stat-card .stat-value.green { color: var(--success); }
+    .stat-card .stat-value.blue { color: var(--secondary); }
+    .stat-card .stat-value.amber { color: var(--warning); }
+
+    /* ── PANEL GRID ── */
+    .panel-grid { display: grid; grid-template-columns: 320px 1fr; gap: 1.5rem; }
+    @media (max-width: 1100px) { .panel-grid { grid-template-columns: 1fr; } }
+
+    /* ── SECTION CARD ── */
+    .section-card {
+      background: var(--card); border-radius: 1rem; padding: 1.5rem;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.06); border: 1px solid var(--border);
+    }
+    .section-card h3 {
+      font-size: 1rem; font-weight: 700; color: var(--text);
+      margin-bottom: 1.25rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-card h3 i { color: var(--primary); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 0.875rem; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 0.65rem 0.9rem; border-radius: 0.6rem;
+      border: 1px solid var(--border); background: #f8fafc; font-size: 0.875rem;
+      color: var(--text); font-family: inherit; outline: none; transition: border 0.15s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); background: #fff; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1.1rem; border-radius: 0.6rem; font-size: 0.82rem;
+      font-weight: 600; border: none; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-secondary { background: var(--secondary); color: #fff; }
+    .btn-secondary:hover { background: var(--secondary-dark); }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-ghost { background: #f1f5f9; color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: #e2e8f0; }
+    .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+    .btn-amber { background: var(--warning); color: #fff; }
+    .btn-amber:hover { background: #d97706; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    thead tr { background: #f8fafc; }
+    th { text-align: left; padding: 0.7rem 0.9rem; font-weight: 600; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: 0.7rem 0.9rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.2rem 0.55rem; border-radius: 99px; font-size: 0.7rem; font-weight: 700;
+    }
+    .badge-red { background: #fef2f2; color: #ef4444; }
+    .badge-green { background: #f0fdf4; color: #16a34a; }
+    .badge-blue { background: #eff6ff; color: #2563eb; }
+    .badge-amber { background: #fffbeb; color: #d97706; }
+
+    /* ── PERSON LIST ── */
+    .person-list { display: flex; flex-direction: column; gap: 0.5rem; max-height: 480px; overflow-y: auto; }
+    .person-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem; border-radius: 0.75rem; border: 1.5px solid var(--border);
+      cursor: pointer; transition: all 0.15s; background: #f8fafc;
+    }
+    .person-item:hover { border-color: var(--primary); background: #f0fdf4; }
+    .person-item.selected { border-color: var(--primary); background: #f0fdf4; }
+    .person-item .pi-name { font-weight: 600; font-size: 0.875rem; }
+    .person-item .pi-sub { font-size: 0.73rem; color: var(--text-muted); }
+    .person-item .pi-balance { font-size: 0.82rem; font-weight: 700; }
+    .pi-balance.owe { color: var(--danger); }
+    .pi-balance.ok { color: var(--success); }
+    .pi-balance.zero { color: var(--text-muted); }
+
+    /* ── LEDGER TABLE ── */
+    .ledger-type-borc { color: var(--danger); font-weight: 600; }
+    .ledger-type-alacak { color: var(--success); font-weight: 600; }
+    .running-balance { font-weight: 700; }
+    .running-balance.positive { color: var(--danger); }
+    .running-balance.negative { color: var(--success); }
+    .running-balance.zero { color: var(--text-muted); }
+
+    /* ── SEARCH ── */
+    .search-bar {
+      position: relative; margin-bottom: 0.75rem;
+    }
+    .search-bar input {
+      width: 100%; padding: 0.65rem 0.9rem 0.65rem 2.25rem;
+      border-radius: 0.6rem; border: 1px solid var(--border); background: #f8fafc;
+      font-size: 0.875rem; outline: none;
+    }
+    .search-bar input:focus { border-color: var(--primary); }
+    .search-bar i { position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.85rem; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.4; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500;
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card); border-radius: 1.25rem; padding: 2rem;
+      width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+    }
+    .modal h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+    .modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+      padding: 0.9rem 1.4rem; border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem;
+      color: #fff; opacity: 0; transition: opacity 0.3s; pointer-events: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    #toast.show { opacity: 1; }
+    #toast.success { background: var(--success); }
+    #toast.error { background: var(--danger); }
+
+    /* ── REPORT FILTERS ── */
+    .filter-bar { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem; padding: 1rem; background: #f8fafc; border-radius: 0.75rem; border: 1px solid var(--border); }
+    .filter-bar .form-group { margin-bottom: 0; }
+    .filter-bar label { font-size: 0.73rem; }
+
+    /* ── PRINT ── */
+    @media print {
+      .sidebar, .topbar, .no-print { display: none !important; }
+      .main { margin-left: 0; padding: 0; }
+      .section-card { box-shadow: none; border: 1px solid #ccc; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+
+    /* ── UTILS ── */
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .text-sm { font-size: 0.82rem; }
+    .text-muted { color: var(--text-muted); }
+    .fw-bold { font-weight: 700; }
+    .text-red { color: var(--danger); }
+    .text-green { color: var(--success); }
+    .text-right { text-align: right; }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">TiTAN <span>360</span></div>
+    <div class="login-sub">Cari Yönetim Sistemi</div>
+    <input type="text" id="loginUser" placeholder="Kullanıcı adı" value="admin" />
+    <input type="password" id="loginPass" placeholder="Şifre" />
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fas fa-sign-in-alt" style="margin-right:0.4rem"></i> Giriş Yap
+    </button>
+    <div id="loginError">Kullanıcı adı veya şifre hatalı</div>
+    <div style="margin-top:1rem; font-size:0.75rem; color:#475569;">
+      API: <span id="apiUrlDisplay"></span>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-title">TiTAN <span>360</span></div>
+      <div class="brand-sub">Cari Yönetimi</div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Genel</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <i class="fas fa-chart-pie"></i> Genel Bakış
+      </div>
+      <div class="nav-section">Cari</div>
+      <div class="nav-item" onclick="showPage('musteri-cari')">
+        <i class="fas fa-users"></i> Müşteri Carisi
+      </div>
+      <div class="nav-item" onclick="showPage('personel-cari')">
+        <i class="fas fa-user-tie"></i> Personel Carisi
+      </div>
+      <div class="nav-section">Personel</div>
+      <div class="nav-item" onclick="showPage('personel-list')">
+        <i class="fas fa-id-card"></i> Personel Listesi
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pageTitle">Genel Bakış</div>
+      <div class="topbar-right">
+        <span class="text-sm text-muted" id="userLabel"></span>
+        <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Çıkış</button>
+      </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page active" id="page-dashboard">
+      <div class="stat-grid" id="dashStats">
+        <div class="stat-card">
+          <div class="stat-label">Toplam Müşteri</div>
+          <div class="stat-value blue" id="statTotalCustomers">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Toplam Personel</div>
+          <div class="stat-value blue" id="statTotalEmployees">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Müşteri Toplam Borç</div>
+          <div class="stat-value red" id="statCustBorc">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Müşteri Toplam Alacak</div>
+          <div class="stat-value green" id="statCustAlacak">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Personel Net Bakiye</div>
+          <div class="stat-value amber" id="statEmpBakiye">—</div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+        <div class="section-card">
+          <h3><i class="fas fa-exclamation-triangle"></i> Borçlu Müşteriler</h3>
+          <div id="dashOweCustomers" class="person-list"></div>
+        </div>
+        <div class="section-card">
+          <h3><i class="fas fa-user-tie"></i> Personel Bakiyeleri</h3>
+          <div id="dashEmpBalances" class="person-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MÜŞTERİ CARİ ===== -->
+    <div class="page" id="page-musteri-cari">
+      <div class="panel-grid">
+        <!-- Sol: Müşteri Listesi -->
+        <div class="section-card">
+          <h3><i class="fas fa-users"></i> Müşteriler</h3>
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Müşteri ara..." oninput="filterCustomers(this.value)" />
+          </div>
+          <div class="person-list" id="customerList">
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Yükleniyor...</p></div>
+          </div>
+        </div>
+        <!-- Sağ: Cari Detay -->
+        <div>
+          <div class="section-card" id="custLedgerPanel" style="display:none">
+            <h3><i class="fas fa-book"></i> <span id="custLedgerTitle">Müşteri Cari Ekstresi</span></h3>
+
+            <!-- Özet -->
+            <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.25rem;">
+              <div class="stat-card">
+                <div class="stat-label">Toplam Borç</div>
+                <div class="stat-value red" id="clTotalBorc">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Toplam Alacak</div>
+                <div class="stat-value green" id="clTotalAlacak">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Net Bakiye</div>
+                <div class="stat-value" id="clBakiye">—</div>
+              </div>
+            </div>
+
+            <!-- İşlem Ekle -->
+            <div class="section-card no-print" style="background:#f8fafc; margin-bottom:1.25rem; padding:1rem;">
+              <h3 style="font-size:0.9rem; margin-bottom:1rem;"><i class="fas fa-plus-circle"></i> Yeni Cari İşlem</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>İşlem Türü</label>
+                  <select id="clEntryType">
+                    <option value="borc">Borç (Hizmet bedeli)</option>
+                    <option value="alacak">Alacak (Ödeme aldı)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Tutar (TL)</label>
+                  <input type="number" id="clAmount" placeholder="0.00" min="0" step="0.01" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Açıklama</label>
+                  <input type="text" id="clDescription" placeholder="Koltuk yıkama, ödeme, vb." />
+                </div>
+                <div class="form-group">
+                  <label>Tarih</label>
+                  <input type="date" id="clDate" />
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-primary" onclick="addCustomerLedgerEntry()"><i class="fas fa-plus"></i> Ekle</button>
+                <button class="btn btn-ghost no-print" onclick="printCustomerLedger()"><i class="fas fa-print"></i> Yazdır</button>
+                <button class="btn btn-ghost no-print" onclick="exportCustomerCSV()"><i class="fas fa-file-csv"></i> CSV İndir</button>
+              </div>
+            </div>
+
+            <!-- Cari Tablo -->
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Açıklama</th>
+                    <th>Borç</th>
+                    <th>Alacak</th>
+                    <th>Bakiye</th>
+                    <th class="no-print"></th>
+                  </tr>
+                </thead>
+                <tbody id="custLedgerBody">
+                  <tr><td colspan="6" class="empty-state"><i class="fas fa-receipt"></i><p>Henüz işlem yok</p></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="custLedgerEmpty" class="section-card">
+            <div class="empty-state">
+              <i class="fas fa-hand-point-left"></i>
+              <p>Sol listeden bir müşteri seçin</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PERSONEL CARİ ===== -->
+    <div class="page" id="page-personel-cari">
+      <div class="panel-grid">
+        <!-- Sol: Personel Listesi -->
+        <div class="section-card">
+          <h3><i class="fas fa-user-tie"></i> Personel</h3>
+          <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Personel ara..." oninput="filterEmployees(this.value)" />
+          </div>
+          <div class="person-list" id="employeeListCari">
+            <div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Yükleniyor...</p></div>
+          </div>
+        </div>
+        <!-- Sağ: Cari Detay -->
+        <div>
+          <div class="section-card" id="empLedgerPanel" style="display:none">
+            <h3><i class="fas fa-book"></i> <span id="empLedgerTitle">Personel Cari Ekstresi</span></h3>
+
+            <!-- Özet -->
+            <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom:1.25rem;">
+              <div class="stat-card">
+                <div class="stat-label">Toplam Borç</div>
+                <div class="stat-value red" id="elTotalBorc">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Toplam Alacak</div>
+                <div class="stat-value green" id="elTotalAlacak">—</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Net Bakiye</div>
+                <div class="stat-value" id="elBakiye">—</div>
+              </div>
+            </div>
+
+            <!-- İşlem Ekle -->
+            <div class="section-card no-print" style="background:#f8fafc; margin-bottom:1.25rem; padding:1rem;">
+              <h3 style="font-size:0.9rem; margin-bottom:1rem;"><i class="fas fa-plus-circle"></i> Yeni Cari İşlem</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Kategori</label>
+                  <select id="elCategory" onchange="syncEmpEntryType()">
+                    <option value="maas">💼 Maaş Ödemesi (Alacak)</option>
+                    <option value="avans">💵 Avans (Alacak)</option>
+                    <option value="prim">⭐ Prim/İkramiye (Alacak)</option>
+                    <option value="kesinti">✂️ Kesinti (Borç)</option>
+                    <option value="diger_alacak">📤 Diğer Alacak</option>
+                    <option value="diger_borc">📥 Diğer Borç</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Tutar (TL)</label>
+                  <input type="number" id="elAmount" placeholder="0.00" min="0" step="0.01" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Açıklama</label>
+                  <input type="text" id="elDescription" placeholder="Temmuz maaşı, avans, vb." />
+                </div>
+                <div class="form-group">
+                  <label>Tarih</label>
+                  <input type="date" id="elDate" />
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-primary" onclick="addEmployeeLedgerEntry()"><i class="fas fa-plus"></i> Ekle</button>
+                <button class="btn btn-ghost no-print" onclick="printEmployeeLedger()"><i class="fas fa-print"></i> Yazdır</button>
+                <button class="btn btn-ghost no-print" onclick="exportEmployeeCSV()"><i class="fas fa-file-csv"></i> CSV İndir</button>
+              </div>
+            </div>
+
+            <!-- Cari Tablo -->
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tarih</th>
+                    <th>Açıklama</th>
+                    <th>Kategori</th>
+                    <th>Borç</th>
+                    <th>Alacak</th>
+                    <th>Bakiye</th>
+                    <th class="no-print"></th>
+                  </tr>
+                </thead>
+                <tbody id="empLedgerBody">
+                  <tr><td colspan="7" class="empty-state"><i class="fas fa-receipt"></i><p>Henüz işlem yok</p></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div id="empLedgerEmpty" class="section-card">
+            <div class="empty-state">
+              <i class="fas fa-hand-point-left"></i>
+              <p>Sol listeden bir personel seçin</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PERSONEL LİSTESİ ===== -->
+    <div class="page" id="page-personel-list">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;" class="no-print">
+        <h2 style="font-size:1.1rem; font-weight:700;">Personel Kayıtları</h2>
+        <button class="btn btn-primary" onclick="openAddEmployeeModal()"><i class="fas fa-plus"></i> Yeni Personel Ekle</button>
+      </div>
+      <div class="section-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Ad Soyad</th>
+                <th>Pozisyon</th>
+                <th>Telefon</th>
+                <th>TC</th>
+                <th>Başlangıç</th>
+                <th>Aylık Maaş</th>
+                <th>Bakiye</th>
+                <th>Durum</th>
+                <th class="no-print">İşlemler</th>
+              </tr>
+            </thead>
+            <tbody id="employeeTableBody">
+              <tr><td colspan="9" class="text-muted" style="text-align:center; padding:2rem;">Yükleniyor...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL: Personel Ekle/Düzenle -->
+<div class="modal-overlay" id="empModal">
+  <div class="modal">
+    <h3><i class="fas fa-user-plus" style="color:var(--primary)"></i> <span id="empModalTitle">Yeni Personel Ekle</span></h3>
+    <input type="hidden" id="empModalId" />
+    <div class="form-row">
+      <div class="form-group">
+        <label>Ad Soyad *</label>
+        <input type="text" id="empName" placeholder="Ahmet Yılmaz" />
+      </div>
+      <div class="form-group">
+        <label>Pozisyon</label>
+        <input type="text" id="empPosition" placeholder="Teknisyen, Müdür..." />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>TC Kimlik No</label>
+        <input type="text" id="empTc" placeholder="12345678901" maxlength="11" />
+      </div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" id="empPhone" placeholder="0500 000 00 00" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Aylık Maaş (TL)</label>
+        <input type="number" id="empSalary" placeholder="20000" />
+      </div>
+      <div class="form-group">
+        <label>İşe Başlama Tarihi</label>
+        <input type="date" id="empStartDate" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Notlar</label>
+      <textarea id="empNotes" rows="2" placeholder="Ek bilgi, notlar..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Durum</label>
+      <select id="empActive">
+        <option value="true">Aktif</option>
+        <option value="false">Pasif / Ayrıldı</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('empModal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveEmployee()"><i class="fas fa-save"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────
+const API_URL = "https://titan-api-gcuw.onrender.com/api";
+document.getElementById("apiUrlDisplay").textContent = API_URL;
+
+let TOKEN = localStorage.getItem("cari_token") || "";
+let allCustomers = [];
+let allEmployees = [];
+let selectedCustomerId = null;
+let selectedEmployeeId = null;
+let currentCustomerLedger = [];
+let currentEmployeeLedger = [];
+
+// ─────────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────────
+async function doLogin() {
+  const u = document.getElementById("loginUser").value;
+  const p = document.getElementById("loginPass").value;
+  try {
+    const r = await fetch(`${API_URL}/admin/login`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({username: u, password: p})
+    });
+    if (!r.ok) { showLoginError(); return; }
+    const data = await r.json();
+    TOKEN = data.access_token;
+    localStorage.setItem("cari_token", TOKEN);
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").style.display = "flex";
+    document.getElementById("userLabel").textContent = u;
+    initApp();
+  } catch(e) { showLoginError(); }
+}
+
+function showLoginError() {
+  const el = document.getElementById("loginError");
+  el.style.display = "block";
+  setTimeout(() => el.style.display = "none", 3000);
+}
+
+function logout() {
+  TOKEN = "";
+  localStorage.removeItem("cari_token");
+  location.reload();
+}
+
+// Auto-login if token exists
+if (TOKEN) {
+  document.getElementById("loginScreen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  document.getElementById("userLabel").textContent = "admin";
+  setTimeout(initApp, 100);
+}
+
+// Login on Enter
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("loginScreen").style.display !== "none") doLogin();
+});
+
+// ─────────────────────────────────────────────
+// API HELPER
+// ─────────────────────────────────────────────
+async function api(path, method="GET", body=null) {
+  const opts = {
+    method,
+    headers: {"Authorization": `Bearer ${TOKEN}`, "Content-Type": "application/json"}
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(`${API_URL}${path}`, opts);
+  if (r.status === 401) { logout(); return null; }
+  if (!r.ok) { const e = await r.json(); throw new Error(e.detail || "Hata oluştu"); }
+  return r.json();
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+async function initApp() {
+  await Promise.all([loadCustomers(), loadEmployees()]);
+  loadDashboard();
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById(`page-${name}`).classList.add("active");
+  event.currentTarget.classList.add("active");
+  const titles = {
+    "dashboard": "Genel Bakış",
+    "musteri-cari": "Müşteri Carisi",
+    "personel-cari": "Personel Carisi",
+    "personel-list": "Personel Listesi"
+  };
+  document.getElementById("pageTitle").textContent = titles[name] || name;
+
+  // Set today as default date for entry forms
+  const today = new Date().toISOString().split("T")[0];
+  ["clDate","elDate"].forEach(id => { const el=document.getElementById(id); if(el) el.value=today; });
+
+  if (name === "musteri-cari") renderCustomerList(allCustomers);
+  if (name === "personel-cari") renderEmployeeListCari(allEmployees);
+  if (name === "personel-list") renderEmployeeTable(allEmployees);
+}
+
+// ─────────────────────────────────────────────
+// CUSTOMERS
+// ─────────────────────────────────────────────
+async function loadCustomers() {
+  try {
+    const data = await api("/admin/customer-ledger/all-summary");
+    allCustomers = data || [];
+  } catch(e) {
+    // If endpoint not yet deployed, fallback to basic customer list
+    try {
+      const data = await api("/admin/customers");
+      allCustomers = (data || []).map(c => ({...c, total_borc: 0, total_alacak: 0, bakiye: 0}));
+    } catch(e2) { allCustomers = []; }
+  }
+}
+
+function renderCustomerList(customers) {
+  const el = document.getElementById("customerList");
+  if (!customers.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><p>Müşteri bulunamadı</p></div>`;
+    return;
+  }
+  el.innerHTML = customers.map(c => {
+    const bal = c.bakiye || 0;
+    const cls = bal > 0 ? "owe" : bal < 0 ? "ok" : "zero";
+    const sign = bal > 0 ? "▲ Borçlu" : bal < 0 ? "▼ Alacaklı" : "Sıfır";
+    return `
+    <div class="person-item ${selectedCustomerId===c.id?'selected':''}" onclick="selectCustomer('${c.id}','${escHtml(c.name)}')">
+      <div>
+        <div class="pi-name">${escHtml(c.name)}</div>
+        <div class="pi-sub">${escHtml(c.phone||'')}</div>
+      </div>
+      <div class="pi-balance ${cls}">${Math.abs(bal).toLocaleString('tr-TR')} TL<br><span style="font-size:0.68rem; font-weight:500;">${sign}</span></div>
+    </div>`;
+  }).join("");
+}
+
+function filterCustomers(q) {
+  const filtered = allCustomers.filter(c =>
+    c.name?.toLowerCase().includes(q.toLowerCase()) ||
+    c.phone?.includes(q)
+  );
+  renderCustomerList(filtered);
+}
+
+async function selectCustomer(id, name) {
+  selectedCustomerId = id;
+  document.getElementById("custLedgerTitle").textContent = `${name} — Cari Ekstresi`;
+  document.getElementById("custLedgerPanel").style.display = "block";
+  document.getElementById("custLedgerEmpty").style.display = "none";
+  renderCustomerList(allCustomers);
+  await loadCustomerLedger(id);
+}
+
+async function loadCustomerLedger(id) {
+  try {
+    const data = await api(`/admin/customers/${id}/ledger`);
+    currentCustomerLedger = data.entries || [];
+    document.getElementById("clTotalBorc").textContent = fmt(data.total_borc);
+    document.getElementById("clTotalAlacak").textContent = fmt(data.total_alacak);
+    const bak = document.getElementById("clBakiye");
+    bak.textContent = fmt(Math.abs(data.bakiye));
+    bak.className = "stat-value " + (data.bakiye > 0 ? "red" : data.bakiye < 0 ? "green" : "text-muted");
+    renderCustomerLedgerTable(currentCustomerLedger);
+  } catch(e) { showToast("Cari yüklenemedi: "+e.message, "error"); }
+}
+
+function renderCustomerLedgerTable(entries) {
+  const tbody = document.getElementById("custLedgerBody");
+  if (!entries.length) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--text-muted)">Henüz cari işlem yok</td></tr>`;
+    return;
+  }
+  // Sort by date asc for running balance
+  const sorted = [...entries].sort((a,b) => (a.entry_date||"").localeCompare(b.entry_date||""));
+  let runBal = 0;
+  // Reverse display (newest first)
+  const rows = sorted.map(e => {
+    const isBorc = e.entry_type === "borc";
+    if (isBorc) runBal += e.amount; else runBal -= e.amount;
+    return {e, runBal: runBal};
+  }).reverse();
+
+  tbody.innerHTML = rows.map(({e, runBal}) => {
+    const isBorc = e.entry_type === "borc";
+    const balCls = runBal > 0 ? "positive" : runBal < 0 ? "negative" : "zero";
+    const balSign = runBal > 0 ? "+" : "";
+    return `<tr>
+      <td>${fmtDate(e.entry_date)}</td>
+      <td>${escHtml(e.description)}</td>
+      <td class="${isBorc?'ledger-type-borc':''}">${isBorc ? fmt(e.amount) : "—"}</td>
+      <td class="${!isBorc?'ledger-type-alacak':''}">${!isBorc ? fmt(e.amount) : "—"}</td>
+      <td class="running-balance ${balCls}">${balSign}${fmt(Math.abs(runBal))}</td>
+      <td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteCustomerEntry('${e.id}')"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  }).join("");
+}
+
+async function addCustomerLedgerEntry() {
+  if (!selectedCustomerId) { showToast("Önce müşteri seçin", "error"); return; }
+  const type = document.getElementById("clEntryType").value;
+  const amount = parseFloat(document.getElementById("clAmount").value);
+  const desc = document.getElementById("clDescription").value.trim();
+  const date = document.getElementById("clDate").value;
+  if (!amount || amount <= 0) { showToast("Geçerli tutar girin", "error"); return; }
+  if (!desc) { showToast("Açıklama girin", "error"); return; }
+  try {
+    await api(`/admin/customers/${selectedCustomerId}/ledger`, "POST", {
+      entry_type: type, amount, description: desc, entry_date: date, category: ""
+    });
+    document.getElementById("clAmount").value = "";
+    document.getElementById("clDescription").value = "";
+    showToast("İşlem eklendi", "success");
+    await loadCustomerLedger(selectedCustomerId);
+    await loadCustomers();
+    renderCustomerList(allCustomers);
+  } catch(e) { showToast("Hata: "+e.message, "error"); }
+}
+
+async function deleteCustomerEntry(entryId) {
+  if (!confirm("Bu işlemi silmek istediğinizden emin misiniz?")) return;
+  try {
+    await api(`/admin/customer-ledger/${entryId}`, "DELETE");
+    showToast("İşlem silindi", "success");
+    await loadCustomerLedger(selectedCustomerId);
+    await loadCustomers();
+    renderCustomerList(allCustomers);
+  } catch(e) { showToast("Hata: "+e.message, "error"); }
+}
+
+// ─────────────────────────────────────────────
+// EMPLOYEES
+// ─────────────────────────────────────────────
+async function loadEmployees() {
+  try {
+    const data = await api("/admin/employees");
+    allEmployees = data || [];
+  } catch(e) { allEmployees = []; }
+}
+
+function renderEmployeeListCari(employees) {
+  const el = document.getElementById("employeeListCari");
+  if (!employees.length) {
+    el.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus"></i><p>Personel bulunamadı<br><small>Personel Listesi sayfasından ekleyebilirsiniz</small></p></div>`;
+    return;
+  }
+  el.innerHTML = employees.map(e => {
+    const bal = e.bakiye || 0;
+    const cls = bal < 0 ? "owe" : bal > 0 ? "ok" : "zero";
+    const sign = bal > 0 ? "▲ Alacaklı" : bal < 0 ? "▼ Borçlu" : "Sıfır";
+    return `
+    <div class="person-item ${selectedEmployeeId===e.id?'selected':''}" onclick="selectEmployee('${e.id}','${escHtml(e.name)}')">
+      <div>
+        <div class="pi-name">${escHtml(e.name)}</div>
+        <div class="pi-sub">${escHtml(e.position||'')} ${e.active===false?'<span style="color:var(--danger); font-size:0.68rem;">(Pasif)</span>':''}</div>
+      </div>
+      <div class="pi-balance ${cls}">${Math.abs(bal).toLocaleString('tr-TR')} TL<br><span style="font-size:0.68rem; font-weight:500;">${sign}</span></div>
+    </div>`;
+  }).join("");
+}
+
+function filterEmployees(q) {
+  const filtered = allEmployees.filter(e =>
+    e.name?.toLowerCase().includes(q.toLowerCase()) ||
+    e.position?.toLowerCase().includes(q.toLowerCase())
+  );
+  renderEmployeeListCari(filtered);
+}
+
+async function selectEmployee(id, name) {
+  selectedEmployeeId = id;
+  document.getElementById("empLedgerTitle").textContent = `${name} — Cari Ekstresi`;
+  document.getElementById("empLedgerPanel").style.display = "block";
+  document.getElementById("empLedgerEmpty").style.display = "none";
+  renderEmployeeListCari(allEmployees);
+  await loadEmployeeLedger(id);
+}
+
+async function loadEmployeeLedger(id) {
+  try {
+    const data = await api(`/admin/employees/${id}/ledger`);
+    currentEmployeeLedger = data.entries || [];
+    document.getElementById("elTotalBorc").textContent = fmt(data.total_borc);
+    document.getElementById("elTotalAlacak").textContent = fmt(data.total_alacak);
+    const bak = document.getElementById("elBakiye");
+    // For employee: alacak - borc. Positive = we owe them, Negative = they owe us
+    bak.textContent = fmt(Math.abs(data.bakiye));
+    bak.className = "stat-value " + (data.bakiye > 0 ? "green" : data.bakiye < 0 ? "red" : "text-muted");
+    renderEmployeeLedgerTable(currentEmployeeLedger);
+  } catch(e) { showToast("Cari yüklenemedi: "+e.message, "error"); }
+}
+
+const CATEGORY_LABELS = {
+  maas: "💼 Maaş", avans: "💵 Avans", prim: "⭐ Prim",
+  kesinti: "✂️ Kesinti", diger_alacak: "📤 Diğer Alacak",
+  diger_borc: "📥 Diğer Borç", "": "—"
+};
+
+function renderEmployeeLedgerTable(entries) {
+  const tbody = document.getElementById("empLedgerBody");
+  if (!entries.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2rem; color:var(--text-muted)">Henüz cari işlem yok</td></tr>`;
+    return;
+  }
+  const sorted = [...entries].sort((a,b) => (a.entry_date||"").localeCompare(b.entry_date||""));
+  let runBal = 0;
+  const rows = sorted.map(e => {
+    const isBorc = e.entry_type === "borc";
+    if (isBorc) runBal -= e.amount; else runBal += e.amount;
+    return {e, runBal};
+  }).reverse();
+
+  tbody.innerHTML = rows.map(({e, runBal}) => {
+    const isBorc = e.entry_type === "borc";
+    const balCls = runBal > 0 ? "positive" : runBal < 0 ? "negative" : "zero";
+    const catLabel = CATEGORY_LABELS[e.category] || e.category || "—";
+    return `<tr>
+      <td>${fmtDate(e.entry_date)}</td>
+      <td>${escHtml(e.description)}</td>
+      <td><span style="font-size:0.78rem;">${catLabel}</span></td>
+      <td class="${isBorc?'ledger-type-borc':''}">${isBorc ? fmt(e.amount) : "—"}</td>
+      <td class="${!isBorc?'ledger-type-alacak':''}">${!isBorc ? fmt(e.amount) : "—"}</td>
+      <td class="running-balance ${balCls}">${runBal >= 0 ? "+" : ""}${fmt(Math.abs(runBal))}</td>
+      <td class="no-print"><button class="btn btn-danger btn-sm" onclick="deleteEmployeeEntry('${e.id}')"><i class="fas fa-trash"></i></button></td>
+    </tr>`;
+  }).join("");
+}
+
+function syncEmpEntryType() {
+  // Auto-fill description based on category
+  const cat = document.getElementById("elCategory").value;
+  const descMap = {
+    maas: "Maaş ödemesi", avans: "Avans", prim: "Prim/İkramiye", kesinti: "Kesinti"
+  };
+  if (descMap[cat]) document.getElementById("elDescription").value = descMap[cat];
+}
+
+async function addEmployeeLedgerEntry() {
+  if (!selectedEmployeeId) { showToast("Önce personel seçin", "error"); return; }
+  const cat = document.getElementById("elCategory").value;
+  const amount = parseFloat(document.getElementById("elAmount").value);
+  const desc = document.getElementById("elDescription").value.trim() || cat;
+  const date = document.getElementById("elDate").value;
+  // Determine entry type from category
+  const borcCats = ["kesinti", "diger_borc"];
+  const entry_type = borcCats.includes(cat) ? "borc" : "alacak";
+  if (!amount || amount <= 0) { showToast("Geçerli tutar girin", "error"); return; }
+  try {
+    await api(`/admin/employees/${selectedEmployeeId}/ledger`, "POST", {
+      entry_type, amount, description: desc, entry_date: date, category: cat
+    });
+    document.getElementById("elAmount").value = "";
+    showToast("İşlem eklendi", "success");
+    await loadEmployeeLedger(selectedEmployeeId);
+    await loadEmployees();
+    renderEmployeeListCari(allEmployees);
+  } catch(e) { showToast("Hata: "+e.message, "error"); }
+}
+
+async function deleteEmployeeEntry(entryId) {
+  if (!confirm("Bu işlemi silmek istediğinizden emin misiniz?")) return;
+  try {
+    await api(`/admin/employee-ledger/${entryId}`, "DELETE");
+    showToast("İşlem silindi", "success");
+    await loadEmployeeLedger(selectedEmployeeId);
+    await loadEmployees();
+    renderEmployeeListCari(allEmployees);
+  } catch(e) { showToast("Hata: "+e.message, "error"); }
+}
+
+// ─────────────────────────────────────────────
+// EMPLOYEE CRUD TABLE
+// ─────────────────────────────────────────────
+function renderEmployeeTable(employees) {
+  const tbody = document.getElementById("employeeTableBody");
+  if (!employees.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:2rem; color:var(--text-muted)">Henüz personel kaydı yok</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = employees.map(e => {
+    const bal = e.bakiye || 0;
+    const balCls = bal > 0 ? "text-green" : bal < 0 ? "text-red" : "text-muted";
+    const balSign = bal >= 0 ? "+" : "";
+    return `<tr>
+      <td class="fw-bold">${escHtml(e.name)}</td>
+      <td>${escHtml(e.position||"—")}</td>
+      <td>${escHtml(e.phone||"—")}</td>
+      <td>${escHtml(e.tc||"—")}</td>
+      <td>${e.start_date||"—"}</td>
+      <td>${e.salary ? fmt(e.salary)+" TL" : "—"}</td>
+      <td class="${balCls} fw-bold">${balSign}${fmt(Math.abs(bal))} TL</td>
+      <td><span class="badge ${e.active!==false?'badge-green':'badge-red'}">${e.active!==false?'Aktif':'Pasif'}</span></td>
+      <td class="no-print">
+        <button class="btn btn-ghost btn-sm" onclick="openEditEmployeeModal('${e.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-secondary btn-sm" onclick="goToEmpCari('${e.id}','${escHtml(e.name)}')"><i class="fas fa-book"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}')"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+function goToEmpCari(id, name) {
+  // Navigate to employee cari page and select that employee
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("page-personel-cari").classList.add("active");
+  document.getElementById("pageTitle").textContent = "Personel Carisi";
+  renderEmployeeListCari(allEmployees);
+  selectEmployee(id, name);
+  // Set today's date
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("elDate").value = today;
+}
+
+function openAddEmployeeModal() {
+  document.getElementById("empModalTitle").textContent = "Yeni Personel Ekle";
+  document.getElementById("empModalId").value = "";
+  ["empName","empPosition","empTc","empPhone","empNotes"].forEach(id => document.getElementById(id).value="");
+  document.getElementById("empSalary").value = "";
+  document.getElementById("empStartDate").value = "";
+  document.getElementById("empActive").value = "true";
+  openModal("empModal");
+}
+
+function openEditEmployeeModal(id) {
+  const emp = allEmployees.find(e => e.id === id);
+  if (!emp) return;
+  document.getElementById("empModalTitle").textContent = "Personel Düzenle";
+  document.getElementById("empModalId").value = id;
+  document.getElementById("empName").value = emp.name || "";
+  document.getElementById("empPosition").value = emp.position || "";
+  document.getElementById("empTc").value = emp.tc || "";
+  document.getElementById("empPhone").value = emp.phone || "";
+  document.getElementById("empSalary").value = emp.salary || "";
+  document.getElementById("empStartDate").value = emp.start_date || "";
+  document.getElementById("empNotes").value = emp.notes || "";
+  document.getElementById("empActive").value = emp.active === false ? "false" : "true";
+  openModal("empModal");
+}
+
+async function saveEmployee() {
+  const id = document.getElementById("empModalId").value;
+  const name = document.getElementById("empName").value.trim();
+  if (!name) { showToast("Ad Soyad zorunludur", "error"); return; }
+  const body = {
+    name,
+    position: document.getElementById("empPosition").value.trim(),
+    tc: document.getElementById("empTc").value.trim(),
+    phone: document.getElementById("empPhone").value.trim(),
+    salary: parseFloat(document.getElementById("empSalary").value) || 0,
+    start_date: document.getElementById("empStartDate").value,
+    notes: document.getElementById("empNotes").value.trim(),
+    active: document.getElementById("empActive").value === "true"
+  };
+  try {
+    if (id) {
+      await api(`/admin/employees/${id}`, "PUT", body);
+      showToast("Personel güncellendi", "success");
+    } else {
+      await api("/admin/employees", "POST", body);
+      showToast("Personel eklendi", "success");
+    }
+    closeModal("empModal");
+    await loadEmployees();
+    renderEmployeeTable(allEmployees);
+    renderEmployeeListCari(allEmployees);
+  } catch(e) { showToast("Hata: "+e.message, "error"); }
+}
+
+async function deleteEmployee(id) {
+  const emp = allEmployees.find(e => e.id === id);
+  if (!confirm(`"${emp?.name}" silinsin mi? Tüm cari işlemleri de silinecek!`)) return;
+  try {
+    await api(`/admin/employees/${id}`, "DELETE");
+    showToast("Personel silindi", "success");
+    await loadEmployees();
+    renderEmployeeTable(allEmployees);
+    renderEmployeeListCari(allEmployees);
+  } catch(e) { showToast("Hata: "+e.message, "error"); }
+}
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+function loadDashboard() {
+  document.getElementById("statTotalCustomers").textContent = allCustomers.length;
+  document.getElementById("statTotalEmployees").textContent = allEmployees.length;
+
+  const totalBorc = allCustomers.reduce((s,c) => s + (c.total_borc||0), 0);
+  const totalAlacak = allCustomers.reduce((s,c) => s + (c.total_alacak||0), 0);
+  document.getElementById("statCustBorc").textContent = fmt(totalBorc) + " TL";
+  document.getElementById("statCustAlacak").textContent = fmt(totalAlacak) + " TL";
+
+  const empBakiye = allEmployees.reduce((s,e) => s + (e.bakiye||0), 0);
+  document.getElementById("statEmpBakiye").textContent = fmt(empBakiye) + " TL";
+
+  // Borçlu müşteriler (bakiye > 0)
+  const oweCustomers = allCustomers.filter(c => c.bakiye > 0).sort((a,b) => b.bakiye - a.bakiye).slice(0,8);
+  const ocEl = document.getElementById("dashOweCustomers");
+  if (!oweCustomers.length) {
+    ocEl.innerHTML = `<div class="empty-state"><i class="fas fa-check-circle" style="color:var(--success)"></i><p>Borçlu müşteri yok</p></div>`;
+  } else {
+    ocEl.innerHTML = oweCustomers.map(c => `
+      <div class="person-item" onclick="goToCustCari('${c.id}','${escHtml(c.name)}')">
+        <div><div class="pi-name">${escHtml(c.name)}</div><div class="pi-sub">${escHtml(c.phone||"")}</div></div>
+        <div class="pi-balance owe">${fmt(c.bakiye)} TL</div>
+      </div>`).join("");
+  }
+
+  // Personel bakiyeleri
+  const ebEl = document.getElementById("dashEmpBalances");
+  if (!allEmployees.length) {
+    ebEl.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus"></i><p>Henüz personel yok</p></div>`;
+  } else {
+    ebEl.innerHTML = allEmployees.map(e => {
+      const bal = e.bakiye||0;
+      const cls = bal > 0 ? "ok" : bal < 0 ? "owe" : "zero";
+      return `
+      <div class="person-item" onclick="goToEmpCari('${e.id}','${escHtml(e.name)}')">
+        <div><div class="pi-name">${escHtml(e.name)}</div><div class="pi-sub">${escHtml(e.position||"")}</div></div>
+        <div class="pi-balance ${cls}">${fmt(Math.abs(bal))} TL</div>
+      </div>`;
+    }).join("");
+  }
+}
+
+function goToCustCari(id, name) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-musteri-cari").classList.add("active");
+  document.getElementById("pageTitle").textContent = "Müşteri Carisi";
+  renderCustomerList(allCustomers);
+  selectCustomer(id, name);
+  const today = new Date().toISOString().split("T")[0];
+  document.getElementById("clDate").value = today;
+}
+
+// ─────────────────────────────────────────────
+// PRINT / CSV
+// ─────────────────────────────────────────────
+function printCustomerLedger() { window.print(); }
+function printEmployeeLedger() { window.print(); }
+
+function exportCustomerCSV() {
+  if (!currentCustomerLedger.length) { showToast("Dışa aktarılacak veri yok", "error"); return; }
+  const rows = [["Tarih","Açıklama","Tür","Tutar (TL)"]];
+  currentCustomerLedger.forEach(e => {
+    rows.push([e.entry_date, `"${e.description}"`, e.entry_type==="borc"?"Borç":"Alacak", e.amount]);
+  });
+  downloadCSV(rows, "musteri-cari.csv");
+}
+
+function exportEmployeeCSV() {
+  if (!currentEmployeeLedger.length) { showToast("Dışa aktarılacak veri yok", "error"); return; }
+  const rows = [["Tarih","Açıklama","Kategori","Tür","Tutar (TL)"]];
+  currentEmployeeLedger.forEach(e => {
+    rows.push([e.entry_date, `"${e.description}"`, CATEGORY_LABELS[e.category]||"", e.entry_type==="borc"?"Borç":"Alacak", e.amount]);
+  });
+  downloadCSV(rows, "personel-cari.csv");
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.join(",")).join("\n");
+  const blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+// ─────────────────────────────────────────────
+// MODAL HELPERS
+// ─────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add("open"); }
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+document.querySelectorAll(".modal-overlay").forEach(m => {
+  m.addEventListener("click", e => { if (e.target === m) m.classList.remove("open"); });
+});
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function showToast(msg, type="success") {
+  const t = document.getElementById("toast");
+  t.textContent = (type==="success"?"✓ ":"✗ ") + msg;
+  t.className = `show ${type}`;
+  setTimeout(() => t.className = "", 3200);
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function fmt(n) {
+  return (n||0).toLocaleString("tr-TR", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtDate(d) {
+  if (!d) return "—";
+  try { return new Date(d).toLocaleDateString("tr-TR"); } catch(e) { return d; }
+}
+function escHtml(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// Set today's date on load
+window.addEventListener("DOMContentLoaded", () => {
+  const today = new Date().toISOString().split("T")[0];
+  ["clDate","elDate"].forEach(id => { const el=document.getElementById(id); if(el) el.value=today; });
+});
+</script>
+</body>
+</html>

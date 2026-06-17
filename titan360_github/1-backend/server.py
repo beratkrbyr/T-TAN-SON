@@ -169,6 +169,37 @@ class ReferralSettings(BaseModel):
     referee_points: int = 50
     active: bool = True
 
+# =============================================
+# CARİ MODÜLÜ — PYDANTIC MODELLERİ
+# =============================================
+
+class Employee(BaseModel):
+    name: str
+    tc: Optional[str] = ""
+    phone: Optional[str] = ""
+    position: Optional[str] = ""  # Teknisyen, Müdür, vb.
+    salary: Optional[float] = 0   # Aylık maaş (referans)
+    start_date: Optional[str] = ""
+    notes: Optional[str] = ""
+    active: bool = True
+
+class EmployeeUpdate(BaseModel):
+    name: Optional[str] = None
+    tc: Optional[str] = None
+    phone: Optional[str] = None
+    position: Optional[str] = None
+    salary: Optional[float] = None
+    start_date: Optional[str] = None
+    notes: Optional[str] = None
+    active: Optional[bool] = None
+
+class LedgerEntry(BaseModel):
+    entry_type: str        # "borc" (borç) veya "alacak"
+    amount: float          # Tutar (TL)
+    description: str       # Açıklama
+    entry_date: Optional[str] = ""  # Tarih (ISO string, boş ise bugün)
+    category: Optional[str] = ""   # Personel için: maas/avans/prim/kesinti/diger
+
 @api_router.post("/admin/init")
 async def init_admin():
     existing = await db.admins.find_one({})
@@ -1882,6 +1913,189 @@ async def mark_notifications_read(credentials: HTTPAuthorizationCredentials = De
         {"$set": {"read": True}}
     )
     return {"message": "Bildirimler okundu olarak isaretlendi"}
+
+# =============================================
+# CARİ MODÜLÜ — PERSONEL API
+# =============================================
+
+@api_router.get("/admin/employees")
+async def get_employees(_=Depends(verify_token)):
+    emps = await db.employees.find().sort("name", 1).to_list(1000)
+    result = []
+    for e in emps:
+        emp_id = str(e["_id"])
+        # Calculate ledger balance
+        entries = await db.employee_ledger.find({"employee_id": emp_id}).to_list(10000)
+        borc = sum(en["amount"] for en in entries if en.get("entry_type") == "borc")
+        alacak = sum(en["amount"] for en in entries if en.get("entry_type") == "alacak")
+        result.append({
+            **serialize_doc(e),
+            "id": emp_id,
+            "total_borc": borc,
+            "total_alacak": alacak,
+            "bakiye": alacak - borc  # pozitif = işveren borçlu, negatif = personel borçlu
+        })
+    return result
+
+@api_router.post("/admin/employees")
+async def create_employee(emp: Employee, _=Depends(verify_token)):
+    emp_dict = emp.dict()
+    emp_dict["created_at"] = datetime.utcnow().isoformat()
+    result = await db.employees.insert_one(emp_dict)
+    return {"id": str(result.inserted_id), **emp_dict}
+
+@api_router.put("/admin/employees/{employee_id}")
+async def update_employee(employee_id: str, update: EmployeeUpdate, _=Depends(verify_token)):
+    update_data = {k: v for k, v in update.dict().items() if v is not None}
+    update_data["updated_at"] = datetime.utcnow().isoformat()
+    if update_data:
+        await db.employees.update_one({"_id": ObjectId(employee_id)}, {"$set": update_data})
+    return {"message": "Personel guncellendi"}
+
+@api_router.delete("/admin/employees/{employee_id}")
+async def delete_employee(employee_id: str, _=Depends(verify_token)):
+    await db.employees.delete_one({"_id": ObjectId(employee_id)})
+    await db.employee_ledger.delete_many({"employee_id": employee_id})
+    return {"message": "Personel silindi"}
+
+# =============================================
+# CARİ MODÜLÜ — PERSONEL CARİ
+# =============================================
+
+@api_router.get("/admin/employees/{employee_id}/ledger")
+async def get_employee_ledger(employee_id: str, _=Depends(verify_token)):
+    entries = await db.employee_ledger.find({"employee_id": employee_id}).sort("entry_date", -1).to_list(10000)
+    borc = sum(e["amount"] for e in entries if e.get("entry_type") == "borc")
+    alacak = sum(e["amount"] for e in entries if e.get("entry_type") == "alacak")
+    return {
+        "entries": [{**serialize_doc(e), "id": str(e["_id"])} for e in entries],
+        "total_borc": borc,
+        "total_alacak": alacak,
+        "bakiye": alacak - borc
+    }
+
+@api_router.post("/admin/employees/{employee_id}/ledger")
+async def add_employee_ledger_entry(employee_id: str, entry: LedgerEntry, _=Depends(verify_token)):
+    # Verify employee exists
+    emp = await db.employees.find_one({"_id": ObjectId(employee_id)})
+    if not emp:
+        raise HTTPException(status_code=404, detail="Personel bulunamadi")
+    entry_dict = entry.dict()
+    entry_dict["employee_id"] = employee_id
+    entry_dict["employee_name"] = emp.get("name", "")
+    if not entry_dict.get("entry_date"):
+        entry_dict["entry_date"] = datetime.utcnow().strftime("%Y-%m-%d")
+    entry_dict["created_at"] = datetime.utcnow().isoformat()
+    result = await db.employee_ledger.insert_one(entry_dict)
+    return {"id": str(result.inserted_id), "message": "Cari islem eklendi"}
+
+@api_router.delete("/admin/employee-ledger/{entry_id}")
+async def delete_employee_ledger_entry(entry_id: str, _=Depends(verify_token)):
+    await db.employee_ledger.delete_one({"_id": ObjectId(entry_id)})
+    return {"message": "Cari islem silindi"}
+
+@api_router.get("/admin/employees/{employee_id}/ledger/summary")
+async def get_employee_ledger_summary(employee_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None, _=Depends(verify_token)):
+    query: dict = {"employee_id": employee_id}
+    if start_date:
+        query["entry_date"] = {"$gte": start_date}
+    if end_date:
+        if "entry_date" in query:
+            query["entry_date"]["$lte"] = end_date
+        else:
+            query["entry_date"] = {"$lte": end_date}
+    entries = await db.employee_ledger.find(query).sort("entry_date", 1).to_list(10000)
+    emp = await db.employees.find_one({"_id": ObjectId(employee_id)})
+    borc = sum(e["amount"] for e in entries if e.get("entry_type") == "borc")
+    alacak = sum(e["amount"] for e in entries if e.get("entry_type") == "alacak")
+    return {
+        "employee": serialize_doc(emp) if emp else {},
+        "entries": [{**serialize_doc(e), "id": str(e["_id"])} for e in entries],
+        "total_borc": borc,
+        "total_alacak": alacak,
+        "bakiye": alacak - borc,
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+# =============================================
+# CARİ MODÜLÜ — MÜŞTERİ CARİ
+# =============================================
+
+@api_router.get("/admin/customers/{customer_id}/ledger")
+async def get_customer_ledger(customer_id: str, _=Depends(verify_token)):
+    entries = await db.customer_ledger.find({"customer_id": customer_id}).sort("entry_date", -1).to_list(10000)
+    borc = sum(e["amount"] for e in entries if e.get("entry_type") == "borc")
+    alacak = sum(e["amount"] for e in entries if e.get("entry_type") == "alacak")
+    return {
+        "entries": [{**serialize_doc(e), "id": str(e["_id"])} for e in entries],
+        "total_borc": borc,
+        "total_alacak": alacak,
+        "bakiye": borc - alacak  # pozitif = müşteri borçlu
+    }
+
+@api_router.post("/admin/customers/{customer_id}/ledger")
+async def add_customer_ledger_entry(customer_id: str, entry: LedgerEntry, _=Depends(verify_token)):
+    customer = await db.customers.find_one({"_id": ObjectId(customer_id)})
+    if not customer:
+        raise HTTPException(status_code=404, detail="Musteri bulunamadi")
+    entry_dict = entry.dict()
+    entry_dict["customer_id"] = customer_id
+    entry_dict["customer_name"] = customer.get("name", "")
+    if not entry_dict.get("entry_date"):
+        entry_dict["entry_date"] = datetime.utcnow().strftime("%Y-%m-%d")
+    entry_dict["created_at"] = datetime.utcnow().isoformat()
+    result = await db.customer_ledger.insert_one(entry_dict)
+    return {"id": str(result.inserted_id), "message": "Cari islem eklendi"}
+
+@api_router.delete("/admin/customer-ledger/{entry_id}")
+async def delete_customer_ledger_entry(entry_id: str, _=Depends(verify_token)):
+    await db.customer_ledger.delete_one({"_id": ObjectId(entry_id)})
+    return {"message": "Cari islem silindi"}
+
+@api_router.get("/admin/customers/{customer_id}/ledger/summary")
+async def get_customer_ledger_summary(customer_id: str, start_date: Optional[str] = None, end_date: Optional[str] = None, _=Depends(verify_token)):
+    query: dict = {"customer_id": customer_id}
+    if start_date:
+        query["entry_date"] = {"$gte": start_date}
+    if end_date:
+        if "entry_date" in query:
+            query["entry_date"]["$lte"] = end_date
+        else:
+            query["entry_date"] = {"$lte": end_date}
+    entries = await db.customer_ledger.find(query).sort("entry_date", 1).to_list(10000)
+    customer = await db.customers.find_one({"_id": ObjectId(customer_id)})
+    borc = sum(e["amount"] for e in entries if e.get("entry_type") == "borc")
+    alacak = sum(e["amount"] for e in entries if e.get("entry_type") == "alacak")
+    return {
+        "customer": serialize_doc(customer) if customer else {},
+        "entries": [{**serialize_doc(e), "id": str(e["_id"])} for e in entries],
+        "total_borc": borc,
+        "total_alacak": alacak,
+        "bakiye": borc - alacak,
+        "start_date": start_date,
+        "end_date": end_date
+    }
+
+# Tüm müşterilerin cari özeti (liste görünümü için)
+@api_router.get("/admin/customer-ledger/all-summary")
+async def get_all_customer_ledger_summary(_=Depends(verify_token)):
+    customers = await db.customers.find().sort("name", 1).to_list(1000)
+    result = []
+    for c in customers:
+        cid = str(c["_id"])
+        entries = await db.customer_ledger.find({"customer_id": cid}).to_list(10000)
+        borc = sum(e["amount"] for e in entries if e.get("entry_type") == "borc")
+        alacak = sum(e["amount"] for e in entries if e.get("entry_type") == "alacak")
+        result.append({
+            "id": cid,
+            "name": c.get("name", ""),
+            "phone": c.get("phone", ""),
+            "total_borc": borc,
+            "total_alacak": alacak,
+            "bakiye": borc - alacak
+        })
+    return result
 
 # =============================================
 # FORM SUBMISSIONS (LEADS/CONTACT) API
