@@ -2016,6 +2016,48 @@ async def delete_employee_ledger_entry(entry_id: str, token: str = Depends(verif
         raise HTTPException(status_code=404, detail="İşlem bulunamadı")
     return {"message": "İşlem silindi"}
 
+@app.put("/api/admin/customer-ledger/{entry_id}")
+async def update_customer_ledger_entry(entry_id: str, data: dict, token: str = Depends(verify_token)):
+    try:
+        obj_id = ObjectId(entry_id)
+    except:
+        raise HTTPException(status_code=400, detail="Geçersiz işlem ID")
+    
+    update_data = {}
+    if "amount" in data:
+        update_data["amount"] = float(data["amount"])
+    if "description" in data:
+        update_data["description"] = data["description"]
+        
+    if not update_data:
+        return {"message": "Değişiklik yapılmadı"}
+        
+    result = await db.customer_ledger.update_one({"_id": obj_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="İşlem bulunamadı")
+    return {"message": "İşlem güncellendi"}
+
+@app.put("/api/admin/employee-ledger/{entry_id}")
+async def update_employee_ledger_entry(entry_id: str, data: dict, token: str = Depends(verify_token)):
+    try:
+        obj_id = ObjectId(entry_id)
+    except:
+        raise HTTPException(status_code=400, detail="Geçersiz işlem ID")
+    
+    update_data = {}
+    if "amount" in data:
+        update_data["amount"] = float(data["amount"])
+    if "description" in data:
+        update_data["description"] = data["description"]
+        
+    if not update_data:
+        return {"message": "Değişiklik yapılmadı"}
+        
+    result = await db.employee_ledger.update_one({"_id": obj_id}, {"$set": update_data})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="İşlem bulunamadı")
+    return {"message": "İşlem güncellendi"}
+
 # ==========================================
 # DAILY TRANSACTIONS (GÜNLÜK KASA)
 # ==========================================

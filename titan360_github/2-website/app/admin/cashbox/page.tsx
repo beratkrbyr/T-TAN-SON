@@ -150,6 +150,35 @@ export default function DailyCashboxPage() {
     }
   };
 
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({ amount: "", description: "" });
+
+  const handleEditInit = (e: DailyEntry) => {
+    setEditingEntryId(e._id);
+    setEditForm({ amount: e.amount.toString(), description: e.description });
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent, entry: DailyEntry) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("admin_token");
+      const endpoint = entry.source === "customer" ? `/api/admin/customer-ledger/${entry._id}` : `/api/admin/employee-ledger/${entry._id}`;
+      
+      await fetch(`${API_URL}${endpoint}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          amount: editForm.amount,
+          description: editForm.description
+        })
+      });
+      setEditingEntryId(null);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   // Calculate totals
   const totals = useMemo(() => {
     let income = 0;
@@ -157,7 +186,6 @@ export default function DailyCashboxPage() {
     entries.forEach(e => {
       if (e.source === "customer" && e.entry_type === "alacak") income += e.amount;
       if (e.source === "employee" && e.entry_type === "borc") expense += e.amount;
-      // Note: if customer takes refund, it's 'borc' -> expense. But we keep it simple for now.
     });
     return { income, expense, net: income - expense };
   }, [entries]);
@@ -215,7 +243,7 @@ export default function DailyCashboxPage() {
                 <input type="number" required min="1" step="0.01" value={customerForm.amount} onChange={e => setCustomerForm({...customerForm, amount: e.target.value})} className="w-full px-4 py-3 bg-white border border-emerald-200 rounded-xl text-emerald-700 font-bold text-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none placeholder-emerald-200" placeholder="0.00" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-600 mb-1.5">Açıklama</label>
+                <label className="block text-sm font-semibold text-slate-600 mb-1.5">Açıklama (Ne satın aldı?)</label>
                 <input type="text" value={customerForm.description} onChange={e => setCustomerForm({...customerForm, description: e.target.value})} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-slate-800 focus:border-emerald-500 outline-none" placeholder="Örn: Yıkama ücreti" />
               </div>
             </div>
@@ -294,39 +322,54 @@ export default function DailyCashboxPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-800/50 text-slate-400 text-xs uppercase font-semibold">
               <tr>
-                <th className="px-6 py-4">İşlem Saati</th>
                 <th className="px-6 py-4">Kişi / Kaynak</th>
                 <th className="px-6 py-4">Açıklama</th>
                 <th className="px-6 py-4 text-right">Tutar</th>
-                <th className="px-6 py-4 text-center">İptal</th>
+                <th className="px-6 py-4 text-center">İşlem</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
               {entries.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
                     <i className="fas fa-receipt text-3xl mb-3 opacity-20"></i>
                     <p>Bugün henüz bir kasa hareketi yok</p>
                   </td>
                 </tr>
               ) : (
                 entries.map(e => {
-                  // For customer, alacak is money in. For employee, borc is money out.
                   const isIncome = (e.source === "customer" && e.entry_type === "alacak");
                   const isExpense = (e.source === "employee" && e.entry_type === "borc");
                   
-                  // If there's an edge case like customer debt or employee credit, mark it neutral for this simple view
                   let amountColor = "text-slate-300";
                   let sign = "";
                   
                   if (isIncome) { amountColor = "text-emerald-400"; sign = "+"; }
                   else if (isExpense) { amountColor = "text-red-400"; sign = "-"; }
 
+                  if (editingEntryId === e._id) {
+                    return (
+                      <tr key={e._id} className="bg-slate-700/80 transition-colors">
+                        <td className="px-6 py-4">
+                          <span className={`inline-block w-2 h-2 rounded-full mr-2 ${e.source === 'customer' ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+                          <span className="font-medium text-slate-200">{e.person_name}</span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <input type="text" value={editForm.description} onChange={evt => setEditForm({...editForm, description: evt.target.value})} className="w-full px-2 py-1 bg-slate-900 border border-slate-600 rounded text-slate-200 outline-none focus:border-sky-500" />
+                        </td>
+                        <td className="px-6 py-4">
+                          <input type="number" step="0.01" value={editForm.amount} onChange={evt => setEditForm({...editForm, amount: evt.target.value})} className="w-24 px-2 py-1 bg-slate-900 border border-slate-600 rounded text-slate-200 outline-none focus:border-sky-500 text-right" />
+                        </td>
+                        <td className="px-6 py-4 text-center space-x-2">
+                          <button onClick={(evt) => handleEditSubmit(evt, e)} className="text-emerald-400 hover:text-emerald-300 transition-colors p-1" title="Kaydet"><i className="fas fa-check"></i></button>
+                          <button onClick={() => setEditingEntryId(null)} className="text-slate-400 hover:text-slate-200 transition-colors p-1" title="İptal"><i className="fas fa-times"></i></button>
+                        </td>
+                      </tr>
+                    )
+                  }
+
                   return (
                     <tr key={e._id} className="hover:bg-slate-700/50 transition-colors group">
-                      <td className="px-6 py-4 text-slate-400">
-                        {e.entry_date.split("T")[0] /* Assuming format might have time later, if not just show date */}
-                      </td>
                       <td className="px-6 py-4">
                         <span className={`inline-block w-2 h-2 rounded-full mr-2 ${e.source === 'customer' ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
                         <span className="font-medium text-slate-200">{e.person_name}</span>
@@ -336,9 +379,12 @@ export default function DailyCashboxPage() {
                       <td className={`px-6 py-4 text-right font-bold text-lg ${amountColor}`}>
                         {sign}{e.amount.toLocaleString('tr-TR')} ₺
                       </td>
-                      <td className="px-6 py-4 text-center">
-                        <button onClick={() => handleDelete(e._id, e.source)} className="text-slate-600 hover:text-red-400 transition-colors p-2 rounded-lg opacity-0 group-hover:opacity-100">
-                          <i className="fas fa-times"></i>
+                      <td className="px-6 py-4 text-center space-x-1">
+                        <button onClick={() => handleEditInit(e)} className="text-slate-500 hover:text-sky-400 transition-colors p-2 rounded-lg opacity-0 group-hover:opacity-100" title="Düzenle">
+                          <i className="fas fa-edit"></i>
+                        </button>
+                        <button onClick={() => handleDelete(e._id, e.source)} className="text-slate-500 hover:text-red-400 transition-colors p-2 rounded-lg opacity-0 group-hover:opacity-100" title="Sil">
+                          <i className="fas fa-trash"></i>
                         </button>
                       </td>
                     </tr>
