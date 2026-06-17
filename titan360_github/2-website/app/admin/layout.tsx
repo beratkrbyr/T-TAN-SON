@@ -10,6 +10,8 @@ const menuItems = [
   { href: "/admin/services", label: "Hizmetler", icon: "fa-broom" },
   { href: "/admin/blog", label: "Blog Yönetimi", icon: "fa-newspaper" },
   { href: "/admin/customers", label: "Müşteriler", icon: "fa-users" },
+  { href: "/admin/ledger", label: "Cari Hesaplar", icon: "fa-wallet" },
+  { href: "/admin/employees", label: "Personel", icon: "fa-user-tie" },
   { href: "/admin/website", label: "Web Sitesi", icon: "fa-globe" },
   { href: "/admin/submissions", label: "Başvurular", icon: "fa-envelope-open-text" },
   { href: "/admin/settings", label: "Ayarlar", icon: "fa-gear" },
