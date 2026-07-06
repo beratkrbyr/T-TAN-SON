@@ -63,17 +63,25 @@ export default function PackagesPage() {
     try {
       const token = localStorage.getItem("admin_token");
 
-      // Sadece packages ve extras alanlarını gönder (diğer alanlar değişmez)
-      const res = await fetch(`${API_URL}/api/admin/services/${selectedService.id}/packages`, {
-        method: "PATCH",
+      // Backend (Render) henüz güncellenmediği için eski PUT rotasını kullanmalıyız.
+      const serviceToUpdate = services.find(s => s.id === selectedService.id);
+      if(!serviceToUpdate) return;
+      
+      const { id, _id, ...cleanService } = serviceToUpdate as any;
+      
+      const updatedService = {
+        ...cleanService,
+        packages: selectedService.packages || [],
+        extras: selectedService.extras || []
+      };
+
+      const res = await fetch(`${API_URL}/api/admin/services/${selectedService.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          packages: selectedService.packages || [],
-          extras: selectedService.extras || []
-        }),
+        body: JSON.stringify(updatedService),
       });
 
       if (!res.ok) {
