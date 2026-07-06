@@ -62,27 +62,18 @@ export default function PackagesPage() {
     setIsSaving(true);
     try {
       const token = localStorage.getItem("admin_token");
-      
-      // Orijinal service nesnesini bul
-      const serviceToUpdate = services.find(s => s.id === selectedService.id);
-      if(!serviceToUpdate) return;
-      
-      // Backend'in kabul etmediği id/_id alanlarını çıkar
-      const { id, _id, ...cleanService } = serviceToUpdate as any;
-      
-      const updatedService = {
-        ...cleanService,
-        packages: selectedService.packages || [],
-        extras: selectedService.extras || []
-      };
 
-      const res = await fetch(`${API_URL}/api/admin/services/${selectedService.id}`, {
-        method: "PUT",
+      // Sadece packages ve extras alanlarını gönder (diğer alanlar değişmez)
+      const res = await fetch(`${API_URL}/api/admin/services/${selectedService.id}/packages`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedService),
+        body: JSON.stringify({
+          packages: selectedService.packages || [],
+          extras: selectedService.extras || []
+        }),
       });
 
       if (!res.ok) {

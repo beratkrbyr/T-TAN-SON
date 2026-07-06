@@ -416,6 +416,18 @@ async def update_service(service_id: str, service: Service, _=Depends(verify_tok
     await db.services.update_one({"_id": ObjectId(service_id)}, {"$set": service_dict})
     return {"message": "Guncellendi"}
 
+@api_router.patch("/admin/services/{service_id}/packages")
+async def update_service_packages(service_id: str, request: Request, _=Depends(verify_token)):
+    body = await request.json()
+    update_fields = {}
+    if "packages" in body:
+        update_fields["packages"] = body["packages"]
+    if "extras" in body:
+        update_fields["extras"] = body["extras"]
+    if update_fields:
+        await db.services.update_one({"_id": ObjectId(service_id)}, {"$set": update_fields})
+    return {"message": "Paketler guncellendi"}
+
 @api_router.delete("/admin/services/{service_id}")
 async def delete_service(service_id: str, _=Depends(verify_token)):
     await db.services.delete_one({"_id": ObjectId(service_id)})
