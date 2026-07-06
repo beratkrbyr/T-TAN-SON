@@ -63,18 +63,20 @@ export default function PackagesPage() {
     try {
       const token = localStorage.getItem("admin_token");
       
-      // Sadece packages ve extras alanlarını güncelleyeceğimiz için,
-      // orijinal service nesnesini alıp üzerine yazıyoruz.
+      // Orijinal service nesnesini bul
       const serviceToUpdate = services.find(s => s.id === selectedService.id);
       if(!serviceToUpdate) return;
       
+      // Backend'in kabul etmediği id/_id alanlarını çıkar
+      const { id, _id, ...cleanService } = serviceToUpdate as any;
+      
       const updatedService = {
-        ...serviceToUpdate,
+        ...cleanService,
         packages: selectedService.packages || [],
         extras: selectedService.extras || []
       };
 
-      await fetch(`${API_URL}/api/admin/services/${selectedService.id}`, {
+      const res = await fetch(`${API_URL}/api/admin/services/${selectedService.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -83,11 +85,18 @@ export default function PackagesPage() {
         body: JSON.stringify(updatedService),
       });
 
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("API Hatası:", res.status, errText);
+        alert("Kaydetme hatası: " + res.status + " - " + errText);
+        return;
+      }
+
       alert("Paketler ve Ekstralar başarıyla kaydedildi!");
       fetchServices();
     } catch (err) {
       console.error(err);
-      alert("Kaydedilirken bir hata oluştu.");
+      alert("Kaydedilirken bir hata oluştu: " + (err as Error).message);
     } finally {
       setIsSaving(false);
     }
