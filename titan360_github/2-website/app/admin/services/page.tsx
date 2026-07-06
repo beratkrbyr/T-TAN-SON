@@ -9,6 +9,14 @@ interface ServiceOption {
   price: number;
 }
 
+interface ServicePackage {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  is_popular?: boolean;
+}
+
 interface Service {
   _id?: string;
   id?: string;
@@ -26,6 +34,7 @@ interface Service {
   seo_title?: string;
   seo_description?: string;
   extras?: ServiceOption[];
+  packages?: ServicePackage[];
 }
 
 export default function ServicesPage() {
@@ -48,7 +57,8 @@ export default function ServicesPage() {
     seo_title: string;
     seo_description: string;
     extras: ServiceOption[];
-  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
+    packages: ServicePackage[];
+  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [], packages: [] });
 
   useEffect(() => {
     fetchServices();
@@ -91,7 +101,7 @@ export default function ServicesPage() {
 
       setShowModal(false);
       setEditingService(null);
-      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
+      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [], packages: [] });
       fetchServices();
     } catch (err) {
       console.error(err);
@@ -115,6 +125,7 @@ export default function ServicesPage() {
       seo_title: service.seo_title || "",
       seo_description: service.seo_description || "",
       extras: service.extras || [],
+      packages: service.packages || [],
     });
     setShowModal(true);
   };
@@ -207,6 +218,27 @@ export default function ServicesPage() {
     });
   };
 
+  const addPackage = () => {
+    setFormData({
+      ...formData,
+      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], is_popular: false }],
+    });
+  };
+
+  const updatePackage = (id: string, field: string, value: any) => {
+    setFormData({
+      ...formData,
+      packages: (formData.packages || []).map((pkg) => (pkg.id === id ? { ...pkg, [field]: value } : pkg)),
+    });
+  };
+
+  const removePackage = (id: string) => {
+    setFormData({
+      ...formData,
+      packages: (formData.packages || []).filter((pkg) => pkg.id !== id),
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
@@ -228,7 +260,7 @@ export default function ServicesPage() {
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [], packages: [] });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -563,6 +595,81 @@ export default function ServicesPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
+                      </div>
+                    ))}
+                  </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Packages Section */}
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-slate-700">Hizmet Paketleri (Örn: Standart, VIP)</label>
+                  <button type="button" onClick={addPackage} className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                    + Paket Ekle
+                  </button>
+                </div>
+                <p className="text-slate-400 text-xs mb-2">Ev temizliği gibi hizmetler için 3'lü fiyatlandırma paketleri ekleyebilirsiniz.</p>
+                {(!formData.packages || formData.packages.length === 0) ? (
+                  <p className="text-slate-400 text-sm p-3 bg-gray-50 rounded-lg text-center border border-gray-100">Paket eklenmemiş. Eklerseniz sayfada özel kart tasarımıyla gösterilir.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {formData.packages.map((pkg, index) => (
+                      <div key={pkg.id} className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-3 relative">
+                        <button type="button" onClick={() => removePackage(pkg.id)} className="absolute top-2 right-2 p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors" title="Paketi Sil">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        
+                        <div className="grid grid-cols-2 gap-2 pr-8">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Paket Adı</label>
+                            <input
+                              type="text"
+                              value={pkg.name}
+                              onChange={(e) => updatePackage(pkg.id, "name", e.target.value)}
+                              placeholder="Örn: VIP Paket"
+                              className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-emerald-500 outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Fiyat (TL)</label>
+                            <input
+                              type="number"
+                              value={pkg.price}
+                              onChange={(e) => updatePackage(pkg.id, "price", Number(e.target.value))}
+                              placeholder="Fiyat"
+                              className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-emerald-500 outline-none"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 mb-1">Özellikler (Virgülle ayırın)</label>
+                          <textarea
+                            value={pkg.features.join(", ")}
+                            onChange={(e) => {
+                              const features = e.target.value.split(',').map(f => f.trim()).filter(f => f);
+                              updatePackage(pkg.id, "features", features);
+                            }}
+                            placeholder="Toz alma, Zemin silme, Cam temizliği..."
+                            className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-emerald-500 outline-none"
+                            rows={2}
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id={`popular-${pkg.id}`}
+                            checked={pkg.is_popular}
+                            onChange={(e) => updatePackage(pkg.id, "is_popular", e.target.checked)}
+                            className="w-4 h-4 accent-emerald-600"
+                          />
+                          <label htmlFor={`popular-${pkg.id}`} className="text-xs text-slate-700">En Çok Tercih Edilen</label>
+                        </div>
                       </div>
                     ))}
                   </div>

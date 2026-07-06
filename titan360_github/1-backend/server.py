@@ -123,6 +123,7 @@ class Service(BaseModel):
     order: int = 0
     image: Optional[str] = None
     options: Optional[list] = None
+    packages: Optional[list] = None
     slug: Optional[str] = ""
     seo_title: Optional[str] = ""
     seo_description: Optional[str] = ""

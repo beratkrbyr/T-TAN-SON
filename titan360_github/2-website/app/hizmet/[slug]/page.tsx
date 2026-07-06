@@ -5,12 +5,21 @@ import Footer from "../../components/Footer";
 import LeadForm from "../../components/LeadForm";
 import BeforeAfterSlider from "../../components/BeforeAfterSlider";
 import MobileStickyBar from "../../components/MobileStickyBar";
+import ServicePackages from "../../components/ServicePackages";
 
 interface ServiceOption {
   id: string;
   name: string;
   price: number;
   campaign_price?: number;
+}
+
+interface ServicePackage {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  is_popular?: boolean;
 }
 
 interface ServiceItem {
@@ -24,6 +33,7 @@ interface ServiceItem {
   seo_title?: string;
   seo_description?: string;
   extras?: ServiceOption[];
+  packages?: ServicePackage[];
 }
 
 // Fallback services if database is unreachable
@@ -252,6 +262,16 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
           </div>
         </div>
       </section>
+
+      {/* 3'lü Paket Tasarımı */}
+      {service.packages && service.packages.length > 0 && (
+        <ServicePackages 
+          packages={service.packages} 
+          serviceName={service.name} 
+          phoneClean={phoneClean} 
+          waLink={waLink} 
+        />
+      )}
 
       {/* Fiyat Listesi ve Fiyat Seçenekleri */}
       {((service.options && service.options.length > 0) || (service.extras && service.extras.length > 0)) && (
