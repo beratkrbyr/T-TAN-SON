@@ -15,6 +15,7 @@ interface ServicePackage {
   price: number;
   features: string[];
   is_popular?: boolean;
+  optional_addons?: string[];
 }
 
 interface Service {
@@ -221,7 +222,7 @@ export default function ServicesPage() {
   const addPackage = () => {
     setFormData({
       ...formData,
-      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], is_popular: false }],
+      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], optional_addons: [], is_popular: false }],
     });
   };
 
@@ -659,7 +660,32 @@ export default function ServicesPage() {
                           />
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {formData.extras && formData.extras.length > 0 && (
+                          <div className="mt-3 border-t border-gray-200 pt-3">
+                            <label className="block text-xs font-semibold text-slate-600 mb-2">Opsiyonel Ek Hizmetler (Kutucukları işaretleyin)</label>
+                            <div className="flex flex-wrap gap-2">
+                              {formData.extras.map((ext) => (
+                                <label key={ext.id} className="flex items-center gap-1.5 bg-white px-2 py-1 border border-gray-200 rounded text-xs cursor-pointer hover:bg-slate-50">
+                                  <input 
+                                    type="checkbox" 
+                                    className="accent-emerald-600"
+                                    checked={(pkg.optional_addons || []).includes(ext.id)}
+                                    onChange={(e) => {
+                                      const currentAddons = pkg.optional_addons || [];
+                                      const newAddons = e.target.checked 
+                                        ? [...currentAddons, ext.id]
+                                        : currentAddons.filter(id => id !== ext.id);
+                                      updatePackage(pkg.id, "optional_addons", newAddons);
+                                    }}
+                                  />
+                                  <span className="text-slate-700">{ext.name} <span className="text-slate-400">({ext.price} TL)</span></span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex items-center gap-2 mt-3">
                           <input
                             type="checkbox"
                             id={`popular-${pkg.id}`}

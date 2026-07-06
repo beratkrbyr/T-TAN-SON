@@ -20,6 +20,7 @@ interface ServicePackage {
   price: number;
   features: string[];
   is_popular?: boolean;
+  optional_addons?: string[];
 }
 
 interface ServiceItem {
@@ -267,9 +268,9 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
       {service.packages && service.packages.length > 0 && (
         <ServicePackages 
           packages={service.packages} 
+          extras={service.extras}
           serviceName={service.name} 
           phoneClean={phoneClean} 
-          waLink={waLink} 
         />
       )}
 
