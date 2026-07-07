@@ -116,7 +116,33 @@ async function fetchServiceData(slug: string): Promise<ServiceItem | null> {
     const res = await fetch(`${backendUrl}/api/services`, { next: { revalidate: 60 } });
     if (res.ok) {
       const services: ServiceItem[] = await res.json();
-      const match = services.find(s => s.slug === slug);
+      const decodedSlug = decodeURIComponent(slug);
+      
+      // Normalize function to strip everything except letters and numbers
+      const normalize = (str: string) => {
+        if (!str) return "";
+        return str.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+      };
+      
+      const normDecoded = normalize(decodedSlug);
+      const normRaw = normalize(slug);
+
+      // Try to find a match by slug OR id OR fuzzy name matching
+      const match = services.find(s => {
+        if (!s) return false;
+        if (s.slug === decodedSlug || s.slug === slug || s.id === decodedSlug) return true;
+        
+        const normName = normalize(s.name);
+        const normSlug = normalize(s.slug || "");
+        
+        // If the URL slug is just a prefix of the actual name (due to '?' breaking the URL)
+        if (normName && normDecoded && normName.startsWith(normDecoded)) return true;
+        if (normSlug && normDecoded && normSlug.startsWith(normDecoded)) return true;
+        if (normName && normRaw && normName.startsWith(normRaw)) return true;
+        
+        return false;
+      });
+      
       if (match) {
         let pkgs = match.packages || [];
         let cleanSeo = match.seo_description || "";
