@@ -8,6 +8,7 @@ interface CleaningPackage {
   price: number;
   features: string[];
   is_popular?: boolean;
+  badge_label?: string;
 }
 
 interface PackageComparisonProps {
@@ -37,6 +38,7 @@ const getFeatureIcon = (feature: string) => {
 function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackage; phoneClean: string; m2: string; serviceName: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const isPopular = pkg.is_popular;
+  const badgeText = pkg.badge_label || (isPopular ? "En Çok Tercih Edilen" : "");
 
   const handleWhatsApp = () => {
     if (typeof window !== 'undefined') {
@@ -63,10 +65,12 @@ function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackag
           : 'border-slate-200 shadow-md hover:shadow-lg'
       }`}
     >
-      {isPopular && (
+      {badgeText && (
         <div className="absolute -top-4 left-0 right-0 flex justify-center">
-          <span className="px-4 py-1 bg-emerald-500 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-sm">
-            En Çok Tercih Edilen
+          <span className={`px-4 py-1 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-sm ${
+            isPopular ? 'bg-emerald-500' : 'bg-sky-500'
+          }`}>
+            {badgeText}
           </span>
         </div>
       )}
@@ -183,13 +187,22 @@ export default function ServicePackages({ packages, phoneClean, serviceName = "T
                     {packages.map((pkg) => (
                       <th
                         key={pkg.id}
-                        className={`px-4 py-5 text-center font-bold text-sm min-w-[150px] border-r last:border-r-0 ${
+                        className={`px-4 py-5 text-center font-bold text-sm min-w-[150px] border-r last:border-r-0 relative ${
                           pkg.is_popular
                             ? 'bg-emerald-600 text-white border-emerald-500'
                             : 'bg-slate-800 text-white border-slate-700'
                         }`}
                       >
-                        <div className="text-base">{pkg.name}</div>
+                        {(pkg.badge_label || pkg.is_popular) && (
+                          <div className="absolute -top-3 left-0 right-0 flex justify-center">
+                            <span className={`px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-sm ${
+                              pkg.is_popular ? 'bg-emerald-400 text-emerald-950' : 'bg-sky-500 text-white'
+                            }`}>
+                              {pkg.badge_label || "En Çok Tercih Edilen"}
+                            </span>
+                          </div>
+                        )}
+                        <div className="text-base mt-2">{pkg.name}</div>
                         <div className="text-sm font-normal mt-1 opacity-90">{pkg.price.toLocaleString("tr-TR")} TL</div>
                       </th>
                     ))}

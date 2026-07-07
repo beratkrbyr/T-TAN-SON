@@ -15,6 +15,7 @@ interface ServicePackage {
   price: number;
   features: string[];
   is_popular: boolean;
+  badge_label?: string;
 }
 
 interface Service {
@@ -216,7 +217,7 @@ export default function ServicesPage() {
   const addPackage = () => {
     setFormData({
       ...formData,
-      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], is_popular: false }],
+      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], is_popular: false, badge_label: "" }],
     });
   };
 
@@ -639,11 +640,29 @@ export default function ServicesPage() {
                           </div>
                         </div>
 
-                        <div className="mb-3">
-                          <label className="flex items-center gap-2 cursor-pointer">
+                        <div className="mb-3 p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
+                          <label className="flex items-center gap-2 cursor-pointer mb-3">
                             <input type="checkbox" checked={pkg.is_popular} onChange={(e) => updatePackage(pkg.id, "is_popular", e.target.checked)} className="w-4 h-4 accent-emerald-600" />
-                            <span className="text-xs text-slate-700">En Çok Tercih Edilen Paket</span>
+                            <span className="text-sm font-medium text-slate-700">En Çok Tercih Edilen Paket (Yeşil Vurgu)</span>
                           </label>
+                          <div className="border-t border-gray-100 pt-3">
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Paket Etiketi (Badge)</label>
+                            <input 
+                              type="text" 
+                              value={pkg.badge_label || ""}
+                              onChange={(e) => updatePackage(pkg.id, "badge_label", e.target.value)}
+                              placeholder="Örn: Fiyat/Performans, Ekonomik, En Kapsamlı..." 
+                              className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm focus:border-emerald-500 outline-none"
+                              list={`badge-suggestions-${pkg.id}`}
+                            />
+                            <datalist id={`badge-suggestions-${pkg.id}`}>
+                              <option value="Fiyat/Performans" />
+                              <option value="Ekonomik" />
+                              <option value="En Kapsamlı" />
+                              <option value="Yeni Paket" />
+                            </datalist>
+                            <p className="text-[10px] text-slate-400 mt-1">Paket üzerinde görünecek vurgu metni.</p>
+                          </div>
                         </div>
 
                         <div>

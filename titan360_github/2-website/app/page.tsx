@@ -80,7 +80,25 @@ interface SiteContent {
   logo_url?: string;
 }
 
-interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: any[]; slug?: string }
+interface ServiceItem {
+  _id?: string;
+  id?: string;
+  name: string;
+  description: string;
+  price: number;
+  campaign_price?: number;
+  image?: string;
+  slug?: string;
+  options?: any[];
+  packages?: {
+    id: string;
+    name: string;
+    price: number;
+    features: string[];
+    is_popular?: boolean;
+    badge_label?: string;
+  }[];
+}
 
 const defaultServices: ServiceItem[] = [
   {
@@ -645,6 +663,13 @@ export default function HomePage() {
                 </Link>
                 {/* Alt CTA Butonu */}
                 <div className="p-5 pt-0 border-t border-slate-50 mt-auto">
+                  {s.packages && s.packages.length > 0 && (
+                    <div className="mb-3 text-center">
+                      <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[11px] font-bold border border-emerald-100">
+                        <i className="fas fa-layer-group mr-1"></i> {s.packages.length} Paket Seçeneği Mevcut
+                      </span>
+                    </div>
+                  )}
                   <Link
                     href={`/hizmetler#${s.slug || s.id}`}
                     className="flex items-center justify-center gap-2 w-full py-2.5 bg-[var(--secondary-color)]/10 text-[var(--secondary-hover-color)] hover:bg-[var(--secondary-color)] hover:text-white rounded-xl text-xs font-bold transition-all"
