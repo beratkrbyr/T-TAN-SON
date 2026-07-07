@@ -95,7 +95,7 @@ function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackag
 
         <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[1000px] opacity-100 mb-6' : 'max-h-0 opacity-0'}`}>
           <ul className="space-y-3">
-            {pkg.features.map((feature, fIdx) => (
+            {Array.isArray(pkg.features) && pkg.features.map((feature, fIdx) => (
               <li key={fIdx} className="flex items-start gap-3">
                 <i className={`${getFeatureIcon(feature)} mt-1 text-emerald-500 text-sm w-4 text-center`}></i>
                 <span className="text-slate-600 text-sm sm:text-base">{feature}</span>
@@ -135,9 +135,11 @@ export default function ServicePackages({ packages, phoneClean, serviceName = "T
   // Tüm paketlerdeki benzersiz özellikleri topla (karşılaştırma tablosu satırları)
   const allFeatures: string[] = [];
   packages.forEach(pkg => {
-    pkg.features.forEach(f => {
-      if (!allFeatures.includes(f)) allFeatures.push(f);
-    });
+    if (Array.isArray(pkg.features)) {
+      pkg.features.forEach(f => {
+        if (!allFeatures.includes(f)) allFeatures.push(f);
+      });
+    }
   });
 
   return (

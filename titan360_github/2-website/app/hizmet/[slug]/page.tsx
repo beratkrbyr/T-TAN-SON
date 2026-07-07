@@ -265,7 +265,7 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
       </section>
 
       {/* 3'lü Paket Tasarımı */}
-      {service.packages && service.packages.length > 0 && (
+      {Array.isArray(service.packages) && service.packages.length > 0 && (
         <ServicePackages 
           packages={service.packages} 
           phoneClean={phoneClean} 
