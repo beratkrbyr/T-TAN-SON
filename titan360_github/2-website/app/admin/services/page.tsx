@@ -96,7 +96,7 @@ export default function ServicesPage() {
         : `${API_URL}/api/admin/services`;
       const method = editingService ? "PUT" : "POST";
 
-      await fetch(url, {
+      const res = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
@@ -104,6 +104,12 @@ export default function ServicesPage() {
         },
         body: JSON.stringify(formData),
       });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        alert("Hata oluştu: " + (errorData.detail ? JSON.stringify(errorData.detail) : res.statusText));
+        return; // İşlemi durdur, modalı kapatma
+      }
 
       setShowModal(false);
       setEditingService(null);
