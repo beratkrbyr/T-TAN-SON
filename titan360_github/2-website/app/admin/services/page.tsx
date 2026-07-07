@@ -76,9 +76,19 @@ export default function ServicesPage() {
       if (res.ok) {
         const data = await res.json();
         const list = data.services || data || [];
-        // order alanına göre sırala
         list.sort((a: Service, b: Service) => (a.order ?? 999) - (b.order ?? 999));
-        setServices(list);
+        // Çözüm: packages alanını seo_description'dan çöz
+        const parsedData = list.map((s: any) => {
+          let pkgs = s.packages || [];
+          let cleanSeo = s.seo_description || "";
+          if (cleanSeo.includes("|||PACKAGES:")) {
+            const parts = cleanSeo.split("|||PACKAGES:");
+            cleanSeo = parts[0];
+            try { pkgs = JSON.parse(parts[1]); } catch(e) {}
+          }
+          return { ...s, seo_description: cleanSeo, packages: pkgs };
+        });
+        setServices(parsedData);
       }
     } catch (err) {
       console.error(err);
@@ -96,13 +106,17 @@ export default function ServicesPage() {
         : `${API_URL}/api/admin/services`;
       const method = editingService ? "PUT" : "POST";
 
+      // Çözüm: packages alanını seo_description içerisine gizle (Backend güncellemesi gelene kadar)
+      const payload = { ...formData };
+      payload.seo_description = (payload.seo_description || "").split("|||PACKAGES:")[0] + "|||PACKAGES:" + JSON.stringify(payload.packages || []);
+
       const res = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {

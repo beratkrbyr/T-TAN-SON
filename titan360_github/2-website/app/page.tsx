@@ -291,7 +291,19 @@ export default function HomePage() {
       .then(([contentData, servicesData]) => {
         if (!isMounted) return;
         setC(contentData || {});
-        setServices(servicesData || []);
+
+        const parsedServices = (servicesData || []).map((s: any) => {
+          let pkgs = s.packages || [];
+          let cleanSeo = s.seo_description || "";
+          if (cleanSeo.includes("|||PACKAGES:")) {
+            const parts = cleanSeo.split("|||PACKAGES:");
+            cleanSeo = parts[0];
+            try { pkgs = JSON.parse(parts[1]); } catch(e) {}
+          }
+          return { ...s, seo_description: cleanSeo, packages: pkgs };
+        });
+
+        setServices(parsedServices);
 
         try {
           localStorage.setItem("titan360_content", JSON.stringify(contentData));

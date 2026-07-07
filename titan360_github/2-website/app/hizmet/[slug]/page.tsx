@@ -117,7 +117,16 @@ async function fetchServiceData(slug: string): Promise<ServiceItem | null> {
     if (res.ok) {
       const services: ServiceItem[] = await res.json();
       const match = services.find(s => s.slug === slug);
-      if (match) return match;
+      if (match) {
+        let pkgs = match.packages || [];
+        let cleanSeo = match.seo_description || "";
+        if (cleanSeo.includes("|||PACKAGES:")) {
+          const parts = cleanSeo.split("|||PACKAGES:");
+          cleanSeo = parts[0];
+          try { pkgs = JSON.parse(parts[1]); } catch(e) {}
+        }
+        return { ...match, seo_description: cleanSeo, packages: pkgs };
+      }
     }
   } catch (err) {}
   
