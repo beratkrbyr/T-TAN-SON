@@ -111,7 +111,19 @@ export default function HizmetlerPage() {
     ])
       .then(([servicesData, contentData]) => {
         if (!isMounted) return;
-        setServices(servicesData || []);
+        
+        const parsedServices = (servicesData || []).map((s: any) => {
+          let pkgs = s.packages || [];
+          let cleanSeo = s.seo_description || "";
+          if (cleanSeo.includes("|||PACKAGES:")) {
+            const parts = cleanSeo.split("|||PACKAGES:");
+            cleanSeo = parts[0];
+            try { pkgs = JSON.parse(parts[1]); } catch(e) {}
+          }
+          return { ...s, seo_description: cleanSeo, packages: pkgs };
+        });
+
+        setServices(parsedServices);
         setC(contentData || {});
 
         try {
@@ -334,6 +346,20 @@ export default function HizmetlerPage() {
                                 </div>
                               );
                             })}
+                          </div>
+                        )}
+                        {(s as any).packages && (s as any).packages.length > 0 && (
+                          <div className="mt-3 pt-2 border-t border-white/10 space-y-1.5">
+                            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">HİZMET PAKETLERİ</p>
+                            {(s as any).packages.map((pkg: any, idx: number) => (
+                              <div key={`pkg-${idx}`} className="flex justify-between items-center text-xs py-1 text-slate-300">
+                                <span className="flex items-center gap-1.5">
+                                  <i className="fas fa-check-circle text-[9px] text-emerald-400"></i>
+                                  {pkg.name} {pkg.badge_label && <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded border border-emerald-500/30 ml-1">{pkg.badge_label}</span>}
+                                </span>
+                                <span className="font-bold text-emerald-400 whitespace-nowrap ml-2">{pkg.price} TL</span>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
