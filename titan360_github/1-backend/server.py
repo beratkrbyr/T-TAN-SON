@@ -416,6 +416,12 @@ async def update_service(service_id: str, service: Service, _=Depends(verify_tok
     await db.services.update_one({"_id": ObjectId(service_id)}, {"$set": service_dict})
     return {"message": "Guncellendi"}
 
+@api_router.put("/admin/services-reorder")
+async def reorder_services(data: dict, _=Depends(verify_token)):
+    order_list = data.get("order", [])
+    for i, service_id in enumerate(order_list):
+        await db.services.update_one({"_id": ObjectId(service_id)}, {"$set": {"order": i}})
+    return {"message": "Sira guncellendi"}
 
 
 @api_router.delete("/admin/services/{service_id}")

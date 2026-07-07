@@ -9,15 +9,6 @@ interface ServiceOption {
   price: number;
 }
 
-interface ServicePackage {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  is_popular?: boolean;
-  optional_addons?: string[];
-}
-
 interface Service {
   _id?: string;
   id?: string;
@@ -29,13 +20,13 @@ interface Service {
   campaign_percent?: number;
   duration: number;
   active: boolean;
+  order?: number;
   image?: string;
   options?: ServiceOption[];
   slug?: string;
   seo_title?: string;
   seo_description?: string;
   extras?: ServiceOption[];
-  packages?: ServicePackage[];
 }
 
 export default function ServicesPage() {
@@ -43,6 +34,7 @@ export default function ServicesPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [reordering, setReordering] = useState(false);
   const [formData, setFormData] = useState<{
     name: string;
     description: string;
@@ -58,8 +50,7 @@ export default function ServicesPage() {
     seo_title: string;
     seo_description: string;
     extras: ServiceOption[];
-    packages: ServicePackage[];
-  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [], packages: [] });
+  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
 
   useEffect(() => {
     fetchServices();
@@ -73,7 +64,10 @@ export default function ServicesPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setServices(data.services || data || []);
+        const list = data.services || data || [];
+        // order alanına göre sırala
+        list.sort((a: Service, b: Service) => (a.order ?? 999) - (b.order ?? 999));
+        setServices(list);
       }
     } catch (err) {
       console.error(err);
@@ -102,7 +96,7 @@ export default function ServicesPage() {
 
       setShowModal(false);
       setEditingService(null);
-      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [], packages: [] });
+      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
       fetchServices();
     } catch (err) {
       console.error(err);
@@ -126,7 +120,6 @@ export default function ServicesPage() {
       seo_title: service.seo_title || "",
       seo_description: service.seo_description || "",
       extras: service.extras || [],
-      packages: service.packages || [],
     });
     setShowModal(true);
   };
@@ -142,6 +135,37 @@ export default function ServicesPage() {
       fetchServices();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Sıra değiştirme
+  const moveService = async (index: number, direction: "up" | "down") => {
+    const newIndex = direction === "up" ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= services.length) return;
+
+    const newServices = [...services];
+    const temp = newServices[index];
+    newServices[index] = newServices[newIndex];
+    newServices[newIndex] = temp;
+    setServices(newServices);
+
+    // API'ye yeni sırayı kaydet
+    setReordering(true);
+    try {
+      const token = localStorage.getItem("admin_token");
+      const orderList = newServices.map(s => s._id || s.id);
+      await fetch(`${API_URL}/api/admin/services-reorder`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ order: orderList }),
+      });
+    } catch (err) {
+      console.error("Sıra kaydedilemedi:", err);
+    } finally {
+      setReordering(false);
     }
   };
 
@@ -219,27 +243,6 @@ export default function ServicesPage() {
     });
   };
 
-  const addPackage = () => {
-    setFormData({
-      ...formData,
-      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], optional_addons: [], is_popular: false }],
-    });
-  };
-
-  const updatePackage = (id: string, field: string, value: any) => {
-    setFormData({
-      ...formData,
-      packages: (formData.packages || []).map((pkg) => (pkg.id === id ? { ...pkg, [field]: value } : pkg)),
-    });
-  };
-
-  const removePackage = (id: string) => {
-    setFormData({
-      ...formData,
-      packages: (formData.packages || []).filter((pkg) => pkg.id !== id),
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full min-h-[50vh]">
@@ -256,12 +259,12 @@ export default function ServicesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-800">Hizmetler</h1>
-          <p className="text-slate-500 text-sm mt-1">Hizmet kataloğunuzu yönetin</p>
+          <p className="text-slate-500 text-sm mt-1">Hizmet kataloğunuzu yönetin. Yukarı/aşağı oklarla sırayı değiştirin.</p>
         </div>
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [], packages: [] });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -274,70 +277,109 @@ export default function ServicesPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {services.map((service) => (
+      {reordering && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-sky-50 text-sky-700 text-sm rounded-lg border border-sky-200">
+          <div className="w-4 h-4 border-2 border-sky-300 border-t-sky-600 rounded-full animate-spin"></div>
+          Sıra kaydediliyor...
+        </div>
+      )}
+
+      <div className="space-y-3">
+        {services.map((service, index) => (
           <div
             key={service._id || service.id}
-            className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+            className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow flex"
             data-testid={`service-card-${service._id || service.id}`}
           >
-            {service.image && (
-              <div className="h-36 overflow-hidden">
-                <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
-              </div>
-            )}
-            <div className="p-5">
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-800">{service.name}</h3>
-                  {service.campaign_price && service.campaign_price > 0 ? (
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="text-sm line-through text-slate-400">{service.price} TL</span>
-                      <span className="text-lg font-bold text-red-600">{service.campaign_price} TL</span>
-                    </div>
-                  ) : (
-                    <p className="text-xl font-bold text-sky-600 mt-1">{service.price} TL</p>
-                  )}
-                </div>
-                <div className="flex flex-col gap-1 items-end">
-                  <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-semibold border ${service.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
-                    {service.active ? "Aktif" : "Pasif"}
-                  </span>
-                  {service.campaign_active && (
-                    <span className="inline-flex px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                      {service.campaign_percent && service.campaign_percent > 0 ? `-%${service.campaign_percent}` : "Genel Kampanya"}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <p className="text-slate-500 text-sm mb-3 line-clamp-2">{service.description}</p>
-              
-              {service.options && service.options.length > 0 && (
-                <div className="mb-3">
-                  <p className="text-xs text-slate-400 mb-1">Seçenekler:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {service.options.map((opt) => (
-                      <span key={opt.id} className="px-2 py-0.5 bg-gray-100 text-slate-600 text-xs rounded-lg border border-gray-200">
-                        {opt.name}: {opt.price} TL
-                      </span>
-                    ))}
-                  </div>
+            {/* Sıra Değiştirme Butonları */}
+            <div className="flex flex-col items-center justify-center bg-slate-50 border-r border-gray-200 px-2 gap-1 min-w-[48px]">
+              <span className="text-xs font-bold text-slate-400 mb-1">{index + 1}</span>
+              <button
+                onClick={() => moveService(index, "up")}
+                disabled={index === 0 || reordering}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                  index === 0 ? "text-slate-200 cursor-not-allowed" : "text-slate-500 hover:bg-sky-100 hover:text-sky-700"
+                }`}
+                title="Yukarı Taşı"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                </svg>
+              </button>
+              <button
+                onClick={() => moveService(index, "down")}
+                disabled={index === services.length - 1 || reordering}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+                  index === services.length - 1 ? "text-slate-200 cursor-not-allowed" : "text-slate-500 hover:bg-sky-100 hover:text-sky-700"
+                }`}
+                title="Aşağı Taşı"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Hizmet İçeriği */}
+            <div className="flex-1 flex flex-col md:flex-row">
+              {service.image && (
+                <div className="w-full md:w-36 h-28 md:h-auto overflow-hidden shrink-0">
+                  <img src={service.image} alt={service.name} className="w-full h-full object-cover" />
                 </div>
               )}
+              <div className="flex-1 p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800">{service.name}</h3>
+                    {service.campaign_price && service.campaign_price > 0 ? (
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="text-sm line-through text-slate-400">{service.price} TL</span>
+                        <span className="text-lg font-bold text-red-600">{service.campaign_price} TL</span>
+                      </div>
+                    ) : (
+                      <p className="text-xl font-bold text-sky-600 mt-1">{service.price} TL</p>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-1 items-end">
+                    <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-semibold border ${service.active ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-red-50 text-red-700 border-red-200"}`}>
+                      {service.active ? "Aktif" : "Pasif"}
+                    </span>
+                    {service.campaign_active && (
+                      <span className="inline-flex px-2 py-0.5 rounded-lg text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                        {service.campaign_percent && service.campaign_percent > 0 ? `-%${service.campaign_percent}` : "Genel Kampanya"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <p className="text-slate-500 text-sm mb-3 line-clamp-2">{service.description}</p>
+                
+                {service.options && service.options.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-xs text-slate-400 mb-1">Seçenekler:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {service.options.map((opt) => (
+                        <span key={opt.id} className="px-2 py-0.5 bg-gray-100 text-slate-600 text-xs rounded-lg border border-gray-200">
+                          {opt.name}: {opt.price} TL
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-              <div className="flex gap-2 pt-2 border-t border-gray-100">
-                <button
-                  onClick={() => handleEdit(service)}
-                  className="flex-1 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-slate-700 text-sm rounded-lg border border-gray-200 transition-colors"
-                >
-                  Düzenle
-                </button>
-                <button
-                  onClick={() => handleDelete(service._id || service.id || "")}
-                  className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm rounded-lg border border-red-200 transition-colors"
-                >
-                  Sil
-                </button>
+                <div className="flex gap-2 pt-2 border-t border-gray-100">
+                  <button
+                    onClick={() => handleEdit(service)}
+                    className="flex-1 px-3 py-2 bg-gray-50 hover:bg-gray-100 text-slate-700 text-sm rounded-lg border border-gray-200 transition-colors"
+                  >
+                    Düzenle
+                  </button>
+                  <button
+                    onClick={() => handleDelete(service._id || service.id || "")}
+                    className="px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm rounded-lg border border-red-200 transition-colors"
+                  >
+                    Sil
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -596,105 +638,6 @@ export default function ServicesPage() {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Packages Section */}
-              <div className="border-t border-slate-100 pt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-slate-700">Hizmet Paketleri (Örn: Standart, VIP)</label>
-                  <button type="button" onClick={addPackage} className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors">
-                    + Paket Ekle
-                  </button>
-                </div>
-                <p className="text-slate-400 text-xs mb-2">Ev temizliği gibi hizmetler için 3'lü fiyatlandırma paketleri ekleyebilirsiniz.</p>
-                {(!formData.packages || formData.packages.length === 0) ? (
-                  <p className="text-slate-400 text-sm p-3 bg-gray-50 rounded-lg text-center border border-gray-100">Paket eklenmemiş. Eklerseniz sayfada özel kart tasarımıyla gösterilir.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {formData.packages.map((pkg, index) => (
-                      <div key={pkg.id} className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-3 relative">
-                        <button type="button" onClick={() => removePackage(pkg.id)} className="absolute top-2 right-2 p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors" title="Paketi Sil">
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                        
-                        <div className="grid grid-cols-2 gap-2 pr-8">
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1">Paket Adı</label>
-                            <input
-                              type="text"
-                              value={pkg.name}
-                              onChange={(e) => updatePackage(pkg.id, "name", e.target.value)}
-                              placeholder="Örn: VIP Paket"
-                              className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-emerald-500 outline-none"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold text-slate-600 mb-1">Fiyat (TL)</label>
-                            <input
-                              type="number"
-                              value={pkg.price}
-                              onChange={(e) => updatePackage(pkg.id, "price", Number(e.target.value))}
-                              placeholder="Fiyat"
-                              className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-emerald-500 outline-none"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-600 mb-1">Özellikler (Virgülle ayırın)</label>
-                          <textarea
-                            value={pkg.features.join(", ")}
-                            onChange={(e) => {
-                              const features = e.target.value.split(',').map(f => f.trim()).filter(f => f);
-                              updatePackage(pkg.id, "features", features);
-                            }}
-                            placeholder="Toz alma, Zemin silme, Cam temizliği..."
-                            className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-slate-800 text-sm focus:border-emerald-500 outline-none"
-                            rows={2}
-                          />
-                        </div>
-
-                        {formData.extras && formData.extras.length > 0 && (
-                          <div className="mt-3 border-t border-gray-200 pt-3">
-                            <label className="block text-xs font-semibold text-slate-600 mb-2">Opsiyonel Ek Hizmetler (Kutucukları işaretleyin)</label>
-                            <div className="flex flex-wrap gap-2">
-                              {formData.extras.map((ext) => (
-                                <label key={ext.id} className="flex items-center gap-1.5 bg-white px-2 py-1 border border-gray-200 rounded text-xs cursor-pointer hover:bg-slate-50">
-                                  <input 
-                                    type="checkbox" 
-                                    className="accent-emerald-600"
-                                    checked={(pkg.optional_addons || []).includes(ext.id)}
-                                    onChange={(e) => {
-                                      const currentAddons = pkg.optional_addons || [];
-                                      const newAddons = e.target.checked 
-                                        ? [...currentAddons, ext.id]
-                                        : currentAddons.filter(id => id !== ext.id);
-                                      updatePackage(pkg.id, "optional_addons", newAddons);
-                                    }}
-                                  />
-                                  <span className="text-slate-700">{ext.name} <span className="text-slate-400">({ext.price} TL)</span></span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="flex items-center gap-2 mt-3">
-                          <input
-                            type="checkbox"
-                            id={`popular-${pkg.id}`}
-                            checked={pkg.is_popular}
-                            onChange={(e) => updatePackage(pkg.id, "is_popular", e.target.checked)}
-                            className="w-4 h-4 accent-emerald-600"
-                          />
-                          <label htmlFor={`popular-${pkg.id}`} className="text-xs text-slate-700">En Çok Tercih Edilen</label>
-                        </div>
                       </div>
                     ))}
                   </div>
