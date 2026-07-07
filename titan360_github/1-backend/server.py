@@ -129,6 +129,14 @@ class Service(BaseModel):
     seo_description: Optional[str] = ""
     extras: Optional[Any] = None
 
+class CleaningPackage(BaseModel):
+    name: str
+    price: float
+    features: list = []
+    is_popular: bool = False
+    order: int = 0
+    active: bool = True
+
 class BookingStatusUpdate(BaseModel):
     status: str
 
@@ -428,6 +436,40 @@ async def reorder_services(data: dict, _=Depends(verify_token)):
 async def delete_service(service_id: str, _=Depends(verify_token)):
     await db.services.delete_one({"_id": ObjectId(service_id)})
     return {"message": "Silindi"}
+
+# ---- Cleaning Packages (Bagimsiz Koleksiyon) ----
+@api_router.get("/cleaning-packages")
+async def get_public_cleaning_packages():
+    packages = await db.cleaning_packages.find({"active": True}).sort("order", 1).to_list(50)
+    return [{**serialize_doc(p), "id": str(p["_id"])} for p in packages]
+
+@api_router.get("/admin/cleaning-packages")
+async def get_cleaning_packages(_=Depends(verify_token)):
+    packages = await db.cleaning_packages.find().sort("order", 1).to_list(50)
+    return [{**serialize_doc(p), "id": str(p["_id"])} for p in packages]
+
+@api_router.post("/admin/cleaning-packages")
+async def create_cleaning_package(pkg: CleaningPackage, _=Depends(verify_token)):
+    pkg_dict = pkg.dict()
+    result = await db.cleaning_packages.insert_one(pkg_dict)
+    return {"id": str(result.inserted_id), **pkg_dict}
+
+@api_router.put("/admin/cleaning-packages/{pkg_id}")
+async def update_cleaning_package(pkg_id: str, pkg: CleaningPackage, _=Depends(verify_token)):
+    await db.cleaning_packages.update_one({"_id": ObjectId(pkg_id)}, {"$set": pkg.dict()})
+    return {"message": "Paket guncellendi"}
+
+@api_router.delete("/admin/cleaning-packages/{pkg_id}")
+async def delete_cleaning_package(pkg_id: str, _=Depends(verify_token)):
+    await db.cleaning_packages.delete_one({"_id": ObjectId(pkg_id)})
+    return {"message": "Paket silindi"}
+
+@api_router.put("/admin/cleaning-packages-reorder")
+async def reorder_cleaning_packages(data: dict, _=Depends(verify_token)):
+    order_list = data.get("order", [])
+    for i, pkg_id in enumerate(order_list):
+        await db.cleaning_packages.update_one({"_id": ObjectId(pkg_id)}, {"$set": {"order": i}})
+    return {"message": "Sira guncellendi"}
 
 @api_router.get("/admin/customers")
 async def get_customers(_=Depends(verify_token)):

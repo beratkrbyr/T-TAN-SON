@@ -5,7 +5,6 @@ import Footer from "../../components/Footer";
 import LeadForm from "../../components/LeadForm";
 import BeforeAfterSlider from "../../components/BeforeAfterSlider";
 import MobileStickyBar from "../../components/MobileStickyBar";
-import ServicePackages from "../../components/ServicePackages";
 
 interface ServiceOption {
   id: string;
@@ -264,15 +263,7 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
         </div>
       </section>
 
-      {/* 3'lü Paket Tasarımı */}
-      {service.packages && service.packages.length > 0 && (
-        <ServicePackages 
-          packages={service.packages} 
-          extras={service.extras}
-          serviceName={service.name} 
-          phoneClean={phoneClean} 
-        />
-      )}
+
 
       {/* Fiyat Listesi ve Fiyat Seçenekleri */}
       {((service.options && service.options.length > 0) || (service.extras && service.extras.length > 0)) && (
