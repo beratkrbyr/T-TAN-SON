@@ -965,6 +965,7 @@ async def get_public_services():
             "slug": s.get("slug", ""),
             "seo_title": s.get("seo_title", ""),
             "seo_description": s.get("seo_description", ""),
+            "packages": s.get("packages", []),
             "extras": service_extras
         })
     return result

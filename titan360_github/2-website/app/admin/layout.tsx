@@ -9,7 +9,6 @@ const menuItems = [
   { href: "/admin/bookings", label: "Randevular", icon: "fa-calendar-alt" },
   { href: "/admin/calendar", label: "Takvim", icon: "fa-calendar-days" },
   { href: "/admin/services", label: "Hizmetler", icon: "fa-broom" },
-  { href: "/admin/packages", label: "Paket Yönetimi", icon: "fa-box-open" },
   { href: "/admin/blog", label: "Blog Yönetimi", icon: "fa-newspaper" },
   { href: "/admin/customers", label: "Müşteriler", icon: "fa-users" },
   { href: "/admin/ledger", label: "Cari Hesaplar", icon: "fa-wallet" },

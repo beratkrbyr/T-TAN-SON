@@ -13,6 +13,7 @@ interface CleaningPackage {
 interface PackageComparisonProps {
   packages: CleaningPackage[];
   phoneClean: string;
+  serviceName?: string;
 }
 
 // Dinamik ikon eşleştirici
@@ -33,7 +34,7 @@ const getFeatureIcon = (feature: string) => {
   return 'fas fa-check-circle';
 };
 
-function PackageCard({ pkg, phoneClean, allFeatures }: { pkg: CleaningPackage; phoneClean: string; allFeatures: string[] }) {
+function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackage; phoneClean: string; m2: string; serviceName: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const isPopular = pkg.is_popular;
 
@@ -48,7 +49,8 @@ function PackageCard({ pkg, phoneClean, allFeatures }: { pkg: CleaningPackage; p
       });
     }
 
-    const text = `Merhaba, ${pkg.name} hakkında bilgi almak istiyorum. Fiyat: ${pkg.price.toLocaleString("tr-TR")} TL.`;
+    const m2Text = m2 ? ` Evim yaklaşık ${m2} m2.` : '';
+    const text = `Merhaba, ${serviceName} - ${pkg.name} hakkında bilgi almak istiyorum.${m2Text} Hizmet detaylarını inceledim, fiyat bilgisi ve müsaitlik durumu hakkında destek rica ederim. - titan360.com.tr`;
     const url = `https://wa.me/${phoneClean.replace(/\s+/g, '')}?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
@@ -117,7 +119,7 @@ function PackageCard({ pkg, phoneClean, allFeatures }: { pkg: CleaningPackage; p
             }`}
           >
             <i className="fab fa-whatsapp text-lg"></i>
-            Bu Paketi Satın Al
+            WhatsApp'tan Teklif Al
           </button>
         </div>
       </div>
@@ -125,7 +127,9 @@ function PackageCard({ pkg, phoneClean, allFeatures }: { pkg: CleaningPackage; p
   );
 }
 
-export default function ServicePackages({ packages, phoneClean }: PackageComparisonProps) {
+export default function ServicePackages({ packages, phoneClean, serviceName = "Temizlik" }: PackageComparisonProps) {
+  const [m2, setM2] = useState('');
+
   if (!packages || packages.length === 0) return null;
 
   // Tüm paketlerdeki benzersiz özellikleri topla (karşılaştırma tablosu satırları)
@@ -137,40 +141,54 @@ export default function ServicePackages({ packages, phoneClean }: PackageCompari
   });
 
   return (
-    <section className="py-20 bg-slate-50 border-b border-slate-100 relative overflow-hidden" id="paketler">
+    <section className="py-16 md:py-24 bg-slate-50 border-b border-slate-100 relative overflow-hidden" id="paketler">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky-100 rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
       <div className="max-w-7xl mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
-          <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-semibold rounded-full mb-3">Fiyatlandırma</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Temizlik Paketlerimiz</h2>
-          <p className="text-slate-500 max-w-2xl mx-auto">İhtiyacınıza en uygun paketi seçin, detayları karşılaştırın ve hemen randevunuzu oluşturun.</p>
+        <div className="text-center mb-10">
+          <span className="inline-block px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-semibold rounded-full mb-3">Hizmet Paketleri</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">{serviceName} Paketleri</h2>
+          <p className="text-slate-500 max-w-2xl mx-auto">İhtiyacınıza en uygun paketi seçin, detayları karşılaştırın ve hemen teklif alın.</p>
+        </div>
+
+        {/* m2 Bilgisi Girişi (Global) */}
+        <div className="max-w-sm mx-auto mb-10 bg-white p-4 rounded-2xl shadow-sm border border-emerald-100">
+          <label className="block text-sm font-semibold text-slate-700 mb-2 text-center">Evinizin Büyüklüğü (İsteğe Bağlı)</label>
+          <div className="relative">
+            <input 
+              type="number" 
+              value={m2}
+              onChange={(e) => setM2(e.target.value)}
+              placeholder="Örn: 120"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-all pr-12 text-center text-lg font-medium"
+            />
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">m²</span>
+          </div>
         </div>
 
         {/* ===== KARŞILAŞTIRMA TABLOSU ===== */}
         {allFeatures.length > 0 && (
           <div className="mb-16">
-            <h3 className="text-xl font-bold text-slate-700 text-center mb-6">Paket Karşılaştırması</h3>
             <div className="overflow-x-auto -mx-4 px-4 pb-4">
               <table className="w-full min-w-[600px] border-collapse bg-white rounded-2xl overflow-hidden shadow-lg border border-slate-200">
                 <thead>
                   <tr>
-                    <th className="text-left px-4 py-4 bg-slate-800 text-white font-semibold text-sm border-r border-slate-700 min-w-[200px]">
-                      Temizlik Kalemleri
+                    <th className="text-left px-4 py-5 bg-slate-800 text-white font-semibold text-sm border-r border-slate-700 min-w-[200px]">
+                      Temizlik Kapsamı
                     </th>
                     {packages.map((pkg) => (
                       <th
                         key={pkg.id}
-                        className={`px-4 py-4 text-center font-bold text-sm min-w-[140px] border-r last:border-r-0 ${
+                        className={`px-4 py-5 text-center font-bold text-sm min-w-[150px] border-r last:border-r-0 ${
                           pkg.is_popular
                             ? 'bg-emerald-600 text-white border-emerald-500'
                             : 'bg-slate-800 text-white border-slate-700'
                         }`}
                       >
-                        <div>{pkg.name}</div>
-                        <div className="text-xs font-normal mt-1 opacity-80">{pkg.price.toLocaleString("tr-TR")} TL</div>
+                        <div className="text-base">{pkg.name}</div>
+                        <div className="text-sm font-normal mt-1 opacity-90">{pkg.price.toLocaleString("tr-TR")} TL</div>
                       </th>
                     ))}
                   </tr>
@@ -181,7 +199,7 @@ export default function ServicePackages({ packages, phoneClean }: PackageCompari
                       key={rowIdx}
                       className={`border-b border-slate-100 ${rowIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} hover:bg-emerald-50/30 transition-colors`}
                     >
-                      <td className="px-4 py-3 text-sm text-slate-700 font-medium border-r border-slate-100">
+                      <td className="px-4 py-3.5 text-sm text-slate-700 font-medium border-r border-slate-100">
                         <div className="flex items-center gap-2">
                           <i className={`${getFeatureIcon(feature)} text-slate-400 text-xs w-4 text-center`}></i>
                           {feature}
@@ -192,12 +210,12 @@ export default function ServicePackages({ packages, phoneClean }: PackageCompari
                         return (
                           <td
                             key={pkg.id}
-                            className={`px-4 py-3 text-center border-r last:border-r-0 border-slate-100 ${
+                            className={`px-4 py-3.5 text-center border-r last:border-r-0 border-slate-100 ${
                               pkg.is_popular ? 'bg-emerald-50/20' : ''
                             }`}
                           >
                             {hasFeature ? (
-                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-600">
+                              <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-emerald-100 text-emerald-600 shadow-sm">
                                 <i className="fas fa-check text-sm"></i>
                               </span>
                             ) : (
@@ -214,9 +232,11 @@ export default function ServicePackages({ packages, phoneClean }: PackageCompari
                 {/* WhatsApp Satırı */}
                 <tfoot>
                   <tr className="bg-slate-50 border-t-2 border-slate-200">
-                    <td className="px-4 py-4 text-sm font-bold text-slate-700 border-r border-slate-100"></td>
+                    <td className="px-4 py-5 text-sm font-bold text-slate-700 border-r border-slate-100 text-right pr-6">
+                      <span className="text-slate-400 font-normal">Hemen Teklif Al →</span>
+                    </td>
                     {packages.map((pkg) => (
-                      <td key={pkg.id} className="px-3 py-4 text-center border-r last:border-r-0 border-slate-100">
+                      <td key={pkg.id} className="px-3 py-5 text-center border-r last:border-r-0 border-slate-100">
                         <button
                           onClick={() => {
                             if (typeof window !== 'undefined') {
@@ -228,20 +248,21 @@ export default function ServicePackages({ packages, phoneClean }: PackageCompari
                                 package_price: pkg.price,
                               });
                             }
-                            const text = `Merhaba, ${pkg.name} hakkında bilgi almak istiyorum. Fiyat: ${pkg.price.toLocaleString("tr-TR")} TL.`;
+                            const m2Text = m2 ? ` Evim yaklaşık ${m2} m2.` : '';
+                            const text = `Merhaba, ${serviceName} - ${pkg.name} hakkında bilgi almak istiyorum.${m2Text} Hizmet detaylarını inceledim, fiyat bilgisi ve müsaitlik durumu hakkında destek rica ederim. - titan360.com.tr`;
                             window.open(`https://wa.me/${phoneClean.replace(/\s+/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
                           }}
                           id={`gtm-table-buy-${pkg.id}`}
                           data-gtm-event="package_table_buy_click"
                           data-gtm-package={pkg.name}
-                          className={`w-full py-2.5 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
+                          className={`w-full py-3 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 ${
                             pkg.is_popular
-                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md'
-                              : 'bg-slate-200 hover:bg-slate-300 text-slate-800'
+                              ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md hover:-translate-y-0.5'
+                              : 'bg-slate-800 hover:bg-slate-700 text-white shadow-sm hover:-translate-y-0.5'
                           }`}
                         >
-                          <i className="fab fa-whatsapp"></i>
-                          Satın Al
+                          <i className="fab fa-whatsapp text-base"></i>
+                          WhatsApp
                         </button>
                       </td>
                     ))}
@@ -249,18 +270,19 @@ export default function ServicePackages({ packages, phoneClean }: PackageCompari
                 </tfoot>
               </table>
             </div>
-            <p className="text-center text-xs text-slate-400 mt-3">← Mobilde tabloyu kaydırarak tüm paketleri görebilirsiniz →</p>
+            <p className="text-center text-xs text-slate-400 mt-4 font-medium"><i className="fas fa-arrows-alt-h mr-1"></i> Mobilde tabloyu kaydırarak tüm paketleri görebilirsiniz</p>
           </div>
         )}
 
-        {/* ===== PAKET KARTLARI ===== */}
+        {/* ===== PAKET KARTLARI (Mobilde alternatif görünüm veya detaylar için) ===== */}
         <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-start">
           {packages.map((pkg, idx) => (
             <PackageCard
               key={pkg.id || idx}
               pkg={pkg}
               phoneClean={phoneClean}
-              allFeatures={allFeatures}
+              m2={m2}
+              serviceName={serviceName}
             />
           ))}
         </div>

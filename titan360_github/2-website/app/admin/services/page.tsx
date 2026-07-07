@@ -9,6 +9,14 @@ interface ServiceOption {
   price: number;
 }
 
+interface ServicePackage {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  is_popular: boolean;
+}
+
 interface Service {
   _id?: string;
   id?: string;
@@ -23,6 +31,7 @@ interface Service {
   order?: number;
   image?: string;
   options?: ServiceOption[];
+  packages?: ServicePackage[];
   slug?: string;
   seo_title?: string;
   seo_description?: string;
@@ -46,11 +55,12 @@ export default function ServicesPage() {
     active: boolean;
     image: string;
     options: ServiceOption[];
+    packages: ServicePackage[];
     slug: string;
     seo_title: string;
     seo_description: string;
     extras: ServiceOption[];
-  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
+  }>({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], packages: [], slug: "", seo_title: "", seo_description: "", extras: [] });
 
   useEffect(() => {
     fetchServices();
@@ -96,7 +106,7 @@ export default function ServicesPage() {
 
       setShowModal(false);
       setEditingService(null);
-      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
+      setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], packages: [], slug: "", seo_title: "", seo_description: "", extras: [] });
       fetchServices();
     } catch (err) {
       console.error(err);
@@ -116,6 +126,7 @@ export default function ServicesPage() {
       active: service.active,
       image: service.image || "",
       options: service.options || [],
+      packages: service.packages || [],
       slug: service.slug || "",
       seo_title: service.seo_title || "",
       seo_description: service.seo_description || "",
@@ -201,6 +212,48 @@ export default function ServicesPage() {
     }
   };
 
+  // --- Package Handlers ---
+  const addPackage = () => {
+    setFormData({
+      ...formData,
+      packages: [...(formData.packages || []), { id: Date.now().toString(), name: "", price: 0, features: [], is_popular: false }],
+    });
+  };
+
+  const updatePackage = (id: string, field: string, value: any) => {
+    setFormData({
+      ...formData,
+      packages: (formData.packages || []).map((pkg) => (pkg.id === id ? { ...pkg, [field]: value } : pkg)),
+    });
+  };
+
+  const removePackage = (id: string) => {
+    setFormData({
+      ...formData,
+      packages: (formData.packages || []).filter((pkg) => pkg.id !== id),
+    });
+  };
+
+  const addPackageFeature = (pkgId: string, feature: string) => {
+    if (!feature.trim()) return;
+    setFormData({
+      ...formData,
+      packages: (formData.packages || []).map((pkg) => 
+        pkg.id === pkgId ? { ...pkg, features: [...pkg.features, feature.trim()] } : pkg
+      ),
+    });
+  };
+
+  const removePackageFeature = (pkgId: string, featureIndex: number) => {
+    setFormData({
+      ...formData,
+      packages: (formData.packages || []).map((pkg) => 
+        pkg.id === pkgId ? { ...pkg, features: pkg.features.filter((_, i) => i !== featureIndex) } : pkg
+      ),
+    });
+  };
+  // -------------------------
+
   const addOption = () => {
     setFormData({
       ...formData,
@@ -264,7 +317,7 @@ export default function ServicesPage() {
         <button
           onClick={() => {
             setEditingService(null);
-            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], slug: "", seo_title: "", seo_description: "", extras: [] });
+            setFormData({ name: "", description: "", price: 0, campaign_price: 0, campaign_active: false, campaign_percent: 0, duration: 60, active: true, image: "", options: [], packages: [], slug: "", seo_title: "", seo_description: "", extras: [] });
             setShowModal(true);
           }}
           data-testid="add-service-btn"
@@ -552,6 +605,82 @@ export default function ServicesPage() {
                       />
                       <p className="text-[9px] text-slate-400 mt-1">Hizmete özel indirim yüzdesi (boş/0 ise genel indirim kullanılır).</p>
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Packages Section */}
+              <div className="border-t border-slate-100 pt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-slate-700">Hizmet Paketleri (Standart, Detaylı vb.)</label>
+                  <button type="button" onClick={addPackage} className="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors">
+                    + Paket Ekle
+                  </button>
+                </div>
+                <p className="text-slate-400 text-xs mb-3">Bu hizmete özel paketler oluşturun. Müşterileriniz paketleri karşılaştırabilir.</p>
+                {formData.packages.length === 0 ? (
+                  <p className="text-slate-400 text-sm p-3 bg-gray-50 rounded-lg text-center border border-gray-100">Henüz paket eklenmemiş.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {formData.packages.map((pkg, index) => (
+                      <div key={pkg.id} className="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm relative">
+                        <button type="button" onClick={() => removePackage(pkg.id)} className="absolute top-3 right-3 text-red-400 hover:text-red-600">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                        
+                        <div className="grid grid-cols-2 gap-3 mb-3 pr-8">
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Paket Adı</label>
+                            <input type="text" value={pkg.name} onChange={(e) => updatePackage(pkg.id, "name", e.target.value)} placeholder="Örn: Standart Paket" className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm focus:border-emerald-500 outline-none" />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-600 mb-1">Fiyat (TL)</label>
+                            <input type="number" value={pkg.price} onChange={(e) => updatePackage(pkg.id, "price", Number(e.target.value))} className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded text-sm focus:border-emerald-500 outline-none" />
+                          </div>
+                        </div>
+
+                        <div className="mb-3">
+                          <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" checked={pkg.is_popular} onChange={(e) => updatePackage(pkg.id, "is_popular", e.target.checked)} className="w-4 h-4 accent-emerald-600" />
+                            <span className="text-xs text-slate-700">En Çok Tercih Edilen Paket</span>
+                          </label>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-600 mb-1">Paket Özellikleri</label>
+                          <div className="flex gap-2 mb-2">
+                            <input 
+                              type="text" 
+                              placeholder="Örn: Zemin silme" 
+                              className="flex-1 px-2 py-1 bg-white border border-gray-300 rounded text-xs focus:border-emerald-500 outline-none"
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  addPackageFeature(pkg.id, e.currentTarget.value);
+                                  e.currentTarget.value = "";
+                                }
+                              }}
+                            />
+                            <button type="button" onClick={(e) => {
+                                const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                addPackageFeature(pkg.id, input.value);
+                                input.value = "";
+                              }} 
+                              className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs rounded border border-emerald-200">
+                              Ekle
+                            </button>
+                          </div>
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {pkg.features.map((feature, fIndex) => (
+                              <span key={fIndex} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white border border-gray-200 text-xs text-slate-600 rounded">
+                                {feature}
+                                <button type="button" onClick={() => removePackageFeature(pkg.id, fIndex)} className="text-red-400 hover:text-red-600 ml-1">×</button>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

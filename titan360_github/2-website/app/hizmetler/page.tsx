@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import ServicePackages from "../components/ServicePackages";
 
 interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string; extras?: { id?: string; name: string; price: number; campaign_price?: number }[] }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
@@ -91,7 +90,6 @@ function useReveal() {
 
 export default function HizmetlerPage() {
   const [services, setServices] = useState<ServiceItem[]>([]);
-  const [cleaningPackages, setCleaningPackages] = useState<any[]>([]);
   const [c, setC] = useState<any>({});
   const [activeCard, setActiveCard] = useState<number | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -109,14 +107,12 @@ export default function HizmetlerPage() {
 
     Promise.all([
       fetch("/api/services").then(r => r.ok ? r.json() : []),
-      fetch("/api/website-content").then(r => r.ok ? r.json() : {}),
-      fetch("/api/cleaning-packages").then(r => r.ok ? r.json() : []),
+      fetch("/api/website-content").then(r => r.ok ? r.json() : {})
     ])
-      .then(([servicesData, contentData, packagesData]) => {
+      .then(([servicesData, contentData]) => {
         if (!isMounted) return;
         setServices(servicesData || []);
         setC(contentData || {});
-        setCleaningPackages(packagesData || []);
 
         try {
           localStorage.setItem("titan360_services", JSON.stringify(servicesData));
@@ -183,14 +179,6 @@ export default function HizmetlerPage() {
           <p className="text-slate-300 max-w-2xl mx-auto text-lg">İhtiyacınıza uygun profesyonel temizlik çözümleri. Modern ekipmanlar, uzman kadro.</p>
         </div>
       </section>
-
-      {/* Temizlik Paketleri Karşılaştırma Tablosu */}
-      {cleaningPackages.length > 0 && (
-        <ServicePackages
-          packages={cleaningPackages}
-          phoneClean={(c.contact?.whatsapp || phone).replace(/[^0-9]/g, "")}
-        />
-      )}
 
       {/* Services Grid */}
       <section className="py-20 md:py-28" data-testid="hizmetler-grid">
