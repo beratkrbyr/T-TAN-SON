@@ -186,20 +186,25 @@ export default function ServicesPage() {
     setReordering(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const orderList = newServices.map(s => s._id || s.id).filter(id => id); // filter out undefined
-      const res = await fetch(`${API_URL}/api/admin/services-reorder`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ order: orderList }),
-      });
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("Sıra kaydedilemedi:", errText);
-        alert("Sıralama güncellenemedi! Hata: " + res.status);
-      }
+      
+      // Since /services-reorder might not be deployed yet, we update each service individually
+      await Promise.all(
+        newServices.map((s, idx) => {
+          const payload = { ...s, order: idx };
+          // Apply the packages hack to preserve packages in seo_description
+          payload.seo_description = (payload.seo_description || "").split("|||PACKAGES:")[0] + "|||PACKAGES:" + JSON.stringify(payload.packages || []);
+          
+          return fetch(`${API_URL}/api/admin/services/${s._id || s.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+        })
+      );
+
     } catch (err) {
       console.error("Sıra kaydedilemedi:", err);
       alert("Sıralama güncellenemedi! Ağ hatası.");
