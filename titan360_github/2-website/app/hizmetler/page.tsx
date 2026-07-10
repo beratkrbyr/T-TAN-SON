@@ -106,8 +106,8 @@ export default function HizmetlerPage() {
     let isMounted = true;
 
     Promise.all([
-      fetch("https://titan-api-gcuw.onrender.com/api/services").then(r => r.ok ? r.json() : []),
-      fetch("https://titan-api-gcuw.onrender.com/api/website-content").then(r => r.ok ? r.json() : {})
+      fetch(`https://titan-api-gcuw.onrender.com/api/services?t=${Date.now()}`, { cache: "no-store" }).then(r => r.ok ? r.json() : []),
+      fetch(`https://titan-api-gcuw.onrender.com/api/website-content?t=${Date.now()}`, { cache: "no-store" }).then(r => r.ok ? r.json() : {})
     ])
       .then(([servicesData, contentData]) => {
         if (!isMounted) return;

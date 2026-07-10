@@ -70,8 +70,9 @@ export default function ServicesPage() {
   const fetchServices = async () => {
     try {
       const token = localStorage.getItem("admin_token");
-      const res = await fetch(`${API_URL}/api/admin/services`, {
+      const res = await fetch(`${API_URL}/api/admin/services?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
       });
       if (res.ok) {
         const data = await res.json();
@@ -185,8 +186,8 @@ export default function ServicesPage() {
     setReordering(true);
     try {
       const token = localStorage.getItem("admin_token");
-      const orderList = newServices.map(s => s._id || s.id);
-      await fetch(`${API_URL}/api/admin/services-reorder`, {
+      const orderList = newServices.map(s => s._id || s.id).filter(id => id); // filter out undefined
+      const res = await fetch(`${API_URL}/api/admin/services-reorder`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -194,8 +195,14 @@ export default function ServicesPage() {
         },
         body: JSON.stringify({ order: orderList }),
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("Sıra kaydedilemedi:", errText);
+        alert("Sıralama güncellenemedi! Hata: " + res.status);
+      }
     } catch (err) {
       console.error("Sıra kaydedilemedi:", err);
+      alert("Sıralama güncellenemedi! Ağ hatası.");
     } finally {
       setReordering(false);
     }
