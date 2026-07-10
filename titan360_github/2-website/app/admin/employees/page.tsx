@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 interface Employee {
   _id?: string;

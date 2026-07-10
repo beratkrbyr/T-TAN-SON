@@ -2,7 +2,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 interface DailyEntry {
   _id: string;

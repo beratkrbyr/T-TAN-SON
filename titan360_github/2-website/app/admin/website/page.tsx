@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-const API_URL = "/api";
+const API_URL = "https://titan-api-gcuw.onrender.com/api";
 
 const uploadImage = async (file: File): Promise<string> => {
   const token = localStorage.getItem("admin_token");

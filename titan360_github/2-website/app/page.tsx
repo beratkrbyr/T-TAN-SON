@@ -291,8 +291,8 @@ export default function HomePage() {
     let isMounted = true;
 
     Promise.all([
-      fetch("/api/website-content").then(r => r.ok ? r.json() : {}),
-      fetch("/api/services").then(r => r.ok ? r.json() : [])
+      fetch("https://titan-api-gcuw.onrender.com/api/website-content").then(r => r.ok ? r.json() : {}),
+      fetch("https://titan-api-gcuw.onrender.com/api/services").then(r => r.ok ? r.json() : [])
     ])
       .then(([contentData, servicesData]) => {
         if (!isMounted) return;

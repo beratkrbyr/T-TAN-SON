@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 const DEFAULT_SLOTS = [
   "08:00","08:30","09:00","09:30","10:00","10:30",

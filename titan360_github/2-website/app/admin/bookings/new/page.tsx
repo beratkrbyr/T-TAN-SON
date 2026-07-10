@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 interface Customer {
   _id: string;

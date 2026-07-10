@@ -10,7 +10,7 @@ export default function Footer({ hideCta = false }: { hideCta?: boolean }) {
       if (cachedContent) setC(JSON.parse(cachedContent));
     } catch (e) {}
 
-    fetch("/api/website-content")
+    fetch("https://titan-api-gcuw.onrender.com/api/website-content")
       .then(r => r.ok ? r.json() : {})
       .then(setC)
       .catch(() => {});

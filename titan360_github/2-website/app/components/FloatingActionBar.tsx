@@ -19,7 +19,7 @@ export default function FloatingActionBar() {
 
   useEffect(() => {
     // Fetch website content settings
-    fetch("/api/website-content")
+    fetch("https://titan-api-gcuw.onrender.com/api/website-content")
       .then((r) => (r.ok ? r.json() : {}))
       .then((data) => setC(data))
       .catch(() => {});

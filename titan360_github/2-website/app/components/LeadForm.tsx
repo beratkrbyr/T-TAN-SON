@@ -16,7 +16,7 @@ export default function LeadForm({ onClose }: { onClose?: () => void }) {
 
     // Formu hem backend API'ye gönderelim hem de kullanıcıya onay verelim.
     try {
-      const response = await fetch("/api/submissions/public", {
+      const response = await fetch("https://titan-api-gcuw.onrender.com/api/submissions/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

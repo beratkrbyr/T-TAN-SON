@@ -37,7 +37,7 @@ export default function InstagramFeed() {
       if (cached) applyData(JSON.parse(cached));
     } catch (e) {}
 
-    fetch("/api/website-content")
+    fetch("https://titan-api-gcuw.onrender.com/api/website-content")
       .then((r) => (r.ok ? r.json() : {}))
       .then(applyData)
       .catch(() => {});

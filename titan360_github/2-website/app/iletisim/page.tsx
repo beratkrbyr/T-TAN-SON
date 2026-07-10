@@ -30,8 +30,8 @@ export default function IletisimPage() {
       if (cachedServices) setServices(JSON.parse(cachedServices));
     } catch (e) {}
 
-    fetch("/api/website-content").then(r => r.ok ? r.json() : {}).then(setC).catch(() => {});
-    fetch("/api/services").then(r => r.ok ? r.json() : []).then(setServices).catch(() => {});
+    fetch("https://titan-api-gcuw.onrender.com/api/website-content").then(r => r.ok ? r.json() : {}).then(setC).catch(() => {});
+    fetch("https://titan-api-gcuw.onrender.com/api/services").then(r => r.ok ? r.json() : []).then(setServices).catch(() => {});
   }, []);
 
   const contact = c.contact || {};
@@ -44,7 +44,7 @@ export default function IletisimPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch("/api/submissions/public", {
+      await fetch("https://titan-api-gcuw.onrender.com/api/submissions/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

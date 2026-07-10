@@ -19,7 +19,7 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/blog")
+    fetch("https://titan-api-gcuw.onrender.com/api/blog")
       .then(res => res.ok ? res.json() : [])
       .then(setPosts)
       .catch(() => {})

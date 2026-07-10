@@ -40,7 +40,7 @@ export default function ReferanslarPage() {
   const [c, setC] = useState<SiteContent>({});
   
   useEffect(() => {
-    fetch("/api/website-content")
+    fetch("https://titan-api-gcuw.onrender.com/api/website-content")
       .then(r => r.ok ? r.json() : {})
       .then(setC)
       .catch(() => {});

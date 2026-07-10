@@ -2,7 +2,7 @@
 import { useEffect, useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 interface LedgerEntry {
   id: string;

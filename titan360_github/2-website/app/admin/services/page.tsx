@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 interface ServiceOption {
   id: string;
@@ -213,7 +213,7 @@ export default function ServicesPage() {
       const formDataUpload = new FormData();
       formDataUpload.append("file", file);
 
-      const res = await fetch(`/api/admin/upload`, {
+      const res = await fetch(`https://titan-api-gcuw.onrender.com/api/admin/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formDataUpload,

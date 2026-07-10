@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 
-const API_URL = "/api";
+const API_URL = "https://titan-api-gcuw.onrender.com/api";
 
 interface Submission {
   id: string;

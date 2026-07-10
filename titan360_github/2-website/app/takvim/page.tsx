@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
-const API_URL = "";
+const API_URL = "https://titan-api-gcuw.onrender.com";
 
 export default function TakvimPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
