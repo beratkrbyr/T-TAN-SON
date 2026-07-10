@@ -108,6 +108,9 @@ export default async function RootLayout({
             name={content?.assistant_name}
             avatar={content?.assistant_avatar}
             welcomeText={content?.assistant_welcome_text}
+            optionsCondition={content?.assistant_options_condition}
+            optionsSize={content?.assistant_options_size}
+            optionsServices={content?.assistant_options_services}
           />
         )}
         <FloatingActionBar />

@@ -7,16 +7,22 @@ export default function CleaningAssistant({
   packages = [],
   name = "Asistan Zeynep",
   avatar = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80",
-  welcomeText = "Size özel paketi bulalım mı? 👋"
+  welcomeText = "Size özel paketi bulalım mı? 👋",
+  optionsCondition = "",
+  optionsSize = "",
+  optionsServices = ""
 }: { 
   phone?: string,
   packages?: any[],
   name?: string,
   avatar?: string,
-  welcomeText?: string
+  welcomeText?: string,
+  optionsCondition?: string,
+  optionsSize?: string,
+  optionsServices?: string
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState(0); // 0: Start, 1: Step 1, 2: Step 2, 3: Step 3, 4: Step 4 (Location), 5: Result
+  const [step, setStep] = useState(0); 
   const [showTooltip, setShowTooltip] = useState(false);
   
   // Selections
@@ -29,7 +35,34 @@ export default function CleaningAssistant({
   const phoneNumber = phone || "+905523637425";
   const phoneClean = phoneNumber.replace(/[^0-9]/g, "");
 
-  // Tooltip animation
+  // Default option fallback
+  const parseOptions = (raw: string, defaults: {id: string, label: string, icon?: string, desc?: string}[]) => {
+    if (!raw || !raw.trim()) return defaults;
+    return raw.split(',').map((item, idx) => {
+      const label = item.trim();
+      return { id: `opt_${idx}`, label, icon: "fa-check-circle", desc: "" }; // default icon for custom ones
+    }).filter(i => i.label);
+  };
+
+  const conditionOptions = parseOptions(optionsCondition, [
+    { id: "esya", label: "Eşyalı ve Yaşanan Ev", icon: "fa-home" },
+    { id: "bos", label: "Boş Ev - Yeni Taşınma", icon: "fa-boxes" },
+    { id: "insaat", label: "İnşaat veya Tadilat Sonrası", icon: "fa-hard-hat" }
+  ]);
+
+  const sizeOptions = parseOptions(optionsSize, [
+    { id: "kucuk", label: "0-80 m²", icon: "fa-compress-arrows-alt" },
+    { id: "orta", label: "80-130 m²", icon: "fa-expand-arrows-alt" },
+    { id: "buyuk", label: "130 m² ve Üzeri", icon: "fa-expand" }
+  ]);
+
+  const servicesOptions = parseOptions(optionsServices, [
+    { id: "standart", label: "Sadece standart temizlik", desc: "Zeminler, toz alma, genel düzen", icon: "fa-broom" },
+    { id: "detayli", label: "Standart + Fırın, Camlar", desc: "Daha detaylı ve derinlemesine", icon: "fa-search" },
+    { id: "vip", label: "Her şey dahil VIP", desc: "Evinize değer katan en lüks temizlik", icon: "fa-crown" },
+    { id: "koltuk", label: "+ Koltuk-Yatak Yıkama", desc: "Koltuk ve yataklarınız da yıkansın", icon: "fa-couch" }
+  ]);
+
   useEffect(() => {
     const timer = setInterval(() => {
       if (!isOpen) {
@@ -48,12 +81,12 @@ export default function CleaningAssistant({
 
   const getRecommendedPackage = () => {
     if (!packages || packages.length === 0) {
-      if (details.includes("VIP") || details.includes("Koltuk")) return "Ultra VIP Paket";
+      if (details.includes("VIP") || details.includes("Koltuk") || details.includes("Detaylı")) return "Ultra VIP Paket";
       if (details.includes("Fırın") || condition.includes("İnşaat")) return "TİTAN Detaylı Paket";
       return "Standart Paket";
     }
 
-    const isVip = details.includes("VIP") || details.includes("Koltuk");
+    const isVip = details.includes("VIP") || details.includes("Koltuk") || details.includes("Detaylı");
     const isDetailed = details.includes("Fırın") || condition.includes("İnşaat");
 
     if (isVip && packages.length >= 3) {
@@ -67,7 +100,7 @@ export default function CleaningAssistant({
   const handleWhatsApp = () => {
     const recommended = getRecommendedPackage();
     const locText = location || "Belirtilmedi";
-    const msg = `Merhaba Titan 360 ekibi, web sitenizdeki asistan üzerinden paketimi belirledim. 👋\n\n📍 Evin Durumu: ${condition}\n📏 Büyüklük: ${size}\n🎯 Seçtiğim Detaylar: ${details}\n🌍 Konum: ${locText}\n\n💡 Önerilen Paket: ${recommended}\n\nBu paket için fiyatınızı ve müsaitlik durumunuzu öğrenebilir miyim?`;
+    const msg = `Merhaba Titan 360 ekibi, web sitenizdeki asistan üzerinden paketimi belirledim. 👋\n\n📍 Evin Durumu: ${condition}\n📏 Büyüklük: ${size}\n🎯 Seçtiğim Hizmet: ${details}\n🌍 Konum: ${locText}\n\n💡 Önerilen Paket: ${recommended}\n\nBu paket için fiyatınızı ve müsaitlik durumunuzu öğrenebilir miyim?`;
     window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
     setIsOpen(false);
     setStep(0);
@@ -157,11 +190,7 @@ export default function CleaningAssistant({
                     <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                       <h4 className="text-xl font-bold text-slate-800 mb-4">Temizlenecek alanın durumu nedir?</h4>
                       <div className="space-y-3">
-                        {[
-                          { id: "esya", label: "Eşyalı ve Yaşanan Ev", icon: "fa-home" },
-                          { id: "bos", label: "Boş Ev - Yeni Taşınma", icon: "fa-boxes" },
-                          { id: "insaat", label: "İnşaat veya Tadilat Sonrası", icon: "fa-hard-hat" }
-                        ].map((item) => (
+                        {conditionOptions.map((item) => (
                           <button
                             key={item.id}
                             onClick={() => { setCondition(item.label); setStep(2); }}
@@ -181,11 +210,7 @@ export default function CleaningAssistant({
                     <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                       <h4 className="text-xl font-bold text-slate-800 mb-4">Alanın büyüklüğü yaklaşık ne kadar?</h4>
                       <div className="space-y-3">
-                        {[
-                          { id: "kucuk", label: "0-80 m²", icon: "fa-compress-arrows-alt" },
-                          { id: "orta", label: "80-130 m²", icon: "fa-expand-arrows-alt" },
-                          { id: "buyuk", label: "130 m² ve Üzeri", icon: "fa-expand" }
-                        ].map((item) => (
+                        {sizeOptions.map((item) => (
                           <button
                             key={item.id}
                             onClick={() => { setSize(item.label); setStep(3); }}
@@ -206,14 +231,9 @@ export default function CleaningAssistant({
 
                   {step === 3 && (
                     <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                      <h4 className="text-xl font-bold text-slate-800 mb-4">Hangi detaylar sizin için önemli?</h4>
+                      <h4 className="text-xl font-bold text-slate-800 mb-4">Hangi hizmeti almak istiyorsunuz?</h4>
                       <div className="space-y-3">
-                        {[
-                          { id: "standart", label: "Sadece standart temizlik", desc: "Zeminler, toz alma, genel düzen", icon: "fa-broom" },
-                          { id: "detayli", label: "Standart + Fırın, Buzdolabı içi, Camlar, Balkon", desc: "Daha detaylı ve derinlemesine", icon: "fa-search" },
-                          { id: "vip", label: "Her şey dahil VIP", desc: "Evinize değer katan en lüks temizlik", icon: "fa-crown" },
-                          { id: "koltuk", label: "+ Koltuk-Yatak Yıkama eklentisi", desc: "Koltuk ve yataklarınız da yıkansın", icon: "fa-couch" }
-                        ].map((item) => (
+                        {servicesOptions.map((item) => (
                           <button
                             key={item.id}
                             onClick={() => { setDetails(item.label); setStep(4); }}
@@ -224,7 +244,7 @@ export default function CleaningAssistant({
                             </div>
                             <div className="text-left">
                               <span className="font-semibold text-slate-700 block mb-0.5">{item.label}</span>
-                              <span className="text-xs text-slate-500">{item.desc}</span>
+                              {item.desc && <span className="text-xs text-slate-500">{item.desc}</span>}
                             </div>
                           </button>
                         ))}

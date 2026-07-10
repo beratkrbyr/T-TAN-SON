@@ -114,6 +114,9 @@ interface WebsiteContent {
   assistant_name?: string;
   assistant_avatar?: string;
   assistant_welcome_text?: string;
+  assistant_options_condition?: string;
+  assistant_options_size?: string;
+  assistant_options_services?: string;
 }
 
 const defaults: WebsiteContent = {
@@ -237,7 +240,10 @@ const defaults: WebsiteContent = {
   assistant_active: true,
   assistant_name: "Asistan Zeynep",
   assistant_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80",
-  assistant_welcome_text: "Size özel paketi bulalım mı? 👋"
+  assistant_welcome_text: "Size özel paketi bulalım mı? 👋",
+  assistant_options_condition: "Eşyalı ve Yaşanan Ev, Boş Ev - Yeni Taşınma, İnşaat veya Tadilat Sonrası",
+  assistant_options_size: "0-80 m², 80-130 m², 130 m² ve Üzeri",
+  assistant_options_services: "Standart Temizlik, Detaylı Temizlik, VIP Temizlik, Koltuk Yıkama"
 };
 
 const tabs = [
@@ -945,6 +951,43 @@ export default function WebsiteSettingsPage() {
                         <img src={content.assistant_avatar} alt="Asistan" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md" />
                       </div>
                     )}
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2">Dinamik Soru Seçenekleri (Virgülle Ayırın)</h3>
+                  
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Evin Durumu Seçenekleri (1. Soru)</label>
+                    <textarea
+                      value={content.assistant_options_condition || ""}
+                      onChange={e => setContent(p => ({ ...p, assistant_options_condition: e.target.value }))}
+                      placeholder="Eşyalı Ev, Boş Ev, İnşaat Sonrası"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm h-20 resize-none"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Seçenekleri virgül (,) ile ayırarak yazın.</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Büyüklük (m²) Seçenekleri (2. Soru)</label>
+                    <textarea
+                      value={content.assistant_options_size || ""}
+                      onChange={e => setContent(p => ({ ...p, assistant_options_size: e.target.value }))}
+                      placeholder="0-80 m², 80-130 m², 130+ m²"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm h-20 resize-none"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Seçenekleri virgül (,) ile ayırarak yazın.</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Hizmet Seçenekleri (3. Soru)</label>
+                    <textarea
+                      value={content.assistant_options_services || ""}
+                      onChange={e => setContent(p => ({ ...p, assistant_options_services: e.target.value }))}
+                      placeholder="Standart Temizlik, Detaylı Temizlik, Koltuk Yıkama"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm h-20 resize-none"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Asistan bu hizmetlerden birini seçen müşteriye en uygun paketi önerecektir. Seçenekleri virgül (,) ile ayırarak yazın.</p>
                   </div>
                 </div>
               </div>
