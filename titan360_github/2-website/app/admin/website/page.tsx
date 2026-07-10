@@ -110,6 +110,10 @@ interface WebsiteContent {
   seo_h3_2?: string;
   instagram_embed_code?: string;
   pricing_table_packages?: any[];
+  assistant_active?: boolean;
+  assistant_name?: string;
+  assistant_avatar?: string;
+  assistant_welcome_text?: string;
 }
 
 const defaults: WebsiteContent = {
@@ -229,12 +233,17 @@ const defaults: WebsiteContent = {
         { name: "Koltuk veya Yatak Yıkama (1 Adet)", included: true }
       ]
     }
-  ]
+  ],
+  assistant_active: true,
+  assistant_name: "Asistan Zeynep",
+  assistant_avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80",
+  assistant_welcome_text: "Size özel paketi bulalım mı? 👋"
 };
 
 const tabs = [
   { id: "general", label: "Genel Ayarlar", icon: "fas fa-cog" },
   { id: "pricing_table", label: "Ana Sayfa Fiyat Tablosu", icon: "fas fa-table" },
+  { id: "assistant", label: "Asistan Ayarları", icon: "fas fa-robot" },
   { id: "banner", label: "Kampanya Bannerı", icon: "fas fa-bullhorn" },
   { id: "media", label: "Medya Sayfası", icon: "fas fa-photo-video" },
   { id: "hero_slides", label: "Kahraman Slider", icon: "fas fa-images" },
@@ -876,6 +885,67 @@ export default function WebsiteSettingsPage() {
                       <span className="text-sm font-semibold">Yeni Sütun Ekle</span>
                     </button>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* ASSISTANT SETTINGS (ASISTAN AYARLARI) */}
+            {activeTab === "assistant" && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Temizlik Asistanı Ayarları</h2>
+                <p className="text-sm text-gray-500 mb-4">Sağ alt köşede yer alan sabit asistanın genel görünümünü ve özelliklerini yönetin.</p>
+                
+                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                  <input
+                    type="checkbox"
+                    id="assistant_active"
+                    checked={content.assistant_active !== false}
+                    onChange={e => setContent(p => ({ ...p, assistant_active: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="assistant_active" className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                    Asistanı Sitede Aktif Et
+                  </label>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Asistan Adı</label>
+                    <input
+                      type="text"
+                      value={content.assistant_name || ""}
+                      onChange={e => setContent(p => ({ ...p, assistant_name: e.target.value }))}
+                      placeholder="Örn: Asistan Zeynep"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Karşılama Mesajı (Baloncuk)</label>
+                    <input
+                      type="text"
+                      value={content.assistant_welcome_text || ""}
+                      onChange={e => setContent(p => ({ ...p, assistant_welcome_text: e.target.value }))}
+                      placeholder="Örn: Size özel paketi bulalım mı? 👋"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Asistan Avatar Görseli (Link)</label>
+                    <input
+                      type="text"
+                      value={content.assistant_avatar || ""}
+                      onChange={e => setContent(p => ({ ...p, assistant_avatar: e.target.value }))}
+                      placeholder="https://..."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                    />
+                    {content.assistant_avatar && (
+                      <div className="mt-3">
+                        <img src={content.assistant_avatar} alt="Asistan" className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

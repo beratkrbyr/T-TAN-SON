@@ -2,15 +2,29 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function CleaningAssistant({ phone }: { phone?: string }) {
+export default function CleaningAssistant({ 
+  phone,
+  packages = [],
+  name = "Asistan Zeynep",
+  avatar = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80",
+  welcomeText = "Size özel paketi bulalım mı? 👋"
+}: { 
+  phone?: string,
+  packages?: any[],
+  name?: string,
+  avatar?: string,
+  welcomeText?: string
+}) {
   const [isOpen, setIsOpen] = useState(false);
-  const [step, setStep] = useState(0); // 0: Start, 1: Step 1, 2: Step 2, 3: Step 3, 4: Result
+  const [step, setStep] = useState(0); // 0: Start, 1: Step 1, 2: Step 2, 3: Step 3, 4: Step 4 (Location), 5: Result
   const [showTooltip, setShowTooltip] = useState(false);
   
   // Selections
   const [condition, setCondition] = useState("");
   const [size, setSize] = useState("");
   const [details, setDetails] = useState("");
+  const [location, setLocation] = useState("");
+  const [locationInput, setLocationInput] = useState("");
 
   const phoneNumber = phone || "+905523637425";
   const phoneClean = phoneNumber.replace(/[^0-9]/g, "");
@@ -20,11 +34,10 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
     const timer = setInterval(() => {
       if (!isOpen) {
         setShowTooltip(true);
-        setTimeout(() => setShowTooltip(false), 5000); // Show for 5 seconds
+        setTimeout(() => setShowTooltip(false), 5000);
       }
-    }, 15000); // Every 15 seconds
+    }, 15000);
     
-    // Initial show after 3 seconds
     setTimeout(() => {
       if (!isOpen) setShowTooltip(true);
       setTimeout(() => setShowTooltip(false), 5000);
@@ -34,22 +47,36 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
   }, [isOpen]);
 
   const getRecommendedPackage = () => {
-    if (details.includes("VIP") || details.includes("Koltuk")) return "Ultra VIP Paket 💎";
-    if (details.includes("Fırın") || condition.includes("İnşaat")) return "TİTAN Detaylı Paket 👑";
-    return "Standart Paket ✅";
+    if (!packages || packages.length === 0) {
+      if (details.includes("VIP") || details.includes("Koltuk")) return "Ultra VIP Paket";
+      if (details.includes("Fırın") || condition.includes("İnşaat")) return "TİTAN Detaylı Paket";
+      return "Standart Paket";
+    }
+
+    const isVip = details.includes("VIP") || details.includes("Koltuk");
+    const isDetailed = details.includes("Fırın") || condition.includes("İnşaat");
+
+    if (isVip && packages.length >= 3) {
+      return packages[2].name;
+    } else if (isDetailed && packages.length >= 2) {
+      return packages[1].name;
+    }
+    return packages[0].name;
   };
 
   const handleWhatsApp = () => {
     const recommended = getRecommendedPackage();
-    const msg = `Merhaba Titan 360 ekibi, web sitenizdeki asistan üzerinden paketimi belirledim. 👋\n\n📍 Evin Durumu: ${condition}\n📏 Büyüklük: ${size}\n🎯 Seçtiğim Detaylar: ${details}\n💡 Önerilen Paket: ${recommended}\n\nAntalya / [İlçe adınızı yazabilirsiniz] konumundayım. Bu paket için fiyatınızı ve müsaitlik durumunuzu öğrenebilir miyim?`;
+    const locText = location || "Belirtilmedi";
+    const msg = `Merhaba Titan 360 ekibi, web sitenizdeki asistan üzerinden paketimi belirledim. 👋\n\n📍 Evin Durumu: ${condition}\n📏 Büyüklük: ${size}\n🎯 Seçtiğim Detaylar: ${details}\n🌍 Konum: ${locText}\n\n💡 Önerilen Paket: ${recommended}\n\nBu paket için fiyatınızı ve müsaitlik durumunuzu öğrenebilir miyim?`;
     window.open(`https://wa.me/${phoneClean}?text=${encodeURIComponent(msg)}`, '_blank');
     setIsOpen(false);
     setStep(0);
+    setLocation("");
+    setLocationInput("");
   };
 
   return (
     <>
-      {/* Floating Button */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
         <AnimatePresence>
           {showTooltip && !isOpen && (
@@ -60,7 +87,7 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
               className="mb-3 mr-2 bg-white text-slate-800 text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-xl border border-slate-100 relative cursor-pointer"
               onClick={() => { setIsOpen(true); if (step === 0) setStep(1); }}
             >
-              Size özel paketi bulalım mı? 👋
+              {welcomeText}
               <div className="absolute -bottom-2 right-4 w-4 h-4 bg-white border-b border-r border-slate-100 transform rotate-45"></div>
             </motion.div>
           )}
@@ -74,7 +101,7 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
           className="relative w-16 h-16 rounded-full shadow-2xl overflow-hidden border-2 border-white hover:scale-105 transition-transform duration-300 bg-white"
         >
           <img 
-            src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80" 
+            src={avatar} 
             alt="Müşteri Temsilcisi" 
             className="w-full h-full object-cover"
           />
@@ -82,7 +109,6 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
         </button>
       </div>
 
-      {/* Modal Overlay */}
       <AnimatePresence>
         {isOpen && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-0">
@@ -100,14 +126,13 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
-              {/* Header */}
               <div className="bg-gradient-to-r from-[var(--primary-color)] to-[var(--secondary-color)] p-5 text-white flex items-center gap-4">
                 <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/30 shrink-0">
-                  <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&q=80" alt="Asistan" className="w-full h-full object-cover" />
+                  <img src={avatar} alt="Asistan" className="w-full h-full object-cover" />
                   <div className="absolute bottom-0.5 right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-white"></div>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg leading-tight">Asistan Zeynep</h3>
+                  <h3 className="font-bold text-lg leading-tight">{name}</h3>
                   <p className="text-white/80 text-xs">Size en uygun temizlik paketini bulacağım</p>
                 </div>
                 <button onClick={() => setIsOpen(false)} className="ml-auto w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 rounded-full transition-colors">
@@ -115,19 +140,17 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
                 </button>
               </div>
 
-              {/* Progress Bar */}
-              {step > 0 && step < 4 && (
+              {step > 0 && step < 5 && (
                 <div className="w-full bg-slate-100 h-1.5">
                   <motion.div 
                     className="h-full bg-emerald-500" 
                     initial={{ width: 0 }}
-                    animate={{ width: `${(step / 3) * 100}%` }}
+                    animate={{ width: `${(step / 4) * 100}%` }}
                     transition={{ duration: 0.3 }}
                   />
                 </div>
               )}
 
-              {/* Content Area */}
               <div className="p-6 overflow-y-auto flex-1">
                 <AnimatePresence mode="wait">
                   {step === 1 && (
@@ -213,7 +236,52 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
                   )}
 
                   {step === 4 && (
-                    <motion.div key="step4" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
+                    <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                      <h4 className="text-xl font-bold text-slate-800 mb-4">Hangi ilçe / bölgede bulunuyorsunuz?</h4>
+                      <p className="text-sm text-slate-500 mb-4">Hizmetin sağlanacağı adresi daha iyi anlayabilmemiz için bulunduğunuz bölgeyi belirtin.</p>
+                      
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            <i className="fas fa-map-marker-alt"></i>
+                          </div>
+                          <input 
+                            type="text" 
+                            className="w-full pl-10 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-0 transition-colors"
+                            placeholder="Örn: Konyaaltı / Liman Mah."
+                            value={locationInput}
+                            onChange={(e) => setLocationInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && locationInput.trim()) {
+                                setLocation(locationInput.trim());
+                                setStep(5);
+                              }
+                            }}
+                          />
+                        </div>
+                        
+                        <button
+                          onClick={() => { 
+                            if(locationInput.trim()) {
+                              setLocation(locationInput.trim());
+                              setStep(5);
+                            }
+                          }}
+                          disabled={!locationInput.trim()}
+                          className="w-full py-3 bg-slate-800 hover:bg-slate-900 disabled:bg-slate-300 text-white font-bold rounded-xl shadow-lg transition-all"
+                        >
+                          Devam Et
+                        </button>
+                      </div>
+
+                      <button onClick={() => setStep(3)} className="mt-4 text-sm text-slate-400 hover:text-slate-600 flex items-center gap-1">
+                        <i className="fas fa-arrow-left"></i> Geri
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {step === 5 && (
+                    <motion.div key="step5" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-4">
                       <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-5 text-emerald-500 text-4xl shadow-inner border-4 border-white">
                         <i className="fas fa-check"></i>
                       </div>
@@ -232,7 +300,7 @@ export default function CleaningAssistant({ phone }: { phone?: string }) {
                       >
                         <i className="fab fa-whatsapp text-2xl"></i> Hemen WhatsApp'tan Fiyat Al
                       </button>
-                      <button onClick={() => setStep(1)} className="mt-5 text-sm text-slate-400 hover:text-slate-600 font-medium">
+                      <button onClick={() => {setStep(1); setLocation(""); setLocationInput("");}} className="mt-5 text-sm text-slate-400 hover:text-slate-600 font-medium">
                         Baştan Başla
                       </button>
                     </motion.div>

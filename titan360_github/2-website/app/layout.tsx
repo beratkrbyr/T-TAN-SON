@@ -101,7 +101,15 @@ export default async function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
-        <CleaningAssistant phone={content?.contact?.whatsapp || content?.contact?.phone} />
+        {content?.assistant_active !== false && (
+          <CleaningAssistant 
+            phone={content?.contact?.whatsapp || content?.contact?.phone}
+            packages={content?.pricing_table_packages}
+            name={content?.assistant_name}
+            avatar={content?.assistant_avatar}
+            welcomeText={content?.assistant_welcome_text}
+          />
+        )}
         <FloatingActionBar />
       </body>
     </html>

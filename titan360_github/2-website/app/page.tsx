@@ -80,6 +80,10 @@ interface SiteContent {
   home_campaign_subtitle?: string;
   logo_url?: string;
   pricing_table_packages?: any[];
+  assistant_active?: boolean;
+  assistant_name?: string;
+  assistant_avatar?: string;
+  assistant_welcome_text?: string;
 }
 
 interface ServiceItem {
