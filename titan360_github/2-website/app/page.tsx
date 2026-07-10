@@ -8,6 +8,7 @@ import LeadForm from "./components/LeadForm";
 import MobileStickyBar from "./components/MobileStickyBar";
 import InstagramFeed from "./components/InstagramFeed";
 import ReviewsCarousel from "./components/ReviewsCarousel";
+import PricingTable from "./components/PricingTable";
 
 interface HeroSlide {
   image: string;
@@ -78,6 +79,7 @@ interface SiteContent {
   home_campaign_title?: string;
   home_campaign_subtitle?: string;
   logo_url?: string;
+  pricing_table_packages?: any[];
 }
 
 interface ServiceItem {
@@ -514,6 +516,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Dönüşüm Odaklı 3'lü Hizmet Tablosu (Pricing Table) */}
+      <PricingTable packages={c.pricing_table_packages} phone={c.contact?.whatsapp || c.contact?.phone} />
 
       {/* Dynamic Campaign Banner Section */}
       {c.home_campaign_active !== false && campaignServices.length > 0 && (

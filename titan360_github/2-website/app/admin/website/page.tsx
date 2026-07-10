@@ -109,6 +109,7 @@ interface WebsiteContent {
   seo_h3_1?: string;
   seo_h3_2?: string;
   instagram_embed_code?: string;
+  pricing_table_packages?: any[];
 }
 
 const defaults: WebsiteContent = {
@@ -193,11 +194,47 @@ const defaults: WebsiteContent = {
   seo_h2_5: "",
   seo_h3_1: "",
   seo_h3_2: "",
-  instagram_embed_code: ""
+  instagram_embed_code: "",
+  pricing_table_packages: [
+    {
+      id: "pkg_1", name: "Standart Paket", price: "2500 TL'den",
+      features: [
+        { name: "Temel temizlik maddeleri", included: true },
+        { name: "Genel zemin süpürme ve silme", included: true },
+        { name: "Yüzeysel toz alma", included: true },
+        { name: "Fırın içi ve buzdolabı detay", included: false },
+        { name: "Camların dıştan silinmesi", included: false },
+        { name: "Balkon yıkama", included: false }
+      ]
+    },
+    {
+      id: "pkg_2", name: "TİTAN Detaylı", price: "4500 TL'den", badge: "👑 En Çok Tercih Edilen", isPopular: true,
+      features: [
+        { name: "Temel temizlik maddeleri", included: true },
+        { name: "Genel zemin süpürme ve silme", included: true },
+        { name: "Detaylı toz alma", included: true },
+        { name: "Fırın içi ve buzdolabı detay", included: true },
+        { name: "Camların iç/dış silinmesi", included: true },
+        { name: "Balkon yıkama", included: true }
+      ]
+    },
+    {
+      id: "pkg_3", name: "Ultra VIP Paket", price: "8000 TL'den", badge: "Premium Hizmet",
+      features: [
+        { name: "Premium temizlik maddeleri", included: true },
+        { name: "İnce detaylı dip köşe temizlik", included: true },
+        { name: "Buharlı dezenfeksiyon", included: true },
+        { name: "Fırın içi ve buzdolabı detay", included: true },
+        { name: "Camların iç/dış silinmesi", included: true },
+        { name: "Koltuk veya Yatak Yıkama (1 Adet)", included: true }
+      ]
+    }
+  ]
 };
 
 const tabs = [
   { id: "general", label: "Genel Ayarlar", icon: "fas fa-cog" },
+  { id: "pricing_table", label: "Ana Sayfa Fiyat Tablosu", icon: "fas fa-table" },
   { id: "banner", label: "Kampanya Bannerı", icon: "fas fa-bullhorn" },
   { id: "media", label: "Medya Sayfası", icon: "fas fa-photo-video" },
   { id: "hero_slides", label: "Kahraman Slider", icon: "fas fa-images" },
@@ -694,6 +731,151 @@ export default function WebsiteSettingsPage() {
                       />
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* PRICING TABLE (ANA SAYFA FIYAT TABLOSU) */}
+            {activeTab === "pricing_table" && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">Ana Sayfa Dönüşüm Odaklı Fiyat Tablosu</h2>
+                <p className="text-sm text-gray-500 mb-4">Ana sayfada 3 sütunlu olarak gösterilen fiyatlandırma ve özellik tablosunu buradan yönetebilirsiniz.</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {(content.pricing_table_packages || []).map((pkg: any, pIdx: number) => (
+                    <div key={pIdx} className={`p-4 rounded-xl border-2 transition-all ${pkg.isPopular ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-200 bg-gray-50'}`}>
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-bold text-gray-700">Sütun {pIdx + 1}</h3>
+                        <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={pkg.isPopular || false}
+                            onChange={(e) => {
+                              const arr = [...(content.pricing_table_packages || [])];
+                              // Reset others
+                              arr.forEach(a => a.isPopular = false);
+                              arr[pIdx].isPopular = e.target.checked;
+                              setContent(p => ({ ...p, pricing_table_packages: arr }));
+                            }}
+                            className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                          />
+                          Öne Çıkar
+                        </label>
+                      </div>
+
+                      <div className="space-y-3 mb-4">
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Paket Adı</label>
+                          <input 
+                            type="text" 
+                            value={pkg.name || ""}
+                            onChange={(e) => {
+                              const arr = [...(content.pricing_table_packages || [])];
+                              arr[pIdx].name = e.target.value;
+                              setContent(p => ({ ...p, pricing_table_packages: arr }));
+                            }}
+                            className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Fiyat Gösterimi</label>
+                          <input 
+                            type="text" 
+                            value={pkg.price || ""}
+                            onChange={(e) => {
+                              const arr = [...(content.pricing_table_packages || [])];
+                              arr[pIdx].price = e.target.value;
+                              setContent(p => ({ ...p, pricing_table_packages: arr }));
+                            }}
+                            className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Rozet (Opsiyonel)</label>
+                          <input 
+                            type="text" 
+                            value={pkg.badge || ""}
+                            onChange={(e) => {
+                              const arr = [...(content.pricing_table_packages || [])];
+                              arr[pIdx].badge = e.target.value;
+                              setContent(p => ({ ...p, pricing_table_packages: arr }));
+                            }}
+                            placeholder="Örn: En Çok Tercih Edilen"
+                            className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="border-t border-gray-200 pt-3">
+                        <label className="block text-[10px] uppercase font-bold text-gray-500 mb-2">Özellikler (Maks 8 Önerilir)</label>
+                        <div className="space-y-2 mb-3">
+                          {(pkg.features || []).map((feat: any, fIdx: number) => (
+                            <div key={fIdx} className="flex items-center gap-2">
+                              <button 
+                                onClick={() => {
+                                  const arr = [...(content.pricing_table_packages || [])];
+                                  arr[pIdx].features[fIdx].included = !arr[pIdx].features[fIdx].included;
+                                  setContent(p => ({ ...p, pricing_table_packages: arr }));
+                                }}
+                                className={`w-6 h-6 rounded flex items-center justify-center shrink-0 border ${feat.included ? 'bg-emerald-100 border-emerald-200 text-emerald-600' : 'bg-red-50 border-red-200 text-red-400'}`}
+                              >
+                                <i className={`fas ${feat.included ? 'fa-check' : 'fa-times'} text-xs`}></i>
+                              </button>
+                              <input 
+                                type="text"
+                                value={feat.name || ""}
+                                onChange={(e) => {
+                                  const arr = [...(content.pricing_table_packages || [])];
+                                  arr[pIdx].features[fIdx].name = e.target.value;
+                                  setContent(p => ({ ...p, pricing_table_packages: arr }));
+                                }}
+                                className={`flex-1 px-2 py-1 text-xs border-b border-dashed outline-none focus:border-blue-500 bg-transparent ${feat.included ? 'text-gray-700' : 'text-gray-400 line-through'}`}
+                              />
+                              <button 
+                                onClick={() => {
+                                  const arr = [...(content.pricing_table_packages || [])];
+                                  arr[pIdx].features = arr[pIdx].features.filter((_: any, i: number) => i !== fIdx);
+                                  setContent(p => ({ ...p, pricing_table_packages: arr }));
+                                }}
+                                className="text-gray-300 hover:text-red-500"
+                              >
+                                <i className="fas fa-trash text-xs"></i>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <button 
+                          onClick={() => {
+                            const arr = [...(content.pricing_table_packages || [])];
+                            if (!arr[pIdx].features) arr[pIdx].features = [];
+                            arr[pIdx].features.push({ name: "Yeni Özellik", included: true });
+                            setContent(p => ({ ...p, pricing_table_packages: arr }));
+                          }}
+                          className="w-full py-1.5 border border-dashed border-gray-300 rounded text-xs font-semibold text-gray-500 hover:text-blue-500 hover:border-blue-300 transition-colors"
+                        >
+                          <i className="fas fa-plus mr-1"></i>Özellik Ekle
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {(content.pricing_table_packages || []).length < 4 && (
+                    <button 
+                      onClick={() => {
+                        const arr = [...(content.pricing_table_packages || [])];
+                        arr.push({
+                          id: `pkg_${Date.now()}`,
+                          name: "Yeni Paket",
+                          price: "0 TL",
+                          features: [{ name: "Özellik 1", included: true }]
+                        });
+                        setContent(p => ({ ...p, pricing_table_packages: arr }));
+                      }}
+                      className="p-4 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:text-blue-500 hover:border-blue-300 transition-colors min-h-[300px]"
+                    >
+                      <i className="fas fa-plus-circle text-3xl mb-2"></i>
+                      <span className="text-sm font-semibold">Yeni Sütun Ekle</span>
+                    </button>
+                  )}
                 </div>
               </div>
             )}

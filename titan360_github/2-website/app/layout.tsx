@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import FloatingActionBar from "./components/FloatingActionBar";
 import ErrorBoundary from "./components/ErrorBoundary";
+import CleaningAssistant from "./components/CleaningAssistant";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -100,6 +101,7 @@ export default async function RootLayout({
         <ErrorBoundary>
           {children}
         </ErrorBoundary>
+        <CleaningAssistant phone={content?.contact?.whatsapp || content?.contact?.phone} />
         <FloatingActionBar />
       </body>
     </html>
