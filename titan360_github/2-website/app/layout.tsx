@@ -21,7 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
   let seoKeywords = "temizlik, ev temizliği, ofis temizliği, antalya temizlik şirketi, profesyonel temizlik, koltuk yıkama, cam temizliği";
 
   try {
-    const res = await fetch(`${backendUrl}/api/website-content`, { next: { revalidate: 60 } });
+    const res = await fetch(`${backendUrl}/api/website-content`, { 
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000)
+    });
     if (res.ok) {
       const data = await res.json();
       if (data.seo_title) seoTitle = data.seo_title;
@@ -48,7 +51,10 @@ export default async function RootLayout({
   let content: any = {};
   
   try {
-    const res = await fetch(`${backendUrl}/api/website-content`, { next: { revalidate: 60 } });
+    const res = await fetch(`${backendUrl}/api/website-content`, { 
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000)
+    });
     if (res.ok) {
       content = await res.json();
     }

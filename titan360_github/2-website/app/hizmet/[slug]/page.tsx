@@ -113,7 +113,10 @@ const defaultGallery = [
 async function fetchServiceData(slug: string): Promise<ServiceItem | null> {
   const backendUrl = process.env.API_URL || "https://titan-api-gcuw.onrender.com";
   try {
-    const res = await fetch(`${backendUrl}/api/services`, { next: { revalidate: 60 } });
+    const res = await fetch(`${backendUrl}/api/services`, { 
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000)
+    });
     if (res.ok) {
       const services: ServiceItem[] = await res.json();
       const decodedSlug = decodeURIComponent(slug);
@@ -164,7 +167,10 @@ async function fetchServiceData(slug: string): Promise<ServiceItem | null> {
 async function fetchSettings(): Promise<any> {
   const backendUrl = process.env.API_URL || "https://titan-api-gcuw.onrender.com";
   try {
-    const res = await fetch(`${backendUrl}/api/website-content`, { next: { revalidate: 60 } });
+    const res = await fetch(`${backendUrl}/api/website-content`, { 
+      next: { revalidate: 60 },
+      signal: AbortSignal.timeout(5000)
+    });
     if (res.ok) return await res.json();
   } catch (err) {}
   return {};
