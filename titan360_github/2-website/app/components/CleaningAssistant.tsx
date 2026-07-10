@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname } from 'next/navigation';
 
 export default function CleaningAssistant({ 
   phone,
@@ -21,6 +22,7 @@ export default function CleaningAssistant({
   optionsSize?: string,
   optionsServices?: string
 }) {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(0); 
   const [showTooltip, setShowTooltip] = useState(false);
@@ -108,20 +110,22 @@ export default function CleaningAssistant({
     setLocationInput("");
   };
 
+  if (pathname?.startsWith("/admin")) return null;
+
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+      <div className="fixed bottom-6 left-6 z-40 flex flex-col items-start">
         <AnimatePresence>
           {showTooltip && !isOpen && (
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.9 }}
-              className="mb-3 mr-2 bg-white text-slate-800 text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-xl border border-slate-100 relative cursor-pointer"
+              className="mb-3 ml-2 bg-white text-slate-800 text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-xl border border-slate-100 relative cursor-pointer"
               onClick={() => { setIsOpen(true); if (step === 0) setStep(1); }}
             >
               {welcomeText}
-              <div className="absolute -bottom-2 right-4 w-4 h-4 bg-white border-b border-r border-slate-100 transform rotate-45"></div>
+              <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white border-b border-r border-slate-100 transform rotate-45"></div>
             </motion.div>
           )}
         </AnimatePresence>
