@@ -761,21 +761,37 @@ export default function WebsiteSettingsPage() {
                     <div key={pIdx} className={`p-4 rounded-xl border-2 transition-all ${pkg.isPopular ? 'border-emerald-500 bg-emerald-50/30' : 'border-gray-200 bg-gray-50'}`}>
                       <div className="flex justify-between items-center mb-3">
                         <h3 className="font-bold text-gray-700">Sütun {pIdx + 1}</h3>
-                        <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
-                          <input 
-                            type="checkbox" 
-                            checked={pkg.isPopular || false}
-                            onChange={(e) => {
-                              const arr = [...(content.pricing_table_packages || [])];
-                              // Reset others
-                              arr.forEach(a => a.isPopular = false);
-                              arr[pIdx].isPopular = e.target.checked;
-                              setContent(p => ({ ...p, pricing_table_packages: arr }));
+                        <div className="flex items-center gap-3">
+                          <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 cursor-pointer">
+                            <input 
+                              type="checkbox" 
+                              checked={pkg.isPopular || false}
+                              onChange={(e) => {
+                                const arr = [...(content.pricing_table_packages || [])];
+                                // Reset others
+                                arr.forEach(a => a.isPopular = false);
+                                arr[pIdx].isPopular = e.target.checked;
+                                setContent(p => ({ ...p, pricing_table_packages: arr }));
+                              }}
+                              className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
+                            />
+                            Öne Çıkar
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm("Bu fiyat paketini silmek istediğinize emin misiniz?")) {
+                                const arr = [...(content.pricing_table_packages || [])];
+                                arr.splice(pIdx, 1);
+                                setContent(p => ({ ...p, pricing_table_packages: arr }));
+                              }
                             }}
-                            className="w-3.5 h-3.5 rounded border-gray-300 text-emerald-500 focus:ring-emerald-500"
-                          />
-                          Öne Çıkar
-                        </label>
+                            className="text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 p-1.5 rounded-md transition-colors"
+                            title="Sütunu Sil"
+                          >
+                            <i className="fas fa-trash-alt text-xs"></i>
+                          </button>
+                        </div>
                       </div>
 
                       <div className="space-y-3 mb-4">
