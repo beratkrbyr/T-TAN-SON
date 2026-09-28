@@ -16,6 +16,50 @@ function useReveal() {
   return { ref, v };
 }
 
+const pushEnhancedConversion = (eventName: string, data: any) => {
+  if (typeof window === 'undefined') return;
+  const dataLayer = (window as any).dataLayer = (window as any).dataLayer || [];
+  
+  const userData: any = {};
+  const address: any = {};
+  
+  if (data.name) {
+    const parts = data.name.trim().split(/\s+/);
+    if (parts.length > 0) {
+      if (parts.length === 1) {
+        address.first_name = parts[0];
+      } else {
+        address.first_name = parts.slice(0, -1).join(' ');
+        address.last_name = parts[parts.length - 1];
+      }
+    }
+  }
+  
+  if (Object.keys(address).length > 0) userData.address = address;
+
+  if (data.phone) {
+    let digits = data.phone.replace(/\D/g, '');
+    if (digits.startsWith('05') && digits.length === 11) {
+      userData.phone_number = '+90' + digits.substring(1);
+    } else if (digits.startsWith('5') && digits.length === 10) {
+      userData.phone_number = '+90' + digits;
+    } else if (digits.startsWith('90') && digits.length === 12) {
+      userData.phone_number = '+' + digits;
+    }
+  }
+
+  if (data.email) {
+    const cleanEmail = data.email.trim().toLowerCase();
+    if (cleanEmail) userData.email = cleanEmail;
+  }
+
+  const payload: any = { event: eventName };
+  if (Object.keys(userData).length > 0) payload.user_data = userData;
+  if (data.service) payload.service_type = data.service;
+  
+  dataLayer.push(payload);
+};
+
 export default function IletisimPage() {
   const [c, setC] = useState<any>({});
   const [form, setForm] = useState({ name: "", phone: "", email: "", service: "", message: "" });
@@ -44,7 +88,7 @@ export default function IletisimPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetch("https://titan-api-gcuw.onrender.com/api/submissions/public", {
+      const response = await fetch("https://titan-api-gcuw.onrender.com/api/submissions/public", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -56,8 +100,18 @@ export default function IletisimPage() {
           message: form.message,
         }),
       });
-      setSent(true);
-      setForm({ name: "", phone: "", email: "", service: "", message: "" });
+      if (response.ok) {
+        if (!sent) {
+          pushEnhancedConversion('contact_form_success', { 
+            name: form.name, 
+            phone: form.phone, 
+            email: form.email, 
+            service: form.service 
+          });
+        }
+        setSent(true);
+        setForm({ name: "", phone: "", email: "", service: "", message: "" });
+      }
     } catch {}
   };
 

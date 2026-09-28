@@ -1,6 +1,50 @@
 "use client";
 import { useState } from "react";
 
+const pushEnhancedConversion = (eventName: string, data: any) => {
+  if (typeof window === 'undefined') return;
+  const dataLayer = (window as any).dataLayer = (window as any).dataLayer || [];
+  
+  const userData: any = {};
+  const address: any = {};
+  
+  if (data.name) {
+    const parts = data.name.trim().split(/\s+/);
+    if (parts.length > 0) {
+      if (parts.length === 1) {
+        address.first_name = parts[0];
+      } else {
+        address.first_name = parts.slice(0, -1).join(' ');
+        address.last_name = parts[parts.length - 1];
+      }
+    }
+  }
+  
+  if (Object.keys(address).length > 0) userData.address = address;
+
+  if (data.phone) {
+    let digits = data.phone.replace(/\D/g, '');
+    if (digits.startsWith('05') && digits.length === 11) {
+      userData.phone_number = '+90' + digits.substring(1);
+    } else if (digits.startsWith('5') && digits.length === 10) {
+      userData.phone_number = '+90' + digits;
+    } else if (digits.startsWith('90') && digits.length === 12) {
+      userData.phone_number = '+' + digits;
+    }
+  }
+
+  if (data.email) {
+    const cleanEmail = data.email.trim().toLowerCase();
+    if (cleanEmail) userData.email = cleanEmail;
+  }
+
+  const payload: any = { event: eventName };
+  if (Object.keys(userData).length > 0) payload.user_data = userData;
+  if (data.service) payload.service_type = data.service;
+  
+  dataLayer.push(payload);
+};
+
 export default function LeadForm({ onClose }: { onClose?: () => void }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -28,6 +72,9 @@ export default function LeadForm({ onClose }: { onClose?: () => void }) {
       });
 
       if (response.ok) {
+        if (!isSubmitted) {
+          pushEnhancedConversion('lead_form_success', { name, phone, service });
+        }
         setIsSubmitted(true);
       } else {
         // Hata durumunda bile kullanıcı deneyimi kesilmesin diye başarı simüle edelim.
