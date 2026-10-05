@@ -244,3 +244,53 @@ a[class*='hover:-translate-y'] {
 @supports (backdrop-filter: blur(12px)) {
   .backdrop-blur-sm { backdrop-filter: blur(8px); }
 }
+
+/* ===== Hediye Kampanyası Banner (Tailwind'den bağımsız, düz CSS) ===== */
+.gift-section { padding: 2.5rem 0; background: #f8fafc; }
+.gift-card {
+  position: relative; overflow: hidden; color: #fff;
+  border-radius: 24px; box-shadow: 0 20px 45px -15px rgba(2, 132, 199, .45);
+  background: linear-gradient(135deg, #0369a1 0%, #0284c7 50%, #10b981 100%);
+  display: grid; grid-template-columns: 1.35fr 1fr; gap: 2rem;
+  padding: 2.25rem 2.5rem;
+}
+.gift-card::before { content: ""; position: absolute; top: -90px; right: -90px; width: 280px; height: 280px; border-radius: 50%; background: rgba(255,255,255,.10); }
+.gift-card::after { content: ""; position: absolute; bottom: -110px; left: -60px; width: 300px; height: 300px; border-radius: 50%; background: rgba(110,231,183,.18); }
+.gift-left, .gift-right { position: relative; z-index: 1; }
+.gift-badge { display: inline-flex; align-items: center; gap: .5rem; padding: .4rem .9rem; border-radius: 999px; background: #fbbf24; color: #0f172a; font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.gift-title { margin: 1rem 0 .75rem; font-size: clamp(1.5rem, 3.2vw, 2.4rem); font-weight: 800; line-height: 1.2; }
+.gift-title span { display: block; color: #fcd34d; }
+.gift-desc { margin: 0; font-size: .98rem; line-height: 1.65; color: #e0f2fe; max-width: 34rem; }
+.gift-value { display: flex; align-items: center; gap: .75rem; margin-top: 1.1rem; }
+.gift-value s { font-size: 1.25rem; opacity: .75; }
+.gift-value b { background: #fff; color: #047857; padding: .25rem .75rem; border-radius: 10px; font-size: .85rem; font-weight: 800; }
+.gift-right {
+  align-self: center; display: flex; flex-direction: column; gap: 1rem;
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+  backdrop-filter: blur(6px); border-radius: 20px; padding: 1.4rem;
+}
+.gift-cd-label { margin: 0 0 .6rem; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; opacity: .9; }
+.gift-cd { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; }
+.gift-cd div { display: flex; flex-direction: column; align-items: center; padding: .55rem 0; border-radius: 12px; background: rgba(255,255,255,.18); }
+.gift-cd strong { font-size: 1.5rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.gift-cd span { margin-top: .3rem; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+.gift-input { width: 100%; box-sizing: border-box; padding: .85rem 1rem; border-radius: 12px; border: 0; font-size: .9rem; color: #0f172a; background: #fff; outline: none; }
+.gift-input:focus { box-shadow: 0 0 0 3px #fcd34d; }
+.gift-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: .6rem;
+  padding: 1rem; border: 0; border-radius: 14px; cursor: pointer;
+  background: #10b981; color: #fff; font-size: 1.05rem; font-weight: 800;
+  box-shadow: 0 10px 20px -8px rgba(5,150,105,.7); transition: transform .15s, background .15s;
+}
+.gift-btn:hover { background: #059669; transform: translateY(-2px); }
+.gift-terms { position: relative; z-index: 1; grid-column: 1 / -1; border-top: 1px solid rgba(255,255,255,.22); padding-top: .9rem; }
+.gift-terms summary { cursor: pointer; font-size: .8rem; font-weight: 600; color: #e0f2fe; list-style: none; }
+.gift-terms summary::-webkit-details-marker { display: none; }
+.gift-terms p { margin: .6rem 0 0; font-size: .75rem; line-height: 1.6; color: #bae6fd; }
+
+@media (max-width: 860px) {
+  .gift-section { padding: 1.5rem 0; }
+  .gift-card { grid-template-columns: 1fr; gap: 1.25rem; padding: 1.5rem 1.25rem; border-radius: 20px; }
+  .gift-right { padding: 1.1rem; }
+  .gift-cd strong { font-size: 1.25rem; }
+}
