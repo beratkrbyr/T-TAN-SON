@@ -197,11 +197,27 @@ export default function HizmetlerPage() {
       <GiftCampaignBanner placement="hizmetler" />
 
       {/* Services Grid */}
-      <section className="py-20 md:py-28" data-testid="hizmetler-grid">
+      <section className="py-10 md:py-14" data-testid="hizmetler-grid">
         <div className="page-container">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {servicesToRender.map((s, i) => {
               if (!s) return null;
+              const svcPackages: any[] = Array.isArray((s as any).packages) ? (s as any).packages : [];
+              const pkgBlock = svcPackages.length > 0 ? (
+                <div className="mb-3 pb-2 border-b border-white/10 space-y-1.5 text-left">
+                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">HİZMET PAKETLERİ</p>
+                  {svcPackages.map((pkg: any, idx: number) => (
+                    <div key={`pkg-${idx}`} className="flex justify-between items-center text-xs py-1 text-slate-200">
+                      <span className="flex items-center gap-1.5">
+                        <i className="fas fa-check-circle text-[9px] text-emerald-400"></i>
+                        {pkg.name}
+                        {pkg.badge_label && <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded border border-emerald-500/30 ml-1">{pkg.badge_label}</span>}
+                      </span>
+                      <span className="font-bold text-emerald-400 whitespace-nowrap ml-2">{Number(pkg.price).toLocaleString("tr-TR")} TL</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null;
               return (
                 <div 
                   key={i} 
@@ -216,7 +232,7 @@ export default function HizmetlerPage() {
                     window.history.pushState(null, "", `#${s.slug || s.id}`);
                   }
                 }}
-                className={`group relative bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between min-h-[440px] h-auto pb-4 cursor-pointer ${
+                className={`group relative bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between min-h-[400px] h-auto pb-4 cursor-pointer ${
                   activeCard === i ? "overflow-visible" : "overflow-hidden"
                 }`}
                 style={{ transitionDelay: `${i * 80}ms` }}>
@@ -224,7 +240,7 @@ export default function HizmetlerPage() {
                 {/* Static Card Content */}
                 <div className="h-full flex flex-col justify-between">
                   <div>
-                    <div className="relative h-56 overflow-hidden">
+                    <div className="relative h-40 overflow-hidden">
                       <img src={s.image || serviceImages[s.name] || "https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=600&amp;q=80"} alt={s.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                       {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
@@ -304,7 +320,8 @@ export default function HizmetlerPage() {
                     </div>
                     
                     {s.options && s.options.length > 0 ? (
-                      <div className="space-y-2.5 overflow-y-auto max-h-[170px] pr-1">
+                      <div className="space-y-2.5 overflow-y-auto max-h-[230px] pr-1">
+                        {pkgBlock}
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">HİZMET FİYAT DETAYLARI</p>
                         {s.options.map((opt, j) => {
                           if (!opt) return null;
@@ -352,23 +369,10 @@ export default function HizmetlerPage() {
                             })}
                           </div>
                         )}
-                        {(s as any).packages && (s as any).packages.length > 0 && (
-                          <div className="mt-3 pt-2 border-t border-white/10 space-y-1.5">
-                            <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">HİZMET PAKETLERİ</p>
-                            {(s as any).packages.map((pkg: any, idx: number) => (
-                              <div key={`pkg-${idx}`} className="flex justify-between items-center text-xs py-1 text-slate-300">
-                                <span className="flex items-center gap-1.5">
-                                  <i className="fas fa-check-circle text-[9px] text-emerald-400"></i>
-                                  {pkg.name} {pkg.badge_label && <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded border border-emerald-500/30 ml-1">{pkg.badge_label}</span>}
-                                </span>
-                                <span className="font-bold text-emerald-400 whitespace-nowrap ml-2">{pkg.price} TL</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     ) : (
-                      <div className="py-6 text-center">
+                      <div className="py-2 text-center">
+                        {pkgBlock}
                         {s.campaign_price && s.campaign_price > 0 && s.campaign_price < s.price ? (
                           <>
                             <span className="text-slate-400 text-xs uppercase tracking-wider block mb-1">KAMPANYALI BAŞLANGIÇ FİYATI</span>

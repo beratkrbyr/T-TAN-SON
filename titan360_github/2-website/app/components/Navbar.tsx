@@ -117,23 +117,23 @@ export default function Navbar() {
               <img src={logo} alt="TiTAN 360" className="w-12 h-12 rounded-xl shadow-lg object-cover" />
               <div className="flex flex-col">
                 <span className="text-xl font-extrabold text-slate-800 leading-tight tracking-tight">TiTAN <span className="text-sky-600">360</span></span>
-                <span className="text-[10px] text-slate-400 font-medium tracking-widest uppercase hidden sm:block">Profesyonel Temizlik</span>
+                <span className="whitespace-nowrap text-[10px] text-slate-400 font-medium tracking-widest uppercase hidden xl:block">Profesyonel Temizlik</span>
               </div>
             </Link>
             <div className="hidden lg:flex items-center gap-1">
               {links.map((link) => (
-                <Link key={link.href} href={link.href} className={`relative px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${pathname === link.href ? "text-sky-600" : "text-slate-600 hover:text-sky-600"}`}>
+                <Link key={link.href} href={link.href} className={`relative whitespace-nowrap px-2 xl:px-4 py-2 rounded-lg text-[13px] xl:text-sm font-semibold transition-all duration-200 ${pathname === link.href ? "text-sky-600" : "text-slate-600 hover:text-sky-600"}`}>
                   {link.label}
                   {pathname === link.href && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-sky-600 rounded-full"></span>}
                 </Link>
               ))}
             </div>
-            <div className="hidden lg:flex items-center gap-3">
-              <a href={"tel:" + phoneClean} className="flex items-center gap-2 text-sm font-bold text-slate-700 hover:text-sky-600 transition-colors">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-3 flex-shrink-0">
+              <a href={"tel:" + phoneClean} className="whitespace-nowrap flex items-center gap-2 text-xs xl:text-sm font-bold text-slate-700 hover:text-sky-600 transition-colors">
                 <div className="w-9 h-9 bg-sky-50 rounded-lg flex items-center justify-center"><i className="fas fa-phone text-sky-600 text-sm"></i></div>
-                {phone}
+                <span className="hidden xl:inline">{phone}</span>
               </a>
-              <a href={waLink} target="_blank" rel="noopener noreferrer" className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 flex items-center gap-2">
+              <a href={waLink} target="_blank" rel="noopener noreferrer" className="whitespace-nowrap px-3 xl:px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white text-xs xl:text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 flex items-center gap-2">
                 <i className="fab fa-whatsapp"></i> Ücretsiz Teklif
               </a>
             </div>
