@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./components/phoneUtils";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import Navbar from "./components/Navbar";
@@ -336,7 +337,7 @@ export default function HomePage() {
   const phone = c.contact?.phone || "+90 552 363 74 25";
   const phoneClean = phone.replace(/[^0-9+]/g, "");
   const whatsapp = c.contact?.whatsapp || phone;
-  const waNum = (whatsapp || phone).replace(/[^0-9]/g, "");
+  const waNum = toWaNumber(whatsapp || phone);
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20koltuk%20y%C4%B1kama%20hizmeti%20almak%20istiyorum`;
   const whyItems = (c.whyus?.items && Array.isArray(c.whyus.items) && c.whyus.items.length) ? c.whyus.items.filter(Boolean) : defaultWhyUs;
   const testimonials = (c.testimonials && Array.isArray(c.testimonials) && c.testimonials.length) ? c.testimonials.filter(Boolean) : defaultTestimonials;

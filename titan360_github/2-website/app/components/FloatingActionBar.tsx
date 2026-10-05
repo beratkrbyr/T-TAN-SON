@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./phoneUtils";
 import { useEffect, useState, useRef } from "react";
 
 interface SiteContent {
@@ -77,7 +78,7 @@ export default function FloatingActionBar() {
   const phone = c.contact?.phone || "+90 552 363 74 25";
   const phoneClean = phone.replace(/[^0-9+]/g, "");
   const whatsapp = c.contact?.whatsapp || phone;
-  const waNum = whatsapp.replace(/[^0-9]/g, "");
+  const waNum = toWaNumber(whatsapp);
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20koltuk%20y%C4%B1kama%20hizmeti%20almak%20istiyorum`;
   const instagramUser = c.instagram_username || "titan360tr";
   return (

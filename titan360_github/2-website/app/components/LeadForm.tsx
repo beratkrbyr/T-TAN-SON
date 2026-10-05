@@ -41,6 +41,7 @@ const pushEnhancedConversion = (eventName: string, data: any) => {
   const payload: any = { event: eventName };
   if (Object.keys(userData).length > 0) payload.user_data = userData;
   if (data.service) payload.service_type = data.service;
+  if (data.form_source) payload.form_source = data.form_source;
   
   dataLayer.push(payload);
 };
@@ -73,7 +74,7 @@ export default function LeadForm({ onClose }: { onClose?: () => void }) {
 
       if (response.ok) {
         if (!isSubmitted) {
-          pushEnhancedConversion('lead_form_success', { name, phone, service });
+          pushEnhancedConversion('lead_form_success', { name, phone, service, form_source: 'quote_form' });
         }
         setIsSubmitted(true);
       } else {

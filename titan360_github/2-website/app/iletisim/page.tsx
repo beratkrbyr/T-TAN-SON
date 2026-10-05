@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "../components/phoneUtils";
 import { useEffect, useState, useRef } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -56,6 +57,7 @@ const pushEnhancedConversion = (eventName: string, data: any) => {
   const payload: any = { event: eventName };
   if (Object.keys(userData).length > 0) payload.user_data = userData;
   if (data.service) payload.service_type = data.service;
+  if (data.form_source) payload.form_source = data.form_source;
   
   dataLayer.push(payload);
 };
@@ -83,7 +85,7 @@ export default function IletisimPage() {
   const phoneClean = phone.replace(/[^0-9+]/g, "");
   const email = contact.email || "titan360.com.tr@gmail.com";
   const address = contact.address || "Antalya, Türkiye";
-  const waLink = `https://wa.me/${(contact.whatsapp || phone).replace(/[^0-9]/g, "")}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
+  const waLink = `https://wa.me/${toWaNumber(contact.whatsapp || phone)}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,11 +104,12 @@ export default function IletisimPage() {
       });
       if (response.ok) {
         if (!sent) {
-          pushEnhancedConversion('contact_form_success', { 
+          pushEnhancedConversion('lead_form_success', { 
             name: form.name, 
             phone: form.phone, 
             email: form.email, 
-            service: form.service 
+            service: form.service,
+            form_source: 'contact_page'
           });
         }
         setSent(true);

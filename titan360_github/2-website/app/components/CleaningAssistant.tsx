@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./phoneUtils";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
@@ -80,7 +81,7 @@ export default function CleaningAssistant({
   const [sending, setSending] = useState(false);
 
   const phoneNumber = phone || "+905523637425";
-  const phoneClean = phoneNumber.replace(/[^0-9]/g, "");
+  const phoneClean = toWaNumber(phoneNumber);
   const accent = color || "var(--primary-color)";
   const hasGift = giftMinM2 > 0;
 
@@ -191,6 +192,16 @@ export default function CleaningAssistant({
         w.dataLayer = w.dataLayer || [];
         // Kişisel veri içermez; yalnızca asistan akışının tamamlandığını işaretler
         w.dataLayer.push({ event: "assistant_lead_success", service_type: details, package_name: getRecommendedPackage() });
+        // Gerçek müşteri adayı (ad + telefon bırakıldı): standart dönüşüm event'i + Enhanced Conversions verisi
+        const nameParts = leadName.trim().split(/\s+/);
+        const address: any = nameParts.length === 1
+          ? { first_name: nameParts[0] }
+          : { first_name: nameParts.slice(0, -1).join(" "), last_name: nameParts[nameParts.length - 1] };
+        const userData: any = { address };
+        if (digits.startsWith("05") && digits.length === 11) userData.phone_number = "+90" + digits.substring(1);
+        else if (digits.startsWith("5") && digits.length === 10) userData.phone_number = "+90" + digits;
+        else if (digits.startsWith("90") && digits.length === 12) userData.phone_number = "+" + digits;
+        w.dataLayer.push({ event: "lead_form_success", form_source: "assistant", service_type: details, user_data: userData });
       }
     } catch (e) {}
     setSending(false);

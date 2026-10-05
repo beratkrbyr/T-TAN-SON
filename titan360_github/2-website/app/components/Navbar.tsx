@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./phoneUtils";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -80,7 +81,7 @@ export default function Navbar() {
   const phone = contact.phone || "0552 363 74 25";
   const phoneClean = phone.replace(/[^0-9+]/g, "");
   const whatsapp = contact.whatsapp || phone;
-  const waNum = whatsapp.replace(/[^0-9]/g, "");
+  const waNum = toWaNumber(whatsapp);
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
 
   return (

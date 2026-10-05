@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./phoneUtils";
 import { useEffect, useState } from "react";
 import { GiftCampaign, parseGift, formatTL, pushGiftEvent } from "./giftUtils";
 
@@ -43,7 +44,7 @@ export default function GiftCampaignBanner({ placement = "home" }: { placement?:
       .then((data: any) => {
         if (!alive) return;
         setGift(parseGift(data));
-        const wa = (data?.contact?.whatsapp || data?.contact?.phone || "").replace(/[^0-9]/g, "");
+        const wa = toWaNumber(data?.contact?.whatsapp || data?.contact?.phone || "");
         if (wa) setPhone(wa);
       })
       .catch(() => {});

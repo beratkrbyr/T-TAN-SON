@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./phoneUtils";
 import React from 'react';
 
 export interface PricingFeature {
@@ -55,7 +56,7 @@ const defaultPackages: PricingPackage[] = [
 export default function PricingTable({ packages, phone, giftPackageIds = [] }: PricingTableProps) {
   const displayPackages = packages && packages.length > 0 ? packages : defaultPackages;
   const phoneNumber = phone || "+905523637425";
-  const phoneClean = phoneNumber.replace(/[^0-9]/g, "");
+  const phoneClean = toWaNumber(phoneNumber);
 
   const handleWhatsApp = (pkgName: string) => {
     const msg = `Merhaba Titan 360 ekibi, web sitenizden ulaşıyorum. 👋\n\n📌 *${pkgName}* hakkında detaylı bilgi ve fiyat almak istiyorum. Yardımcı olabilir misiniz?`;

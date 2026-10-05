@@ -1,4 +1,5 @@
 "use client";
+import { toWaNumber } from "./phoneUtils";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -22,7 +23,7 @@ export default function Footer({ hideCta = false }: { hideCta?: boolean }) {
   const email = contact.email || "titan360.com.tr@gmail.com";
   const address = contact.address || "ANTALYA";
   const whatsapp = contact.whatsapp || phone;
-  const waNum = whatsapp.replace(/[^0-9]/g, "");
+  const waNum = toWaNumber(whatsapp);
   const waLink = `https://wa.me/${waNum}?text=Merhaba%20temizlik%20hizmeti%20almak%20istiyorum`;
 
   return (
