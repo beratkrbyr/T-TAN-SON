@@ -8,10 +8,15 @@
   --color-sky-600: var(--secondary-hover-color);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Tailwind v4'te katmansiz (unlayered) CSS, katmanli utility siniflarini ezer.
+   Bu reset katmansiz kalinca p-*, m-*, mx-auto gibi bosluk siniflari sifirlaniyordu.
+   @layer base icine alinarak utility siniflari (p-6, mb-4, py-20 ...) tekrar calisir. */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {
