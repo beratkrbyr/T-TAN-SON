@@ -107,7 +107,6 @@ export default function CleaningAssistant({
   const servicesOptions = parseOptions(optionsServices, [
     { id: "standart", label: "Sadece standart temizlik", desc: "Zeminler, toz alma, genel düzen", icon: "fa-broom" },
     { id: "detayli", label: "Standart + Fırın, Camlar", desc: "Daha detaylı ve derinlemesine", icon: "fa-search", },
-    { id: "vip", label: "Her şey dahil VIP", desc: "Evinize değer katan en lüks temizlik", icon: "fa-crown" },
     { id: "koltuk", label: "+ Koltuk-Yatak Yıkama", desc: "Koltuk ve yataklarınız da yıkansın", icon: "fa-couch" }
   ]);
 
@@ -131,14 +130,13 @@ export default function CleaningAssistant({
   const getRecommendedPackage = () => {
     const d = details.toLowerCase();
     let level = 0;
-    if (d.includes("vip") || d.includes("koltuk") || d.includes("yatak")) level = 2;
-    else if (d.includes("detay") || d.includes("fırın") || d.includes("cam")) level = 1;
+    if (d.includes("koltuk") || d.includes("yatak") || d.includes("detay") || d.includes("fırın") || d.includes("cam")) level = 1;
     if (condition.toLowerCase().includes("inşaat") || condition.toLowerCase().includes("tadilat")) level = Math.max(level, 1);
     const biggest = sizeOptions.length > 0 && sizeLabel === sizeOptions[sizeOptions.length - 1].label;
     if (biggest) level = Math.max(level, 1);
 
     if (!packages || packages.length === 0) {
-      return ["Standart Paket", "TİTAN Detaylı Paket", "Ultra VIP Paket"][level];
+      return ["Standart Paket", "TİTAN Detaylı Paket"][level];
     }
     return packages[Math.min(level, packages.length - 1)].name;
   };

@@ -49,20 +49,6 @@ const defaultPackages: PricingPackage[] = [
       { name: "Camların iç/dış silinmesi", included: true },
       { name: "Balkon yıkama", included: true },
     ]
-  },
-  {
-    id: "pkg_3",
-    name: "Ultra VIP Paket",
-    price: "8000 TL'den",
-    badge: "Premium Hizmet",
-    features: [
-      { name: "Premium temizlik maddeleri", included: true },
-      { name: "İnce detaylı dip köşe temizlik", included: true },
-      { name: "Buharlı dezenfeksiyon", included: true },
-      { name: "Fırın içi ve buzdolabı detay", included: true },
-      { name: "Camların iç/dış silinmesi", included: true },
-      { name: "Koltuk veya Yatak Yıkama (1 Adet)", included: true },
-    ]
   }
 ];
 
@@ -86,7 +72,7 @@ export default function PricingTable({ packages, phone, giftPackageIds = [] }: P
           <p className="text-lg text-slate-500">Şeffaf fiyatlandırma, sürpriz maliyetler yok. İhtiyacınıza göre tasarlanmış temizlik paketlerimiz.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto items-start">
+        <div className={`grid grid-cols-1 ${displayPackages.length === 2 ? 'md:grid-cols-2 max-w-4xl' : 'md:grid-cols-3 max-w-6xl'} gap-8 mx-auto items-start`}>
           {displayPackages.map((pkg, idx) => (
             <div 
               key={pkg.id || idx} 

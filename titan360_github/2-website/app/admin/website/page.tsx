@@ -245,17 +245,6 @@ const defaults: WebsiteContent = {
         { name: "Camların iç/dış silinmesi", included: true },
         { name: "Balkon yıkama", included: true }
       ]
-    },
-    {
-      id: "pkg_3", name: "Ultra VIP Paket", price: "8000 TL'den", badge: "Premium Hizmet",
-      features: [
-        { name: "Premium temizlik maddeleri", included: true },
-        { name: "İnce detaylı dip köşe temizlik", included: true },
-        { name: "Buharlı dezenfeksiyon", included: true },
-        { name: "Fırın içi ve buzdolabı detay", included: true },
-        { name: "Camların iç/dış silinmesi", included: true },
-        { name: "Koltuk veya Yatak Yıkama (1 Adet)", included: true }
-      ]
     }
   ],
   assistant_active: true,
@@ -264,7 +253,7 @@ const defaults: WebsiteContent = {
   assistant_welcome_text: "Size özel paketi bulalım mı? 👋",
   assistant_options_condition: "Eşyalı ve Yaşanan Ev, Boş Ev - Yeni Taşınma, İnşaat veya Tadilat Sonrası",
   assistant_options_size: "0-80 m², 80-130 m², 130 m² ve Üzeri",
-  assistant_options_services: "Standart Temizlik, Detaylı Temizlik, VIP Temizlik, Koltuk Yıkama"
+  assistant_options_services: "Standart Temizlik, Detaylı Temizlik, Koltuk Yıkama"
 };
 
 const tabs = [
