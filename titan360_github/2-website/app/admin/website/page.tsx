@@ -129,6 +129,15 @@ interface WebsiteContent {
   assistant_options_condition?: string;
   assistant_options_size?: string;
   assistant_options_services?: string;
+  assistant_subtitle?: string;
+  assistant_color?: string;
+  assistant_position?: string;
+  assistant_size?: string;
+  assistant_lead_capture?: boolean;
+  assistant_q_condition?: string;
+  assistant_q_size?: string;
+  assistant_q_services?: string;
+  assistant_q_location?: string;
 }
 
 const defaults: WebsiteContent = {
@@ -1028,6 +1037,71 @@ export default function WebsiteSettingsPage() {
                     />
                     <p className="text-xs text-gray-500 mt-1">Asistan bu hizmetlerden birini seçen müşteriye en uygun paketi önerecektir. Seçenekleri virgül (,) ile ayırarak yazın.</p>
                   </div>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2">Görünüm</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Alt Başlık (pencere üstündeki küçük yazı)</label>
+                      <input type="text" value={content.assistant_subtitle || ""} placeholder="Size en uygun temizlik paketini bulacağım"
+                        onChange={e => setContent(p => ({ ...p, assistant_subtitle: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Vurgu Rengi (boşsa site rengi)</label>
+                      <div className="flex items-center gap-2">
+                        <input type="color" value={content.assistant_color || "#059669"}
+                          onChange={e => setContent(p => ({ ...p, assistant_color: e.target.value }))}
+                          className="w-12 h-10 border border-gray-300 rounded cursor-pointer" />
+                        <button type="button" onClick={() => setContent(p => ({ ...p, assistant_color: "" }))} className="text-xs text-gray-500 underline">Sıfırla</button>
+                        <span className="text-xs text-gray-500">{content.assistant_color || "site rengi"}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Konum</label>
+                      <select value={content.assistant_position || "left"}
+                        onChange={e => setContent(p => ({ ...p, assistant_position: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="left">Sol alt</option>
+                        <option value="right">Sağ (hızlı butonların üstü)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Buton Boyutu</label>
+                      <select value={content.assistant_size || "medium"}
+                        onChange={e => setContent(p => ({ ...p, assistant_size: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                        <option value="small">Küçük</option>
+                        <option value="medium">Orta</option>
+                        <option value="large">Büyük</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-3 pt-6">
+                      <input type="checkbox" id="assistant_lead_capture" checked={content.assistant_lead_capture !== false}
+                        onChange={e => setContent(p => ({ ...p, assistant_lead_capture: e.target.checked }))}
+                        className="w-4 h-4" />
+                      <label htmlFor="assistant_lead_capture" className="text-sm text-gray-700 cursor-pointer select-none">Ad ve telefon sor (Başvurular'a kaydedilir)</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-800 border-b border-gray-200 pb-2">Soru Metinleri (boşsa varsayılan kullanılır)</h3>
+                  {[
+                    { k: "assistant_q_condition", l: "1. Soru", ph: "Temizlenecek alanın durumu nedir?" },
+                    { k: "assistant_q_size", l: "2. Soru", ph: "Alanın büyüklüğü yaklaşık ne kadar?" },
+                    { k: "assistant_q_services", l: "3. Soru", ph: "Hangi hizmeti almak istiyorsunuz?" },
+                    { k: "assistant_q_location", l: "4. Soru", ph: "Hangi ilçe / bölgede bulunuyorsunuz?" },
+                  ].map(q => (
+                    <div key={q.k}>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{q.l}</label>
+                      <input type="text" value={(content as any)[q.k] || ""} placeholder={q.ph}
+                        onChange={e => setContent((p: any) => ({ ...p, [q.k]: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                    </div>
+                  ))}
+                  <p className="text-xs text-gray-500">Hediye kampanyası aktifse asistan, büyüklük cevabına göre "90 m² ve üzeri mi?" diye sorar ve uygun müşteriye hediyeyi WhatsApp mesajına ekler.</p>
                 </div>
               </div>
             )}

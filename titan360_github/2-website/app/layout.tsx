@@ -5,6 +5,7 @@ import "./globals.css";
 import FloatingActionBar from "./components/FloatingActionBar";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CleaningAssistant from "./components/CleaningAssistant";
+import { parseGift } from "./components/giftUtils";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -114,9 +115,19 @@ export default async function RootLayout({
             name={content?.assistant_name}
             avatar={content?.assistant_avatar}
             welcomeText={content?.assistant_welcome_text}
+            subtitle={content?.assistant_subtitle}
+            color={content?.assistant_color}
+            position={content?.assistant_position}
+            size={content?.assistant_size}
+            leadCapture={content?.assistant_lead_capture !== false}
+            questionCondition={content?.assistant_q_condition}
+            questionSize={content?.assistant_q_size}
+            questionServices={content?.assistant_q_services}
+            questionLocation={content?.assistant_q_location}
             optionsCondition={content?.assistant_options_condition}
             optionsSize={content?.assistant_options_size}
             optionsServices={content?.assistant_options_services}
+            giftMinM2={parseGift(content)?.minM2 || 0}
           />
         )}
         <FloatingActionBar />
