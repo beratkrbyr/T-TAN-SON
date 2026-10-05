@@ -64,7 +64,7 @@ export default function ReferanslarPage() {
       <Navbar />
 
       {/* Header */}
-      <section className="bg-slate-900 py-16 text-white text-center relative">
+      <section className="bg-slate-900 py-8 md:py-10 text-white text-center relative">
         <div className="absolute inset-0 bg-cover bg-center opacity-10" style={{ backgroundImage: `url('https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1000&q=80')` }} />
         <div className="relative page-container z-10">
           <span className="inline-block px-4 py-1.5 bg-emerald-500/20 text-emerald-300 text-xs font-bold rounded-full mb-3 tracking-widest uppercase">Referanslarımız</span>

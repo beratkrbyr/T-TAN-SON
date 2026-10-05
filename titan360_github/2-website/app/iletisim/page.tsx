@@ -123,15 +123,15 @@ export default function IletisimPage() {
       <div className="h-[72px]"></div>
 
       {/* Hero */}
-      <section className="relative py-20 md:py-28 overflow-hidden" data-testid="iletisim-hero">
+      <section className="relative py-10 md:py-14 overflow-hidden" data-testid="iletisim-hero">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(https://images.unsplash.com/photo-1759722665623-c4c1075c0a6b?w=1400&q=80)" }} />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/70 to-slate-900/50" />
         <div className="relative page-container text-center z-10">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full mb-4">
             <i className="fas fa-paper-plane text-emerald-400 text-sm"></i>
             <span className="text-sm font-medium text-emerald-300">Bize Ulaşın</span>
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">İletişim</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">İletişim</h1>
           <p className="text-slate-300 max-w-2xl mx-auto text-lg">Fiyat teklifi, soru veya öneri için bize ulaşın. 1 saat içinde dönelim.</p>
         </div>
       </section>

@@ -412,7 +412,7 @@ export default function HomePage() {
                 <div className="grid lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-7 text-left">
                     <div className={`transition-all duration-700 ease-out delay-200 ${i === activeSlide ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"}`}>
-                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full mb-6">
+                      <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full mb-4">
                         <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                         <span className="text-sm font-medium text-emerald-300">{slide.badge || (i === 0 ? heroBadge : "")}</span>
                       </span>
@@ -760,7 +760,7 @@ export default function HomePage() {
       {/* Testimonials section removed, replaced by ReviewsCarousel above */}
 
       {/* ===== FINAL CTA ===== */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
+      <section className="relative py-10 md:py-14 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-sky-700 via-sky-600 to-emerald-600" />
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>

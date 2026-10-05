@@ -18,6 +18,20 @@ interface PackageComparisonProps {
   giftPackageIds?: string[];
 }
 
+// Özellikleri madde madde temizler: satır sonu, noktalı virgül ve • ile ayrılmış metinleri ayırır
+export const splitFeatures = (features: any): string[] => {
+  if (!Array.isArray(features)) return [];
+  const out: string[] = [];
+  features.forEach(f => {
+    String(f ?? '')
+      .split(/\r?\n|;|•/)
+      .map(s => s.replace(/^[\s\-–*✓✔]+/, '').trim())
+      .filter(Boolean)
+      .forEach(s => { if (!out.includes(s)) out.push(s); });
+  });
+  return out;
+};
+
 // Dinamik ikon eşleştirici
 const getFeatureIcon = (feature: string) => {
   const lower = feature.toLowerCase();
@@ -103,12 +117,15 @@ function PackageCard({ pkg, phoneClean, m2, serviceName, hasGift = false }: { pk
           <i className={`fas fa-chevron-${isOpen ? 'up' : 'down'} transition-transform`}></i>
         </button>
 
-        <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[1000px] opacity-100 mb-6' : 'max-h-0 opacity-0'}`}>
-          <ul className="space-y-3">
-            {Array.isArray(pkg.features) && pkg.features.map((feature, fIdx) => (
-              <li key={fIdx} className="flex items-start gap-3">
-                <i className={`${getFeatureIcon(feature)} mt-1 text-emerald-500 text-sm w-4 text-center`}></i>
-                <span className="text-slate-600 text-sm sm:text-base">{feature}</span>
+        <div className={`overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[1400px] opacity-100 mb-6' : 'max-h-0 opacity-0'}`}>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3">Paket İçeriği</p>
+          <ul className="rounded-2xl border border-slate-100 bg-slate-50/60 divide-y divide-slate-100">
+            {splitFeatures(pkg.features).map((feature, fIdx) => (
+              <li key={fIdx} className="flex items-start gap-3 px-4 py-2.5">
+                <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                  <i className="fas fa-check text-[10px]"></i>
+                </span>
+                <span className="text-slate-700 text-sm leading-snug">{feature}</span>
               </li>
             ))}
           </ul>
@@ -145,11 +162,9 @@ export default function ServicePackages({ packages, phoneClean, serviceName = "T
   // Tüm paketlerdeki benzersiz özellikleri topla (karşılaştırma tablosu satırları)
   const allFeatures: string[] = [];
   packages.forEach(pkg => {
-    if (Array.isArray(pkg.features)) {
-      pkg.features.forEach(f => {
-        if (!allFeatures.includes(f)) allFeatures.push(f);
-      });
-    }
+    splitFeatures(pkg.features).forEach(f => {
+      if (!allFeatures.includes(f)) allFeatures.push(f);
+    });
   });
 
   return (
@@ -227,7 +242,7 @@ export default function ServicePackages({ packages, phoneClean, serviceName = "T
                         </div>
                       </td>
                       {packages.map((pkg) => {
-                        const hasFeature = pkg.features.includes(feature);
+                        const hasFeature = splitFeatures(pkg.features).includes(feature);
                         return (
                           <td
                             key={pkg.id}

@@ -64,18 +64,18 @@ export default function MedyaPage() {
       <div className="h-20"></div>
 
       {/* Hero Header with Background Image (Same as other subpages) */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
+      <section className="relative py-10 md:py-14 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center" 
           style={{ backgroundImage: `url(${c.media_cover_image || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1400&q=80"})` }} 
         />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/70 to-slate-900/50" />
         <div className="relative page-container text-center z-10">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 backdrop-blur-sm border border-sky-400/30 rounded-full mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 backdrop-blur-sm border border-sky-400/30 rounded-full mb-4">
             <i className="fas fa-photo-video text-sky-400 text-sm"></i>
             <span className="text-sm font-medium text-sky-300">Galerimiz</span>
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">Medya</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">Medya</h1>
           <p className="text-slate-300 max-w-2xl mx-auto text-lg text-center">
             İşlerimizden ve temizlik süreçlerimizden fotoğraf ve videolar.
           </p>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import GiftCampaignBanner from "../components/GiftCampaignBanner";
+import { splitFeatures } from "../components/ServicePackages";
 
 interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string; extras?: { id?: string; name: string; price: number; campaign_price?: number }[] }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
@@ -180,15 +181,15 @@ export default function HizmetlerPage() {
       <div className="h-[72px]"></div>
 
       {/* Hero */}
-      <section className="relative py-20 md:py-28 overflow-hidden" data-testid="hizmetler-hero">
+      <section className="relative py-10 md:py-14 overflow-hidden" data-testid="hizmetler-hero">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(https://images.unsplash.com/photo-1686178827149-6d55c72d81df?w=1400&amp;q=80)" }} />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/70 to-slate-900/50" />
         <div className="relative page-container text-center z-10">
-          <span className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 backdrop-blur-sm border border-sky-400/30 rounded-full mb-6">
+          <span className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/20 backdrop-blur-sm border border-sky-400/30 rounded-full mb-4">
             <i className="fas fa-sparkles text-sky-400 text-sm"></i>
             <span className="text-sm font-medium text-sky-300">Profesyonel Çözümler</span>
           </span>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">Hizmetlerimiz</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3">Hizmetlerimiz</h1>
           <p className="text-slate-300 max-w-2xl mx-auto text-lg">İhtiyacınıza uygun profesyonel temizlik çözümleri. Modern ekipmanlar, uzman kadro.</p>
         </div>
       </section>
@@ -204,16 +205,25 @@ export default function HizmetlerPage() {
               if (!s) return null;
               const svcPackages: any[] = Array.isArray((s as any).packages) ? (s as any).packages : [];
               const pkgBlock = svcPackages.length > 0 ? (
-                <div className="mb-3 pb-2 border-b border-white/10 space-y-1.5 text-left">
-                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider mb-1">HİZMET PAKETLERİ</p>
+                <div className="mb-3 pb-2 border-b border-white/10 space-y-3 text-left">
+                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">HİZMET PAKETLERİ</p>
                   {svcPackages.map((pkg: any, idx: number) => (
-                    <div key={`pkg-${idx}`} className="flex justify-between items-center text-xs py-1 text-slate-200">
-                      <span className="flex items-center gap-1.5">
-                        <i className="fas fa-check-circle text-[9px] text-emerald-400"></i>
-                        {pkg.name}
-                        {pkg.badge_label && <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded border border-emerald-500/30 ml-1">{pkg.badge_label}</span>}
-                      </span>
-                      <span className="font-bold text-emerald-400 whitespace-nowrap ml-2">{Number(pkg.price).toLocaleString("tr-TR")} TL</span>
+                    <div key={`pkg-${idx}`} className="rounded-lg bg-white/5 px-3 py-2">
+                      <div className="flex justify-between items-center text-xs text-slate-100 font-semibold">
+                        <span className="flex items-center gap-1.5">
+                          {pkg.name}
+                          {pkg.badge_label && <span className="text-[8px] bg-emerald-500/20 text-emerald-300 px-1 py-0.5 rounded border border-emerald-500/30 ml-1">{pkg.badge_label}</span>}
+                        </span>
+                        <span className="font-bold text-emerald-400 whitespace-nowrap ml-2">{Number(pkg.price).toLocaleString("tr-TR")} TL</span>
+                      </div>
+                      <ul className="mt-1.5 space-y-1">
+                        {splitFeatures(pkg.features).map((f, fi) => (
+                          <li key={fi} className="flex items-start gap-1.5 text-[11px] text-slate-300 leading-snug">
+                            <i className="fas fa-check text-[8px] text-emerald-400 mt-1"></i>
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   ))}
                 </div>

@@ -258,7 +258,7 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
           <div className="grid lg:grid-cols-12 gap-12 items-center">
             {/* Left Metin */}
             <div className="lg:col-span-7">
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full mb-6">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 backdrop-blur-sm border border-emerald-400/30 rounded-full mb-4">
                 <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                 <span className="text-sm font-medium text-emerald-300">Google Ads Özel Teklifi</span>
               </span>
