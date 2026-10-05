@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import GiftCampaignBanner from "../components/GiftCampaignBanner";
 import { splitFeatures } from "../components/ServicePackages";
+import { toBullets } from "../components/textUtils";
 
 interface ServiceItem { id: string; name: string; description: string; price: number; campaign_price?: number; image?: string; options?: { name: string; price: number; campaign_price?: number }[]; slug?: string; extras?: { id?: string; name: string; price: number; campaign_price?: number }[] }
 const iconMap: Record<string, string> = { "Ev Temizliği": "fa-home", "Ofis Temizliği": "fa-building", "Cam Temizliği": "fa-window-maximize", "Koltuk Yıkama": "fa-couch", "Halı Yıkama": "fa-rug", "İnşaat Sonrası": "fa-hard-hat", "Perde": "fa-curtain", "Yatak Yıkama": "fa-bed" };
@@ -277,7 +278,18 @@ export default function HizmetlerPage() {
                       </div>
                     </div>
                     <div className="p-6">
-                      <p className="text-sm text-slate-500 mb-4 leading-relaxed">{s.description}</p>
+                      {toBullets(s.description).length > 1 ? (
+                        <ul className="mb-3 space-y-1.5">
+                          {toBullets(s.description).map((item, bi) => (
+                            <li key={bi} className="flex items-start gap-2 text-[13px] text-slate-600 leading-snug">
+                              <i className="fas fa-check text-[9px] text-emerald-500 mt-1"></i>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-slate-500 mb-4 leading-relaxed">{s.description}</p>
+                      )}
                     </div>
                   </div>
                   

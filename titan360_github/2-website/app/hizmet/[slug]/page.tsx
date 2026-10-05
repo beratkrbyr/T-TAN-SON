@@ -8,6 +8,7 @@ import MobileStickyBar from "../../components/MobileStickyBar";
 import ServicePackages from "../../components/ServicePackages";
 import GiftCampaignBanner from "../../components/GiftCampaignBanner";
 import { parseGift } from "../../components/giftUtils";
+import { toBullets } from "../../components/textUtils";
 
 interface ServiceOption {
   id: string;
@@ -265,9 +266,22 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight mb-6">
                 {service.name}
               </h1>
-              <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-xl leading-relaxed">
-                {service.description}
-              </p>
+              {toBullets(service.description).length > 1 ? (
+                <ul className="mb-6 max-w-xl space-y-2.5">
+                  {toBullets(service.description).map((item, i) => (
+                    <li key={i} className="flex items-start gap-3 text-base sm:text-lg text-slate-200 leading-snug">
+                      <span className="mt-1 flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <i className="fas fa-check text-[10px]"></i>
+                      </span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-xl leading-relaxed">
+                  {service.description}
+                </p>
+              )}
               
               {/* Güven Madde Noktaları */}
               <div className="grid sm:grid-cols-2 gap-4 mb-8">
