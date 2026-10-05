@@ -94,6 +94,18 @@ interface WebsiteContent {
   home_campaign_title?: string;
   home_campaign_subtitle?: string;
 
+  // Hediye kampanyası
+  gift_active?: boolean;
+  gift_title?: string;
+  gift_value?: number;
+  gift_description?: string;
+  gift_terms?: string;
+  gift_end_date?: string;
+  gift_min_m2?: number;
+  gift_package_ids?: string[];
+  gift_topbar_text?: string;
+  gift_cta_text?: string;
+
   // Google Reviews
   google_reviews_active?: boolean;
   google_reviews_count?: number;
@@ -251,6 +263,7 @@ const tabs = [
   { id: "pricing_table", label: "Ana Sayfa Fiyat Tablosu", icon: "fas fa-table" },
   { id: "assistant", label: "Asistan Ayarları", icon: "fas fa-robot" },
   { id: "banner", label: "Kampanya Bannerı", icon: "fas fa-bullhorn" },
+  { id: "gift_campaign", label: "Hediye Kampanyası", icon: "fas fa-gift" },
   { id: "media", label: "Medya Sayfası", icon: "fas fa-photo-video" },
   { id: "hero_slides", label: "Kahraman Slider", icon: "fas fa-images" },
   { id: "before_after_albums", label: "Önce/Sonra Albümleri", icon: "fas fa-columns" },
@@ -276,6 +289,16 @@ export default function WebsiteSettingsPage() {
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const [uploadingMusic, setUploadingMusic] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [giftServices, setGiftServices] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (activeTab !== "gift_campaign") return;
+    const token = localStorage.getItem("admin_token");
+    fetch(`${API_URL}/admin/services`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => (r.ok ? r.json() : []))
+      .then(d => setGiftServices(Array.isArray(d) ? d : []))
+      .catch(() => {});
+  }, [activeTab]);
 
   const handleImageUpload = async (file: File, index: number) => {
     setUploadingIdx(index);
@@ -1135,6 +1158,113 @@ export default function WebsiteSettingsPage() {
                       </div>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* HEDİYE KAMPANYASI */}
+            {activeTab === "gift_campaign" && (
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">Hediye Kampanyası</h2>
+                  <p className="text-sm text-gray-500">Ana sayfa, hizmetler sayfası, hizmet detay sayfaları ve sabit üst barda görünür. Kaydet'e bastıktan sonra siteye yansır.</p>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <input type="checkbox" id="gift_active" checked={content.gift_active === true}
+                    onChange={e => setContent(p => ({ ...p, gift_active: e.target.checked }))}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded" />
+                  <label htmlFor="gift_active" className="text-sm font-semibold text-gray-800 cursor-pointer select-none">Hediye kampanyasını yayında göster</label>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Hediye Başlığı</label>
+                    <input type="text" value={content.gift_title || ""} placeholder="Koltuk Takımı Yıkama HEDİYE"
+                      onChange={e => setContent(p => ({ ...p, gift_title: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Hediye Değeri (₺)</label>
+                    <input type="number" value={content.gift_value ?? ""} placeholder="3000"
+                      onChange={e => setContent(p => ({ ...p, gift_value: e.target.value === "" ? undefined : Number(e.target.value) }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Minimum Metrekare (m²)</label>
+                    <input type="number" value={content.gift_min_m2 ?? ""} placeholder="90"
+                      onChange={e => setContent(p => ({ ...p, gift_min_m2: e.target.value === "" ? undefined : Number(e.target.value) }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Bitiş Tarihi (geri sayım için, boş = süresiz)</label>
+                    <input type="date" value={content.gift_end_date || ""}
+                      onChange={e => setContent(p => ({ ...p, gift_end_date: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Açıklama</label>
+                    <textarea rows={2} value={content.gift_description || ""}
+                      onChange={e => setContent(p => ({ ...p, gift_description: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Kampanya Şartları (banner altında küçük yazı)</label>
+                    <textarea rows={3} value={content.gift_terms || ""}
+                      onChange={e => setContent(p => ({ ...p, gift_terms: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Üst Bar Metni</label>
+                    <input type="text" value={content.gift_topbar_text || ""}
+                      onChange={e => setContent(p => ({ ...p, gift_topbar_text: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">Buton Metni</label>
+                    <input type="text" value={content.gift_cta_text || ""} placeholder="Hediyemi Al"
+                      onChange={e => setContent(p => ({ ...p, gift_cta_text: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-800 mb-2">Kampanyaya Dahil Paketler</h3>
+                  <p className="text-xs text-gray-500 mb-3">İşaretlediğiniz paketlerin kartında "Koltuk Takımı Yıkama HEDİYE" etiketi görünür.</p>
+                  {(() => {
+                    const selected: string[] = Array.isArray(content.gift_package_ids) ? content.gift_package_ids : [];
+                    const toggle = (id: string) => setContent(p => {
+                      const cur: string[] = Array.isArray(p.gift_package_ids) ? p.gift_package_ids : [];
+                      return { ...p, gift_package_ids: cur.includes(id) ? cur.filter(x => x !== id) : [...cur, id] };
+                    });
+                    const groups: { label: string; items: { id: string; name: string }[] }[] = [];
+                    if (Array.isArray(content.pricing_table_packages) && content.pricing_table_packages.length > 0) {
+                      groups.push({ label: "Ana Sayfa Fiyat Tablosu", items: content.pricing_table_packages.map((p: any) => ({ id: p.id, name: p.name })) });
+                    }
+                    giftServices.forEach((s: any) => {
+                      if (Array.isArray(s.packages) && s.packages.length > 0) {
+                        groups.push({ label: s.name, items: s.packages.map((p: any) => ({ id: p.id, name: p.name })) });
+                      }
+                    });
+                    if (groups.length === 0) return <p className="text-sm text-gray-400">Henüz paket bulunamadı.</p>;
+                    return (
+                      <div className="space-y-4">
+                        {groups.map((g, gi) => (
+                          <div key={gi} className="border border-gray-200 rounded-lg p-3">
+                            <p className="text-xs font-bold text-gray-600 mb-2">{g.label}</p>
+                            <div className="flex flex-wrap gap-3">
+                              {g.items.map(it => (
+                                <label key={it.id} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                  <input type="checkbox" checked={selected.includes(it.id)} onChange={() => toggle(it.id)} className="w-4 h-4" />
+                                  {it.name}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             )}

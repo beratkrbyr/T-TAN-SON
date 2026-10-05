@@ -6,6 +6,8 @@ import LeadForm from "../../components/LeadForm";
 import BeforeAfterSlider from "../../components/BeforeAfterSlider";
 import MobileStickyBar from "../../components/MobileStickyBar";
 import ServicePackages from "../../components/ServicePackages";
+import GiftCampaignBanner from "../../components/GiftCampaignBanner";
+import { parseGift } from "../../components/giftUtils";
 
 interface ServiceOption {
   id: string;
@@ -305,12 +307,16 @@ export default async function ServiceLandingPage({ params }: { params: Promise<{
         </div>
       </section>
 
+      {/* Hediye Kampanyası */}
+      <GiftCampaignBanner placement="service" />
+
       {/* 3'lü Paket Tasarımı */}
       {Array.isArray(service.packages) && service.packages.length > 0 && (
         <ServicePackages 
           packages={service.packages} 
           phoneClean={phoneClean} 
           serviceName={service.name}
+          giftPackageIds={parseGift(settings)?.packageIds || []}
         />
       )}
 

@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { GiftCampaign, parseGift, pushGiftEvent } from "./giftUtils";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,11 +19,28 @@ export default function Navbar() {
   const [bannerBgColor, setBannerBgColor] = useState("#059669");
   const [bannerTextColor, setBannerTextColor] = useState("#ffffff");
 
+  // Hediye kampanyası üst barı
+  const [gift, setGift] = useState<GiftCampaign | null>(null);
+  const [giftDismissed, setGiftDismissed] = useState(false);
+  const giftBarVisible = !!gift && !giftDismissed;
+
+  useEffect(() => {
+    try { if (sessionStorage.getItem("gift_topbar_closed") === "1") setGiftDismissed(true); } catch (e) {}
+  }, []);
+
+  // Sabit header yükseldiği için içerik, bar yüksekliği (36px) kadar aşağı itilir
+  useEffect(() => {
+    document.body.style.paddingTop = giftBarVisible ? "36px" : "";
+    return () => { document.body.style.paddingTop = ""; };
+  }, [giftBarVisible]);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
 
     const applyData = (data: any) => {
+      setGift(parseGift(data));
+
       if (data.logo_url) setLogo(data.logo_url);
       if (data.social) setSocial(data.social);
       if (data.contact) setContact(data.contact);
@@ -67,6 +85,30 @@ export default function Navbar() {
 
   return (
     <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 99999 }} className="w-full">
+      {/* Hediye Kampanyası Üst Barı */}
+      {giftBarVisible && gift && (
+        <div className="h-9 bg-gradient-to-r from-sky-700 to-emerald-600 text-white flex items-center justify-center px-10 relative" data-testid="gift-topbar">
+          <a
+            href={waLink.split("?")[0] + "?text=" + encodeURIComponent(`Merhaba, ${gift.minM2} m2 ve üzeri ev temizliği + hediye koltuk takımı yıkama kampanyası hakkında bilgi almak istiyorum. - titan360.com.tr`)}
+            target="_blank"
+            rel="noopener noreferrer"
+            id="gtm-gift-topbar"
+            data-gtm-event="campaign_topbar_click"
+            onClick={() => pushGiftEvent("campaign_topbar_click", { placement: "topbar", gift_value: gift.value })}
+            className="text-[11px] sm:text-xs md:text-sm font-semibold text-center truncate hover:underline"
+          >
+            {gift.topbarText}
+          </a>
+          <button
+            aria-label="Kapat"
+            onClick={() => { setGiftDismissed(true); try { sessionStorage.setItem("gift_topbar_closed", "1"); } catch (e) {} }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/80 hover:text-white text-xs"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
+      )}
+
       {/* Main Navbar */}
       <nav className={`transition-all duration-300 ${scrolled ? "bg-white shadow-xl" : "bg-white/95 backdrop-blur-md shadow-sm"}`} data-testid="main-navbar">
         <div className="page-container">

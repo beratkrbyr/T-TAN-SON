@@ -9,6 +9,8 @@ import MobileStickyBar from "./components/MobileStickyBar";
 import InstagramFeed from "./components/InstagramFeed";
 import ReviewsCarousel from "./components/ReviewsCarousel";
 import PricingTable from "./components/PricingTable";
+import GiftCampaignBanner from "./components/GiftCampaignBanner";
+import { parseGift } from "./components/giftUtils";
 
 interface HeroSlide {
   image: string;
@@ -522,7 +524,7 @@ export default function HomePage() {
       </section>
 
       {/* Dönüşüm Odaklı 3'lü Hizmet Tablosu (Pricing Table) */}
-      <PricingTable packages={c.pricing_table_packages} phone={c.contact?.whatsapp || c.contact?.phone} />
+      <PricingTable packages={c.pricing_table_packages} phone={c.contact?.whatsapp || c.contact?.phone} giftPackageIds={parseGift(c)?.packageIds || []} />
 
       {/* Dynamic Campaign Banner Section */}
       {c.home_campaign_active !== false && campaignServices.length > 0 && (
@@ -638,6 +640,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ===== HEDİYE KAMPANYASI ===== */}
+      <GiftCampaignBanner placement="home" />
 
       {/* ===== SERVICES ===== */}
       <section className="py-20 md:py-28 bg-slate-50/50" data-testid="services-section">

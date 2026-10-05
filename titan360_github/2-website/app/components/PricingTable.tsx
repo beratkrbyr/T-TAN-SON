@@ -18,6 +18,7 @@ export interface PricingPackage {
 interface PricingTableProps {
   packages?: PricingPackage[];
   phone?: string;
+  giftPackageIds?: string[];
 }
 
 const defaultPackages: PricingPackage[] = [
@@ -65,7 +66,7 @@ const defaultPackages: PricingPackage[] = [
   }
 ];
 
-export default function PricingTable({ packages, phone }: PricingTableProps) {
+export default function PricingTable({ packages, phone, giftPackageIds = [] }: PricingTableProps) {
   const displayPackages = packages && packages.length > 0 ? packages : defaultPackages;
   const phoneNumber = phone || "+905523637425";
   const phoneClean = phoneNumber.replace(/[^0-9]/g, "");
@@ -111,6 +112,11 @@ export default function PricingTable({ packages, phone }: PricingTableProps) {
                   <span className="text-4xl font-black text-slate-800">{pkg.price}</span>
                 </div>
                 <p className="text-slate-500 text-sm">Hemen randevu oluşturun</p>
+                {giftPackageIds.includes(pkg.id) && (
+                  <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200">
+                    <i className="fas fa-gift"></i> Koltuk Takımı Yıkama HEDİYE
+                  </div>
+                )}
               </div>
 
               <div className="p-8 pt-6 flex-1 flex flex-col">

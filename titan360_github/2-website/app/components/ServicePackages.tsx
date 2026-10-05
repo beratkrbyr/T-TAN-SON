@@ -15,6 +15,7 @@ interface PackageComparisonProps {
   packages: CleaningPackage[];
   phoneClean: string;
   serviceName?: string;
+  giftPackageIds?: string[];
 }
 
 // Dinamik ikon eşleştirici
@@ -35,7 +36,7 @@ const getFeatureIcon = (feature: string) => {
   return 'fas fa-check-circle';
 };
 
-function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackage; phoneClean: string; m2: string; serviceName: string }) {
+function PackageCard({ pkg, phoneClean, m2, serviceName, hasGift = false }: { pkg: CleaningPackage; phoneClean: string; m2: string; serviceName: string; hasGift?: boolean }) {
   const [isOpen, setIsOpen] = useState(false);
   const isPopular = pkg.is_popular;
   const badgeText = pkg.badge_label || (isPopular ? "En Çok Tercih Edilen" : "");
@@ -82,6 +83,11 @@ function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackag
           <span className="text-slate-500 font-medium mt-2">TL</span>
         </div>
         <p className="text-sm text-slate-400">Sabit Fiyat Garantisi</p>
+        {hasGift && (
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200">
+            <i className="fas fa-gift"></i> Koltuk Takımı Yıkama HEDİYE
+          </div>
+        )}
       </div>
 
       <div className="p-6 sm:p-8 flex-1 flex flex-col">
@@ -131,7 +137,7 @@ function PackageCard({ pkg, phoneClean, m2, serviceName }: { pkg: CleaningPackag
   );
 }
 
-export default function ServicePackages({ packages, phoneClean, serviceName = "Temizlik" }: PackageComparisonProps) {
+export default function ServicePackages({ packages, phoneClean, serviceName = "Temizlik", giftPackageIds = [] }: PackageComparisonProps) {
   const [m2, setM2] = useState('');
 
   if (!packages || packages.length === 0) return null;
@@ -298,6 +304,7 @@ export default function ServicePackages({ packages, phoneClean, serviceName = "T
               phoneClean={phoneClean}
               m2={m2}
               serviceName={serviceName}
+              hasGift={giftPackageIds.includes(pkg.id)}
             />
           ))}
         </div>
